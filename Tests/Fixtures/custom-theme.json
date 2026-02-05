@@ -1,0 +1,100 @@
+{
+  "light": {
+    "background": "#ffffff",
+    "foreground": "#0f172a",
+    "card": "#ffffff",
+    "cardForeground": "#0f172a",
+    "sheet": "#ffffff",
+    "sheetForeground": "#0f172a",
+    "primary": "#2563eb",
+    "primaryForeground": "#ffffff",
+    "secondary": "#f1f5f9",
+    "secondaryForeground": "#0f172a",
+    "muted": "#f1f5f9",
+    "mutedForeground": "#64748b",
+    "accent": "#f1f5f9",
+    "accentForeground": "#0f172a",
+    "destructive": "#dc2626",
+    "destructiveForeground": "#ffffff",
+    "border": "#e2e8f0",
+    "input": "#e2e8f0",
+    "focus": "#2563eb",
+    "warning": "#f59e0b",
+    "warningForeground": "#ffffff",
+    "success": "#22c55e",
+    "successForeground": "#ffffff",
+    "chart1": "#2563eb",
+    "chart2": "#16a34a",
+    "chart3": "#ea580c",
+    "chart4": "#8b5cf6",
+    "chart5": "#ec4899"
+  },
+  "dark": {
+    "background": "#0f172a",
+    "foreground": "#f8fafc",
+    "card": "#1e293b",
+    "cardForeground": "#f8fafc",
+    "sheet": "#1e293b",
+    "sheetForeground": "#f8fafc",
+    "primary": "#3b82f6",
+    "primaryForeground": "#ffffff",
+    "secondary": "#334155",
+    "secondaryForeground": "#f8fafc",
+    "muted": "#334155",
+    "mutedForeground": "#94a3b8",
+    "accent": "#334155",
+    "accentForeground": "#f8fafc",
+    "destructive": "#b91c1c",
+    "destructiveForeground": "#ffffff",
+    "border": "#334155",
+    "input": "#334155",
+    "focus": "#3b82f6",
+    "warning": "#fbbf24",
+    "warningForeground": "#0f172a",
+    "success": "#4ade80",
+    "successForeground": "#0f172a",
+    "chart1": "#3b82f6",
+    "chart2": "#22c55e",
+    "chart3": "#f97316",
+    "chart4": "#a78bfa",
+    "chart5": "#f472b6"
+  },
+  "radius": {
+    "none": 0,
+    "sm": 4,
+    "md": 8,
+    "lg": 12,
+    "xl": 16,
+    "full": 9999
+  },
+  "spacing": {
+    "none": 0,
+    "xxs": 2,
+    "xs": 4,
+    "sm": 8,
+    "md": 16,
+    "lg": 24,
+    "xl": 32,
+    "xxl": 48
+  },
+  "shadows": {
+    "sm": { "radius": 2, "y": 1, "opacity": 0.05 },
+    "md": { "radius": 4, "y": 2, "opacity": 0.1 },
+    "lg": { "radius": 8, "y": 4, "opacity": 0.15 }
+  },
+  "motion": {
+    "durationFast": 0.1,
+    "durationNormal": 0.2,
+    "durationSlow": 0.3
+  },
+  "borderWidth": {
+    "none": 0,
+    "regular": 1,
+    "thick": 2
+  },
+  "opacity": {
+    "disabled": 0.5,
+    "muted": 0.7,
+    "full": 1.0
+  }
+}
