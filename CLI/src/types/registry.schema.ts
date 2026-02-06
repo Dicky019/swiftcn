@@ -41,3 +41,6 @@ export const registrySchema = z.object({
 
 export type Component = z.infer<typeof componentSchema>;
 export type Registry = z.infer<typeof registrySchema>;
+
+// Extended type with id
+export type ComponentWithId = Component & { id: string };

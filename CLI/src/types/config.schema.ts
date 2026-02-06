@@ -9,5 +9,3 @@ export const projectConfigSchema = z.object({
 });
 
 export type ProjectConfig = z.infer<typeof projectConfigSchema>;
-
-export const CONFIG_FILE_NAME = "swiftcn.json";
