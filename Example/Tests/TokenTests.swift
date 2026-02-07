@@ -6,6 +6,7 @@
 //
 
 import Testing
+@testable import Example
 
 @Suite("Design Token Tests")
 struct TokenTests {

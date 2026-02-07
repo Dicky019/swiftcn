@@ -190,7 +190,7 @@ xcodebuild -workspace Example/Example.xcworkspace -scheme Example build
 ./scripts/test-cli.sh                # CLI tests only
 
 # Test with custom simulator
-./scripts/test-example.sh "platform=iOS Simulator,name=iPhone 16 Pro"
+./scripts/test-example.sh "platform=iOS Simulator,name=iPhone 17 Pro"
 
 # Sync Sources/ → Example/App/ after editing templates
 ./scripts/sync-source.sh

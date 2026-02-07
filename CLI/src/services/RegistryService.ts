@@ -7,6 +7,7 @@ import {
   type Component,
   type ComponentWithId,
 } from "../types/registry.schema.js";
+import { REGISTRY_URL } from "../utils/constants.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,8 +28,17 @@ export class RegistryServiceImpl implements RegistryService {
   async load(): Promise<Registry> {
     if (this.cache) return this.cache;
 
-    const registryPath = path.resolve(__dirname, "../../registry.json");
-    this.cache = await this.file.readJson(registryPath, registrySchema);
+    // Try remote first, fallback to local
+    try {
+      const response = await fetch(REGISTRY_URL, { signal: AbortSignal.timeout(5000) });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const json = await response.json();
+      this.cache = registrySchema.parse(json);
+    } catch {
+      const registryPath = path.resolve(__dirname, "../../registry.json");
+      this.cache = await this.file.readJson(registryPath, registrySchema);
+    }
+
     return this.cache;
   }
 

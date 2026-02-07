@@ -14,7 +14,7 @@ struct SDUIInputWrapper: View {
     let isError: Bool
     let errorMessage: String?
     let inputId: String?
-    weak var actionHandler: SDUIActionHandler?
+    var actionHandler: SDUIActionHandler?
 
     @State private var text = ""
 

@@ -14,7 +14,8 @@ let project = Project(
         base: [
             "SWIFT_VERSION": "6.0",
             "SWIFT_STRICT_CONCURRENCY": "complete",
-            "IPHONEOS_DEPLOYMENT_TARGET": "17.0"
+            "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
+            "DEVELOPMENT_TEAM": "6LKBYRNM9Y"
         ],
         configurations: [
             .debug(name: "Debug"),
@@ -67,7 +68,9 @@ let project = Project(
             buildableFolders: [
                 "Tests/"    // Test files
             ],
-            dependencies: []
+            dependencies: [
+                .target(name: "Example")
+            ]
         )
     ],
     schemes: [

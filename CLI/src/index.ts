@@ -6,8 +6,7 @@ import { createInitCommand } from "./commands/init.js";
 import { createAddCommand } from "./commands/add.js";
 import { createListCommand } from "./commands/list.js";
 import { ui } from "./utils/ui.js";
-
-const VERSION = "1.0.0";
+import { VERSION } from "./utils/constants.js";
 
 const container = createContainer();
 
@@ -50,9 +49,10 @@ function printHelp() {
 
   ui.section("Examples");
   ui.break();
-  ui.command("swiftcn init             ", "Initialize swiftcn in your project");
+  ui.command("swiftcn init             ", "Initialize with theme (default)");
+  ui.command("swiftcn init --sdui      ", "Initialize with SDUI support");
   ui.command("swiftcn add button       ", "Add a single component");
-  ui.command("swiftcn add button --sdui", "Add component with SDUI extension");
+  ui.command("swiftcn add button -f    ", "Overwrite existing files");
   ui.command("swiftcn list --verbose   ", "List all components with details");
   ui.break();
 

@@ -10,7 +10,7 @@ import SwiftUI
 /// Renders an array of SDUI nodes
 public struct SDUIRenderer: View {
     private let nodes: [SDUINode]
-    private weak var actionHandler: SDUIActionHandler?
+    private var actionHandler: SDUIActionHandler?
 
     public init(nodes: [SDUINode], actionHandler: SDUIActionHandler? = nil) {
         self.nodes = nodes

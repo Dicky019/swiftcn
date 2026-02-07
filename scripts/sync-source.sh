@@ -26,11 +26,19 @@ if [[ "${1:-}" == "--dry-run" ]]; then
     DRY_RUN="--dry-run"
 fi
 
-rsync -a --checksum --delete --itemize-changes $DRY_RUN "$SRC" "$DEST"
+SUBDIRS=("Components" "Theme" "SDUI")
+
+for dir in "${SUBDIRS[@]}"; do
+    if [ -d "$SRC/$dir" ]; then
+        rsync -a --checksum --delete --itemize-changes $DRY_RUN "$SRC/$dir/" "$DEST/$dir/"
+    else
+        echo "Warning: $SRC/$dir not found, skipping"
+    fi
+done
 
 if [ -n "$DRY_RUN" ]; then
     echo ""
     echo "(dry run — no changes made)"
 else
-    echo "Synced Sources/ → Example/App/"
+    echo "Synced Sources/{Components,Theme,SDUI} → Example/App/"
 fi

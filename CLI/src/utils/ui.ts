@@ -1,6 +1,5 @@
 import pc from "picocolors";
-
-const VERSION = "1.0.0";
+import { VERSION } from "./constants.js";
 
 // RGB color helper for true color terminals
 const rgb = (r: number, g: number, b: number) => (text: string) =>

@@ -14,7 +14,7 @@ struct SDUISliderWrapper: View {
     let range: ClosedRange<Double>
     let step: Double?
     let sliderId: String?
-    weak var actionHandler: SDUIActionHandler?
+    var actionHandler: SDUIActionHandler?
 
     @State private var value: Double
 

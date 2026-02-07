@@ -11,7 +11,6 @@ export function createInitCommand(container: Container): Command {
     .name("init")
     .description("Initialize swiftcn in your project")
     .option("-p, --path <path>", "Path to components directory", "Components")
-    .option("--theme", "Include theme provider")
     .option("--theme-path <path>", "Path to theme directory", "Theme")
     .option("--sdui", "Include SDUI infrastructure")
     .option("--sdui-path <path>", "Path to SDUI directory", "SDUI")
@@ -37,7 +36,6 @@ export function createInitCommand(container: Container): Command {
 
       // Step 2: Gather configuration (CLI flags or interactive prompts)
       let componentsPath = options.path;
-      let withTheme = options.theme ?? false;
       let themePath = options.themePath;
       let withSdui = options.sdui ?? false;
       let sduiPath = options.sduiPath;
@@ -54,22 +52,14 @@ export function createInitCommand(container: Container): Command {
                 },
               }),
 
-            withTheme: () =>
-              p.confirm({
-                message: "Include theme provider?",
-                initialValue: true,
+            themePath: () =>
+              p.text({
+                message: "Where would you like to store theme files?",
+                initialValue: themePath,
+                validate: (value) => {
+                  if (!value) return "Path is required";
+                },
               }),
-
-            themePath: ({ results }) =>
-              results.withTheme
-                ? p.text({
-                    message: "Where would you like to store theme files?",
-                    initialValue: themePath,
-                    validate: (value) => {
-                      if (!value) return "Path is required";
-                    },
-                  })
-                : Promise.resolve(themePath),
 
             withSdui: () =>
               p.confirm({
@@ -97,8 +87,7 @@ export function createInitCommand(container: Container): Command {
         );
 
         componentsPath = answers.componentsPath as string;
-        withTheme = answers.withTheme as boolean;
-        themePath = (answers.themePath as string | undefined) ?? themePath;
+        themePath = answers.themePath as string;
         withSdui = answers.withSdui as boolean;
         sduiPath = (answers.sduiPath as string | undefined) ?? sduiPath;
       }
@@ -112,23 +101,21 @@ export function createInitCommand(container: Container): Command {
         const fullComponentsPath = path.join(cwd, componentsPath);
         await container.file.ensureDir(fullComponentsPath);
 
-        if (withTheme) {
-          const fullThemePath = path.join(cwd, themePath);
-          await container.file.ensureDir(fullThemePath);
+        const fullThemePath = path.join(cwd, themePath);
+        await container.file.ensureDir(fullThemePath);
 
-          ui.step("Installing theme files...");
-          ui.break();
+        ui.step("Installing theme files...");
+        ui.break();
 
-          const themeResult = await container.fetcher.fetchTheme(fullThemePath, {
-            force: true,
-          });
+        const themeResult = await container.fetcher.fetchTheme(fullThemePath, {
+          force: true,
+        });
 
-          for (const file of themeResult.added) {
-            ui.fileAdded(path.relative(cwd, file));
-          }
-
-          ui.break();
+        for (const file of themeResult.added) {
+          ui.fileAdded(path.relative(cwd, file));
         }
+
+        ui.break();
 
         if (withSdui) {
           const fullSduiPath = path.join(cwd, sduiPath);
@@ -151,7 +138,7 @@ export function createInitCommand(container: Container): Command {
         // Step 4: Write config file
         const config: ProjectConfig = {
           componentsPath,
-          themePath: withTheme ? themePath : undefined,
+          themePath,
           sduiPath: withSdui ? sduiPath : undefined,
           prefix: "CN",
         };

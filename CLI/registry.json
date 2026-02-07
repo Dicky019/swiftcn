@@ -1,20 +1,21 @@
 {
   "$schema": "https://swiftcn.dev/schema.json",
   "name": "swiftcn",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "shadcn/ui inspired SwiftUI component library",
   "license": "MIT",
   "author": "swiftcn",
   "repository": "https://github.com/Dicky019/swiftcn",
-
   "config": {
     "componentsPath": "Components",
     "themePath": "Theme",
     "sduiPath": "SDUI",
-    "platforms": ["iOS 17.0", "macOS 14.0"],
+    "platforms": [
+      "iOS 17.0",
+      "macOS 14.0"
+    ],
     "prefix": "CN"
   },
-
   "theme": {
     "core": [
       "Theme/Core/Theme.swift",
@@ -30,7 +31,6 @@
       "Theme/Provider/ResolvedTheme.swift"
     ]
   },
-
   "components": {
     "button": {
       "name": "CNButton",
@@ -41,10 +41,26 @@
       "sdui_files": [
         "Components/CNButton+SDUI.swift"
       ],
-      "variants": ["default", "destructive", "outline", "secondary", "ghost", "link"],
-      "sizes": ["sm", "md", "lg"],
+      "variants": [
+        "default",
+        "destructive",
+        "outline",
+        "secondary",
+        "ghost",
+        "link"
+      ],
+      "sizes": [
+        "sm",
+        "md",
+        "lg"
+      ],
       "sduiType": "button",
-      "sduiProps": ["label", "variant", "size", "actionId"]
+      "sduiProps": [
+        "label",
+        "variant",
+        "size",
+        "actionId"
+      ]
     },
     "card": {
       "name": "CNCard",
@@ -55,9 +71,15 @@
       "sdui_files": [
         "Components/CNCard+SDUI.swift"
       ],
-      "variants": ["elevated", "outlined", "filled"],
+      "variants": [
+        "elevated",
+        "outlined",
+        "filled"
+      ],
       "sduiType": "card",
-      "sduiProps": ["variant"]
+      "sduiProps": [
+        "variant"
+      ]
     },
     "input": {
       "name": "CNInput",
@@ -69,7 +91,13 @@
         "Components/CNInput+SDUI.swift"
       ],
       "sduiType": "input",
-      "sduiProps": ["placeholder", "label", "isError", "errorMessage", "inputId"]
+      "sduiProps": [
+        "placeholder",
+        "label",
+        "isError",
+        "errorMessage",
+        "inputId"
+      ]
     },
     "switch": {
       "name": "CNSwitch",
@@ -81,7 +109,11 @@
         "Components/CNSwitch+SDUI.swift"
       ],
       "sduiType": "switch",
-      "sduiProps": ["label", "isOn", "switchId"]
+      "sduiProps": [
+        "label",
+        "isOn",
+        "switchId"
+      ]
     },
     "badge": {
       "name": "CNBadge",
@@ -92,9 +124,17 @@
       "sdui_files": [
         "Components/CNBadge+SDUI.swift"
       ],
-      "variants": ["default", "secondary", "destructive", "outline"],
+      "variants": [
+        "default",
+        "secondary",
+        "destructive",
+        "outline"
+      ],
       "sduiType": "badge",
-      "sduiProps": ["label", "variant"]
+      "sduiProps": [
+        "label",
+        "variant"
+      ]
     },
     "slider": {
       "name": "CNSlider",
@@ -106,10 +146,16 @@
         "Components/CNSlider+SDUI.swift"
       ],
       "sduiType": "slider",
-      "sduiProps": ["label", "value", "min", "max", "step", "sliderId"]
+      "sduiProps": [
+        "label",
+        "value",
+        "min",
+        "max",
+        "step",
+        "sliderId"
+      ]
     }
   },
-
   "sdui": {
     "core": [
       "SDUI/Core/AnyCodable.swift",

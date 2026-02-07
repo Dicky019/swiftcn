@@ -7,6 +7,7 @@
 
 import Testing
 import SwiftUI
+@testable import Example
 
 @Suite("Component Tests")
 struct ComponentTests {

@@ -14,7 +14,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 WORKSPACE="$PROJECT_ROOT/Example/Example.xcworkspace"
 SCHEME="Example"
-DESTINATION="${1:-platform=iOS Simulator,name=iPhone 16}"
+DESTINATION="${1:-platform=iOS Simulator,name=iPhone 17 Pro}"
 
 if [ ! -d "$WORKSPACE" ]; then
     echo "Error: Workspace not found at $WORKSPACE"

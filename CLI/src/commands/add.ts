@@ -10,8 +10,7 @@ export function createAddCommand(container: Container): Command {
     .description("Add a component to your project")
     .argument("<component>", "The component to add (e.g., button, card, input)")
     .option("-f, --force", "Overwrite existing files")
-    .option("--sdui", "Also copy SDUI extension file")
-    .option("--theme", "Also copy required theme files")
+    .option("--no-sdui", "Skip SDUI extension file")
     .action(async (componentName: string, rawOptions) => {
       const options = AddOptionsSchema.parse(rawOptions);
       const cwd = process.cwd();
@@ -57,7 +56,7 @@ export function createAddCommand(container: Container): Command {
         const destDir = path.join(cwd, config.componentsPath);
         const filesToFetch = [...component.files];
 
-        if (options.sdui && component.sdui_files) {
+        if (config.sduiPath && component.sdui_files && options.sdui !== false) {
           filesToFetch.push(...component.sdui_files);
         }
 
@@ -75,29 +74,7 @@ export function createAddCommand(container: Container): Command {
           ui.fileExists(path.relative(cwd, file));
         }
 
-        let totalFiles = result.added.length;
-
-        // Step 4: Fetch theme files (optional)
-        if (options.theme && config.themePath) {
-          ui.break();
-          ui.step("Installing theme...");
-          ui.break();
-
-          const themeDir = path.join(cwd, config.themePath);
-          const themeResult = await container.fetcher.fetchTheme(themeDir, {
-            force: options.force,
-          });
-
-          for (const file of themeResult.added) {
-            ui.fileAdded(path.relative(cwd, file));
-          }
-
-          for (const file of themeResult.skipped) {
-            ui.fileExists(path.relative(cwd, file));
-          }
-
-          totalFiles += themeResult.added.length;
-        }
+        const totalFiles = result.added.length;
 
         if (result.skipped.length > 0 && result.added.length === 0) {
           ui.break();
@@ -119,10 +96,10 @@ export function createAddCommand(container: Container): Command {
           ui.labeledList("Sizes", component.sizes);
         }
 
-        if (component.sduiType && !options.sdui) {
+        if (component.sduiType && !config.sduiPath) {
           ui.break();
           ui.hint(
-            `Use ${ui.accent("--sdui")} to include SDUI Configuration struct.`
+            `Run ${ui.accent("swiftcn init --sdui")} to enable SDUI support.`
           );
         }
 

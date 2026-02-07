@@ -1,6 +1,6 @@
 {
   "name": "swiftcn",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CLI for swiftcn - shadcn/ui inspired SwiftUI components",
   "type": "module",
   "bin": {
@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "prepublishOnly": "npm run build"
+    "update": "node scripts/update.js"
   },
   "keywords": [
     "swiftui",

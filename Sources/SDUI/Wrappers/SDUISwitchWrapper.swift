@@ -12,7 +12,7 @@ struct SDUISwitchWrapper: View {
     let label: String
     let initialValue: Bool
     let switchId: String?
-    weak var actionHandler: SDUIActionHandler?
+    var actionHandler: SDUIActionHandler?
 
     @State private var isOn: Bool
 

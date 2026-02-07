@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { RegistryServiceImpl } from "../../services/RegistryService.js";
 import type { FileService } from "../../services/FileService.js";
 import type { Registry } from "../../types/registry.schema.js";
@@ -59,24 +59,69 @@ function createMockFileService(): FileService {
 describe("RegistryServiceImpl", () => {
   let service: RegistryServiceImpl;
   let mockFile: FileService;
+  const originalFetch = globalThis.fetch;
 
   beforeEach(() => {
     mockFile = createMockFileService();
     service = new RegistryServiceImpl(mockFile);
   });
 
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
+
   describe("load", () => {
-    it("loads and caches registry", async () => {
+    it("fetches registry from remote", async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockRegistry),
+      });
+
       const registry = await service.load();
       expect(registry.name).toBe("swiftcn");
+      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+      expect(mockFile.readJson).not.toHaveBeenCalled();
+    });
 
-      // Second call should use cache
-      await service.load();
+    it("falls back to local when remote fails", async () => {
+      globalThis.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
+
+      const registry = await service.load();
+      expect(registry.name).toBe("swiftcn");
       expect(mockFile.readJson).toHaveBeenCalledTimes(1);
+    });
+
+    it("falls back to local on non-ok response", async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404,
+      });
+
+      const registry = await service.load();
+      expect(registry.name).toBe("swiftcn");
+      expect(mockFile.readJson).toHaveBeenCalledTimes(1);
+    });
+
+    it("caches after first load", async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockRegistry),
+      });
+
+      await service.load();
+      await service.load();
+      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("getComponent", () => {
+    beforeEach(() => {
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockRegistry),
+      });
+    });
+
     it("returns component by name", async () => {
       const component = await service.getComponent("button");
       expect(component?.name).toBe("CNButton");
@@ -94,6 +139,13 @@ describe("RegistryServiceImpl", () => {
   });
 
   describe("listComponents", () => {
+    beforeEach(() => {
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockRegistry),
+      });
+    });
+
     it("returns all components with ids", async () => {
       const components = await service.listComponents();
       expect(components).toHaveLength(2);
@@ -103,6 +155,13 @@ describe("RegistryServiceImpl", () => {
   });
 
   describe("getThemeFiles", () => {
+    beforeEach(() => {
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockRegistry),
+      });
+    });
+
     it("returns all theme file paths", async () => {
       const files = await service.getThemeFiles();
       expect(files).toContain("Theme/Core/Theme.swift");
@@ -112,6 +171,13 @@ describe("RegistryServiceImpl", () => {
   });
 
   describe("getSduiFiles", () => {
+    beforeEach(() => {
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockRegistry),
+      });
+    });
+
     it("returns core and wrapper files", async () => {
       const files = await service.getSduiFiles();
       expect(files).toContain("SDUI/Core/SDUINode.swift");
