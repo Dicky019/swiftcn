@@ -1,6 +1,6 @@
 {
   "name": "swiftcn",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI for swiftcn - shadcn/ui inspired SwiftUI components",
   "type": "module",
   "bin": {

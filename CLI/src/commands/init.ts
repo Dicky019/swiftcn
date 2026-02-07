@@ -10,11 +10,11 @@ export function createInitCommand(container: Container): Command {
   return new Command()
     .name("init")
     .description("Initialize swiftcn in your project")
-    .option("-p, --path <path>", "Path to components directory", "Sources/Components")
+    .option("-p, --path <path>", "Path to components directory", "Components")
     .option("--theme", "Include theme provider")
-    .option("--theme-path <path>", "Path to theme directory", "Sources/Theme")
+    .option("--theme-path <path>", "Path to theme directory", "Theme")
     .option("--sdui", "Include SDUI infrastructure")
-    .option("--sdui-path <path>", "Path to SDUI directory", "Sources/SDUI")
+    .option("--sdui-path <path>", "Path to SDUI directory", "SDUI")
     .option("-y, --yes", "Skip prompts and use defaults")
     .action(async (rawOptions) => {
       const options = InitOptionsSchema.parse(rawOptions);

@@ -16,7 +16,7 @@ npx swiftcn@latest init
 
 # Add components
 npx swiftcn@latest add button
-npx swiftcn@latest add button --sdui --theme
+npx swiftcn@latest add button --sdui
 
 # List available components
 npx swiftcn@latest list
@@ -55,6 +55,18 @@ swiftcn add button
 - Xcode 16+ (Swift 6)
 - iOS 17+
 - macOS 14+ (Sonoma)
+
+## Development
+
+The `Example/` directory is a self-contained iOS app that demonstrates all components. It has its own `Project.swift` and source files synced from `Sources/` into `App/` — just like a real user project after running `npx swiftcn add`.
+
+See [Example/README.md](Example/README.md) for setup instructions.
+
+After editing template files in `Sources/`, sync them to the Example app:
+
+```bash
+./scripts/sync-source.sh
+```
 
 ## Contributing
 

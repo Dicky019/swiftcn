@@ -1,6 +1,6 @@
 # swiftcn
 
-A shadcn/ui inspired SwiftUI component library. **Not a framework** — Source/ contains template files that the CLI copies into user projects.
+A shadcn/ui inspired SwiftUI component library. **Not a framework** — Sources/ contains template files that the CLI copies into user projects.
 
 ## Philosophy
 
@@ -30,7 +30,7 @@ All components use the `CN` prefix to avoid conflicts with native SwiftUI types:
 
 ```
 swiftcn/
-├── Source/                          # Template files (copied by CLI, not a framework)
+├── Sources/                          # Canonical templates (CLI serves from here, NOT compiled)
 │   ├── Components/                  # UI Components (copy-paste ready)
 │   │   ├── CNButton.swift           # Pure UI component
 │   │   ├── CNButton+SDUI.swift      # SDUI Configuration (optional)
@@ -69,29 +69,74 @@ swiftcn/
 │           ├── SDUIInputWrapper.swift
 │           ├── SDUISwitchWrapper.swift
 │           └── SDUISliderWrapper.swift
+├── Example/                         # Self-contained demo app (has its own Project.swift)
+│   ├── Project.swift                # Tuist manifest (run `tuist generate` from here)
+│   ├── swiftcn.json                 # CLI config (component install paths)
+│   ├── App/                         # All compiled code (app + synced sources)
+│   │   ├── App.swift                # @main entry point
+│   │   ├── Components/              # CN components (synced) + app helpers (InfoRow)
+│   │   ├── Theme/                   # ← synced from Sources/Theme/
+│   │   ├── SDUI/                    # ← synced from Sources/SDUI/
+│   │   ├── Features/
+│   │   │   ├── Components/          # Component gallery & showcases
+│   │   │   │   ├── Models/
+│   │   │   │   ├── Views/
+│   │   │   │   └── Components/      # ComponentCard + Showcases/
+│   │   │   ├── SDUI/                # SDUI playground
+│   │   │   │   ├── Models/
+│   │   │   │   └── Views/
+│   │   │   └── Settings/            # Theme & preferences
+│   │   │       ├── Components/
+│   │   │       ├── ViewModels/
+│   │   │       └── Views/
+│   │   └── Navigation/
+│   │       ├── AppRoute.swift
+│   │       ├── AppRouter.swift
+│   │       ├── ComponentRoute.swift
+│   │       └── MainTabView.swift
+│   └── Tests/                       # Unit tests
+│       ├── ThemeTests.swift
+│       ├── ComponentTests.swift
+│       ├── TokenTests.swift
+│       └── Fixtures/
+│           └── custom-theme.json
+├── scripts/
+│   ├── sync-source.sh               # Syncs Sources/ → Example/App/
+│   ├── test-example.sh              # Runs Example unit tests (xcodebuild)
+│   ├── test-cli.sh                  # Runs CLI unit tests (Vitest)
+│   └── test-all.sh                  # Runs all tests (CLI + Example)
 ├── CLI/                             # CLI tool (Node.js + TypeScript)
 │   ├── src/
 │   │   ├── index.ts                 # CLI entry point
+│   │   ├── container.ts             # DI container
 │   │   ├── commands/
 │   │   │   ├── init.ts              # Initialize project
 │   │   │   ├── add.ts               # Add component
 │   │   │   └── list.ts              # List components
-│   │   ├── config/
-│   │   │   ├── types.ts             # Project config types
-│   │   │   └── loader.ts            # Config loader
-│   │   ├── registry/
-│   │   │   ├── types.ts             # Registry types
-│   │   │   └── loader.ts            # Registry loader
-│   │   └── utils/
-│   │       ├── ui.ts                # Terminal UI utilities
-│   │       └── fetcher.ts           # File fetcher
+│   │   ├── services/                # Core business logic
+│   │   │   ├── index.ts             # Re-exports
+│   │   │   ├── GitService.ts        # Git clone & cleanup
+│   │   │   ├── FileService.ts       # File ops (copy, readJson, writeJson)
+│   │   │   ├── RegistryService.ts   # Registry loading & component lookup
+│   │   │   ├── ConfigService.ts     # swiftcn.json read/write
+│   │   │   └── FetcherService.ts    # Shared fetch logic
+│   │   ├── types/                   # Centralized Zod schemas
+│   │   │   ├── index.ts
+│   │   │   ├── config.schema.ts
+│   │   │   ├── registry.schema.ts
+│   │   │   └── options.schema.ts
+│   │   ├── utils/
+│   │   │   ├── ui.ts                # Terminal UI (@clack/prompts)
+│   │   │   ├── paths.ts             # Path sanitization
+│   │   │   ├── errors.ts            # SwiftCNError + ErrorCode enum
+│   │   │   └── constants.ts         # ALLOWED_REPO_URLS, SOURCE_PATH
+│   │   └── __tests__/               # Unit tests (Vitest)
+│   │       ├── services/            # 5 service test files
+│   │       └── utils/               # paths, errors tests
 │   ├── registry.json                # Component manifest
 │   ├── package.json
-│   └── tsconfig.json
-├── Example/                         # Example iOS app
-├── Tests/                           # Unit tests
-├── docs/
-│   └── plans/
+│   ├── tsconfig.json
+│   └── vitest.config.ts
 ├── LICENSE                          # MIT License
 ├── SECURITY.md                      # Security policy
 ├── CONTRIBUTING.md                  # Contribution guidelines
@@ -128,19 +173,28 @@ extension CNButton {
 
 ## Architecture
 
-Source/ is **not** built as a framework. Instead, Example/ and Tests/ include Source/ directly via Tuist's `buildableFolders`. This mirrors how users will use the components — copied directly into their project, no import needed.
+Sources/ is the **canonical template directory** — the CLI serves files from here, but it is never compiled directly. Example/ is fully self-contained with its own `Project.swift`: source files are synced into `Example/App/` (via `scripts/sync-source.sh`), living alongside the app code — just like a real user project after running `npx swiftcn add`. Tuist's `buildableFolders` compiles `App/` for the Example target (paths relative to `Example/`). No imports needed — types resolve within the same compilation unit.
 
 ## Commands
 
 ```bash
-# Generate Xcode project
-tuist generate
+# Generate Xcode project (run from Example/)
+cd Example && tuist generate
 
-# Build (via xcodebuild)
-xcodebuild -workspace Swiftcn.xcworkspace -scheme Example build
+# Build (via xcodebuild, from project root)
+xcodebuild -workspace Example/Example.xcworkspace -scheme Example build
 
-# Test
-xcodebuild -workspace Swiftcn.xcworkspace -scheme Example test
+# Test (via scripts)
+./scripts/test-all.sh               # Run all tests (CLI + Example)
+./scripts/test-example.sh            # Example tests only
+./scripts/test-cli.sh                # CLI tests only
+
+# Test with custom simulator
+./scripts/test-example.sh "platform=iOS Simulator,name=iPhone 16 Pro"
+
+# Sync Sources/ → Example/App/ after editing templates
+./scripts/sync-source.sh
+./scripts/sync-source.sh --dry-run  # Preview changes
 
 # Run CLI (Node.js)
 cd CLI && npm run build
@@ -177,6 +231,20 @@ All Swift files must use this header format:
 //  Created by Dicky Darmawan on <dd/mm/yy>.
 //
 ```
+
+## Gotchas
+
+- **Tuist `buildableFolders` paths are relative to `Project.swift` location**, not repo root
+- **No root Project.swift or Workspace.swift** — run `tuist generate` from `Example/`
+- **After editing Sources/, always run `./scripts/sync-source.sh`** — Example/App/ has copies, not symlinks
+- **`rsync --delete` in sync script** — only syncs Components/, Theme/, SDUI/ subdirs into App/
+- **CLI `SOURCE_PATH`** in `CLI/src/utils/constants.ts` points to root `Sources/` — keep in sync if renamed
+
+## Subdirectory READMEs
+
+- `Example/README.md` — Setup, build, test instructions for the demo app
+- `CLI/README.md` — Install, commands, development, architecture
+- `Sources/README.md` — Template file overview and editing workflow
 
 ## Tech Stack
 

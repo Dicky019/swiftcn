@@ -22,7 +22,7 @@ export class FileServiceImpl implements FileService {
     try {
       // Check if source exists
       if (!await this.exists(source)) {
-        return { status: 'error', path: dest, error: 'Source file not found' };
+        return { status: 'error', path: dest, error: 'Sources file not found' };
       }
 
       // Check if destination exists

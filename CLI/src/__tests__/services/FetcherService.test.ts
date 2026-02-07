@@ -77,7 +77,7 @@ describe("FetcherServiceImpl", () => {
       );
 
       expect(mockFile.copy).toHaveBeenCalledWith(
-        "/tmp/swiftcn-123/Source/Components/CNButton.swift",
+        "/tmp/swiftcn-123/Sources/Components/CNButton.swift",
         "/dest/CNButton.swift",
         { force: undefined }
       );
@@ -122,7 +122,7 @@ describe("FetcherServiceImpl", () => {
 
       // Check Theme/ prefix is stripped
       expect(mockFile.copy).toHaveBeenCalledWith(
-        "/tmp/swiftcn-123/Source/Theme/Core/Theme.swift",
+        "/tmp/swiftcn-123/Sources/Theme/Core/Theme.swift",
         "/dest/theme/Core/Theme.swift",
         { force: undefined }
       );
@@ -137,7 +137,7 @@ describe("FetcherServiceImpl", () => {
       expect(mockFile.copy).toHaveBeenCalledTimes(2);
 
       expect(mockFile.copy).toHaveBeenCalledWith(
-        "/tmp/swiftcn-123/Source/SDUI/Core/SDUINode.swift",
+        "/tmp/swiftcn-123/Sources/SDUI/Core/SDUINode.swift",
         "/dest/sdui/Core/SDUINode.swift",
         { force: undefined }
       );

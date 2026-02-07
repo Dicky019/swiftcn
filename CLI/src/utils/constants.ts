@@ -16,9 +16,9 @@ export const ALLOWED_REPO_URLS = [
  * Files can only be copied from these subdirectories
  */
 export const ALLOWED_SOURCE_PATHS = [
-  'Source/Components',
-  'Source/Theme',
-  'Source/SDUI'
+  'Sources/Components',
+  'Sources/Theme',
+  'Sources/SDUI'
 ] as const
 
 /**
@@ -29,7 +29,7 @@ export const CONFIG_FILE_NAME = 'swiftcn.json'
 /**
  * Base source directory name
  */
-export const SOURCE_PATH = 'Source'
+export const SOURCE_PATH = 'Sources'
 
 /**
  * Maximum allowed length for component names

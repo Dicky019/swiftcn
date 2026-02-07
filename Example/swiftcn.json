@@ -1,0 +1,6 @@
+{
+  "componentsPath": "App/Components",
+  "themePath": "App/Theme",
+  "sduiPath": "App/SDUI",
+  "prefix": "CN"
+}
