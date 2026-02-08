@@ -10,13 +10,26 @@ import SwiftUI
 @main
 struct ExampleApp: App {
   @State private var themeProvider = ThemeProvider()
-  
+
   var body: some Scene {
     WindowGroup {
-      MainTabView()
+      ContentWrapper()
         .environment(themeProvider)
-        .environment(\.theme, themeProvider.resolvedTheme)
-        .preferredColorScheme(themeProvider.resolvedColorScheme)
     }
+  }
+}
+
+/// Wrapper view that tracks system color scheme and provides theme environment
+private struct ContentWrapper: View {
+  @Environment(ThemeProvider.self) private var themeProvider
+  @Environment(\.colorScheme) private var systemColorScheme
+
+  var body: some View {
+    MainTabView()
+      .environment(\.theme, themeProvider.resolvedTheme)
+      .preferredColorScheme(themeProvider.resolvedColorScheme)
+      .onChange(of: systemColorScheme, initial: true) { _, newScheme in
+        themeProvider.updateSystemColorScheme(newScheme)
+      }
   }
 }

@@ -31,26 +31,27 @@ struct ThemeModeRow: View {
   }
   
   var body: some View {
-    Button(action: action) {
-      HStack(spacing: theme.spacing.md) {
-        Image(systemName: iconName)
-          .font(.title2)
-          .foregroundStyle(isSelected ? theme.primary : theme.mutedForeground)
-          .frame(width: 32)
-        
-        Text(displayName)
-          .font(.body)
-          .foregroundStyle(theme.foreground)
-        
-        Spacer()
-        
-        if isSelected {
-          Image(systemName: "checkmark")
-            .foregroundStyle(theme.primary)
-        }
+    HStack(spacing: theme.spacing.md) {
+      Image(systemName: iconName)
+        .font(.title2)
+        .foregroundStyle(isSelected ? theme.primary : theme.mutedForeground)
+        .frame(width: 32)
+
+      Text(displayName)
+        .font(.body)
+        .foregroundStyle(theme.foreground)
+
+      Spacer()
+
+      if isSelected {
+        Image(systemName: "checkmark")
+          .foregroundStyle(theme.primary)
       }
-      .padding(.vertical, theme.spacing.xs)
     }
-    .buttonStyle(.plain)
+    .padding(.vertical, theme.spacing.xs)
+    .contentShape(Rectangle())
+    .onTapGesture {
+      action()
+    }
   }
 }

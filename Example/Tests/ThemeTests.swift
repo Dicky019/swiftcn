@@ -234,4 +234,53 @@ struct ThemeTests {
     let color = Color(hex: "00FF00")
     #expect(color != Color.clear)
   }
+
+  // MARK: - ThemeProvider Color Scheme Tracking
+
+  @Test("ThemeProvider updates system color scheme")
+  @MainActor
+  func themeProviderUpdatesSystemColorScheme() {
+    let provider = ThemeProvider()
+    provider.colorSchemePreference = .system
+
+    // Initially light
+    #expect(provider.effectiveColorScheme == .light)
+
+    // Update to dark
+    provider.updateSystemColorScheme(.dark)
+    #expect(provider.effectiveColorScheme == .dark)
+
+    // Update back to light
+    provider.updateSystemColorScheme(.light)
+    #expect(provider.effectiveColorScheme == .light)
+  }
+
+  @Test("ThemeProvider ignores system scheme when preference is explicit")
+  @MainActor
+  func themeProviderIgnoresSystemSchemeWhenExplicit() {
+    let provider = ThemeProvider()
+    provider.colorSchemePreference = .dark
+
+    // Should stay dark even when system is light
+    provider.updateSystemColorScheme(.light)
+    #expect(provider.effectiveColorScheme == .dark)
+
+    provider.colorSchemePreference = .light
+    provider.updateSystemColorScheme(.dark)
+    #expect(provider.effectiveColorScheme == .light)
+  }
+
+  @Test("ThemeProvider resolvedColorScheme returns nil for system preference")
+  @MainActor
+  func themeProviderResolvedColorSchemeNilForSystem() {
+    let provider = ThemeProvider()
+    provider.colorSchemePreference = .system
+    #expect(provider.resolvedColorScheme == nil)
+
+    provider.colorSchemePreference = .light
+    #expect(provider.resolvedColorScheme == .light)
+
+    provider.colorSchemePreference = .dark
+    #expect(provider.resolvedColorScheme == .dark)
+  }
 }
