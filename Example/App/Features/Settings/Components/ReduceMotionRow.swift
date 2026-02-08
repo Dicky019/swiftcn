@@ -10,13 +10,13 @@ import SwiftUI
 struct ReduceMotionRow: View {
   @Environment(\.theme) private var theme
   @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
-
+  
   @AppStorage("reduceMotion") private var appReduceMotion: Bool = false
-
+  
   private var effectiveReduceMotion: Bool {
     appReduceMotion || systemReduceMotion
   }
-
+  
   var body: some View {
     Toggle(isOn: $appReduceMotion) {
       HStack(spacing: theme.spacing.md) {
@@ -24,12 +24,12 @@ struct ReduceMotionRow: View {
           .font(.title2)
           .foregroundStyle(effectiveReduceMotion ? theme.primary : theme.mutedForeground)
           .frame(width: 32)
-
+        
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
           Text("Reduce Motion")
             .font(.body)
             .foregroundStyle(theme.foreground)
-
+          
           if systemReduceMotion {
             Text("System enabled - Always on")
               .font(.caption)

@@ -1,5 +1,9 @@
-// BadgeShowcase.swift
-// swiftcn Example App
+//
+//  BadgeShowcase.swift
+//  Example
+//
+//  Created by Dicky Darmawan on 03/02/26.
+//
 
 import SwiftUI
 

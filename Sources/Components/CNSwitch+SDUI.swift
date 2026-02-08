@@ -10,17 +10,17 @@ import SwiftUI
 // MARK: - SDUI Configuration
 
 extension CNSwitch {
-    /// Configuration for SDUI rendering
-    public struct Configuration: Codable, Sendable, Hashable {
-        public let label: String
-        public let switchId: String?
+  /// Configuration for SDUI rendering
+  public struct Configuration: Codable, Sendable, Hashable {
+    public let label: String
+    public let switchId: String?
 
-        public init(
-            label: String,
-            switchId: String? = nil
-        ) {
-            self.label = label
-            self.switchId = switchId
-        }
+    public init(
+      label: String,
+      switchId: String? = nil
+    ) {
+      self.label = label
+      self.switchId = switchId
     }
+  }
 }

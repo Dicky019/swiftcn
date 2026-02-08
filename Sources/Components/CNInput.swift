@@ -19,95 +19,95 @@ import SwiftUI
 /// ```
 public struct CNInput: View {
 
-    // MARK: - Properties
+  // MARK: - Properties
 
-    private let placeholder: String
-    @Binding private var text: String
-    private let label: String?
-    private let isError: Bool
-    private let errorMessage: String?
+  private let placeholder: String
+  @Binding private var text: String
+  private let label: String?
+  private let isError: Bool
+  private let errorMessage: String?
 
-    @FocusState private var isFocused: Bool
-    @Environment(\.isEnabled) private var isEnabled
-    @Environment(\.theme) private var theme
+  @FocusState private var isFocused: Bool
+  @Environment(\.isEnabled) private var isEnabled
+  @Environment(\.theme) private var theme
 
-    // MARK: - Initializers
+  // MARK: - Initializers
 
-    public init(
-        _ placeholder: String,
-        text: Binding<String>,
-        label: String? = nil,
-        isError: Bool = false,
-        errorMessage: String? = nil
-    ) {
-        self.placeholder = placeholder
-        self._text = text
-        self.label = label
-        self.isError = isError
-        self.errorMessage = errorMessage
-    }
+  public init(
+    _ placeholder: String,
+    text: Binding<String>,
+    label: String? = nil,
+    isError: Bool = false,
+    errorMessage: String? = nil
+  ) {
+    self.placeholder = placeholder
+    self._text = text
+    self.label = label
+    self.isError = isError
+    self.errorMessage = errorMessage
+  }
 
-    // MARK: - Body
+  // MARK: - Body
 
-    public var body: some View {
-        VStack(alignment: .leading, spacing: theme.spacing.xs) {
-            if let label {
-                Text(label)
-                    .font(.footnote)
-                    .fontWeight(.medium)
-                    .foregroundStyle(labelColor)
-            }
+  public var body: some View {
+    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+      if let label {
+        Text(label)
+          .font(.footnote)
+          .fontWeight(.medium)
+          .foregroundStyle(labelColor)
+      }
 
-            TextField(placeholder, text: $text)
-                .font(.body)
-                .padding(.horizontal, theme.spacing.md)
-                .padding(.vertical, theme.spacing.sm)
-                .background(theme.input, in: shape)
-                .overlay {
-                    shape.stroke(borderColor, lineWidth: isFocused ? 2 : theme.borderWidth.regular)
-                }
-                .focused($isFocused)
-
-            if let errorMessage, isError {
-                Text(errorMessage)
-                    .font(.caption)
-                    .foregroundStyle(theme.destructive)
-            }
+      TextField(placeholder, text: $text)
+        .font(.body)
+        .padding(.horizontal, theme.spacing.md)
+        .padding(.vertical, theme.spacing.sm)
+        .background(theme.input, in: shape)
+        .overlay {
+          shape.stroke(borderColor, lineWidth: isFocused ? 2 : theme.borderWidth.regular)
         }
-        .opacity(isEnabled ? 1.0 : theme.opacity.disabled)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(label ?? placeholder)
-        .accessibilityValue(text)
-    }
+        .focused($isFocused)
 
-    // MARK: - Computed Properties
-
-    private var shape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: theme.radius.md)
+      if let errorMessage, isError {
+        Text(errorMessage)
+          .font(.caption)
+          .foregroundStyle(theme.destructive)
+      }
     }
+    .opacity(isEnabled ? 1.0 : theme.opacity.disabled)
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel(label ?? placeholder)
+    .accessibilityValue(text)
+  }
 
-    private var labelColor: Color {
-        isError ? theme.destructive : theme.mutedForeground
-    }
+  // MARK: - Computed Properties
 
-    private var borderColor: Color {
-        if isError {
-            return theme.destructive
-        } else if isFocused {
-            return theme.focus
-        } else {
-            return theme.border
-        }
+  private var shape: RoundedRectangle {
+    RoundedRectangle(cornerRadius: theme.radius.md)
+  }
+
+  private var labelColor: Color {
+    isError ? theme.destructive : theme.mutedForeground
+  }
+
+  private var borderColor: Color {
+    if isError {
+      return theme.destructive
+    } else if isFocused {
+      return theme.focus
+    } else {
+      return theme.border
     }
+  }
 }
 
 // MARK: - Previews
 
 #Preview("CNInput States") {
-    VStack(spacing: 20) {
-        CNInput("Enter name", text: .constant(""), label: "Name")
-        CNInput("Enter email", text: .constant("john@example.com"), label: "Email")
-        CNInput("Enter password", text: .constant(""), label: "Password", isError: true, errorMessage: "Password is required")
-    }
-    .padding()
+  VStack(spacing: 20) {
+    CNInput("Enter name", text: .constant(""), label: "Name")
+    CNInput("Enter email", text: .constant("john@example.com"), label: "Email")
+    CNInput("Enter password", text: .constant(""), label: "Password", isError: true, errorMessage: "Password is required")
+  }
+  .padding()
 }

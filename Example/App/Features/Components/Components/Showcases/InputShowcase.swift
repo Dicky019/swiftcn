@@ -1,5 +1,9 @@
-// InputShowcase.swift
-// swiftcn Example App
+//
+//  InputShowcase.swift
+//  Example
+//
+//  Created by Dicky Darmawan on 03/02/26.
+//
 
 import SwiftUI
 

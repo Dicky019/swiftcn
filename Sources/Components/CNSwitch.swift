@@ -17,44 +17,44 @@ import SwiftUI
 /// ```
 public struct CNSwitch: View {
 
-    // MARK: - Properties
+  // MARK: - Properties
 
-    private let label: String
-    @Binding private var isOn: Bool
+  private let label: String
+  @Binding private var isOn: Bool
 
-    @Environment(\.isEnabled) private var isEnabled
-    @Environment(\.theme) private var theme
+  @Environment(\.isEnabled) private var isEnabled
+  @Environment(\.theme) private var theme
 
-    // MARK: - Initializers
+  // MARK: - Initializers
 
-    public init(
-        _ label: String,
-        isOn: Binding<Bool>
-    ) {
-        self.label = label
-        self._isOn = isOn
-    }
+  public init(
+    _ label: String,
+    isOn: Binding<Bool>
+  ) {
+    self.label = label
+    self._isOn = isOn
+  }
 
-    // MARK: - Body
+  // MARK: - Body
 
-    public var body: some View {
-        Toggle(label, isOn: $isOn)
-            .tint(theme.primary)
-            .opacity(isEnabled ? 1.0 : theme.opacity.disabled)
-            .accessibilityLabel(label)
-            .accessibilityValue(isOn ? "On" : "Off")
-            .accessibilityAddTraits(.isButton)
-    }
+  public var body: some View {
+    Toggle(label, isOn: $isOn)
+      .tint(theme.primary)
+      .opacity(isEnabled ? 1.0 : theme.opacity.disabled)
+      .accessibilityLabel(label)
+      .accessibilityValue(isOn ? "On" : "Off")
+      .accessibilityAddTraits(.isButton)
+  }
 }
 
 // MARK: - Previews
 
 #Preview("CNSwitch States") {
-    VStack(spacing: 20) {
-        CNSwitch("Enable notifications", isOn: .constant(true))
-        CNSwitch("Dark mode", isOn: .constant(false))
-        CNSwitch("Disabled switch", isOn: .constant(true))
-            .disabled(true)
-    }
-    .padding()
+  VStack(spacing: 20) {
+    CNSwitch("Enable notifications", isOn: .constant(true))
+    CNSwitch("Dark mode", isOn: .constant(false))
+    CNSwitch("Disabled switch", isOn: .constant(true))
+      .disabled(true)
+  }
+  .padding()
 }

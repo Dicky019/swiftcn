@@ -11,7 +11,7 @@ struct SettingsView: View {
   @Environment(ThemeProvider.self) private var themeProvider
   @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
   @State private var viewModel: SettingsViewModel?
-
+  
   var body: some View {
     NavigationStack {
       List {
@@ -33,7 +33,7 @@ struct SettingsView: View {
           } footer: {
             Text("Choose how the app appears. System mode follows your device settings.")
           }
-
+          
           // MARK: - Accessibility Section
           Section {
             ReduceMotionRow()
@@ -42,7 +42,7 @@ struct SettingsView: View {
           } footer: {
             Text("Reduce motion disables animations throughout the app. Also respects iOS system setting.")
           }
-
+          
           // MARK: - About Section
           Section {
             InfoRow(label: "Version", value: viewModel.appVersion)

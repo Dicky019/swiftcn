@@ -11,7 +11,7 @@ import Foundation
 enum ComponentRoute: Hashable {
   /// Navigate to component detail/showcase
   case detail(ComponentInfo)
-
+  
   // Future routes could include:
   // case showcase(ComponentInfo, ShowcaseVariant)
   // case codeExample(ComponentInfo)

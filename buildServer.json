@@ -12,8 +12,8 @@
 	"argv": [
 		"/opt/homebrew/bin/xcode-build-server"
 	],
-	"workspace": "/Users/diki/Dev/swiftcn/Swiftcn.xcworkspace",
-	"build_root": "/Users/diki/Library/Developer/Xcode/DerivedData/Swiftcn-bfgyaplfrgucrzaoebosxefsviqc",
+	"workspace": "/Users/diki/Dev/swiftcn/Example/Example.xcworkspace",
 	"scheme": "Example",
-	"kind": "xcode"
+	"kind": "xcode",
+	"build_root": "/Users/diki/Library/Developer/Xcode/DerivedData/Example-fkfztoaytgxmmzbtunbweckfxnat"
 }

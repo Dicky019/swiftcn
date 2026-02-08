@@ -1,33 +1,37 @@
-// MainTabView.swift
-// swiftcn Example App
+//
+//  MainTabView.swift
+//  Example
+//
+//  Created by Dicky Darmawan on 03/02/26.
+//
 
 import SwiftUI
 
 struct MainTabView: View {
-    @State private var router = AppRouter()
-
-    var body: some View {
-        TabView {
-            ComponentsCoordinatorView()
-                .tabItem {
-                    Label("Components", systemImage: "square.grid.2x2")
-                }
-
-            SDUIPlaygroundView()
-                .tabItem {
-                    Label("SDUI", systemImage: "server.rack")
-                }
-
-            SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gear")
-                }
+  @State private var router = AppRouter()
+  
+  var body: some View {
+    TabView {
+      ComponentsCoordinatorView()
+        .tabItem {
+          Label("Components", systemImage: "square.grid.2x2")
         }
-        .environment(router)
+      
+      SDUIPlaygroundView()
+        .tabItem {
+          Label("SDUI", systemImage: "server.rack")
+        }
+      
+      SettingsView()
+        .tabItem {
+          Label("Settings", systemImage: "gear")
+        }
     }
+    .environment(router)
+  }
 }
 
 #Preview {
-    MainTabView()
-        .environment(ThemeProvider())
+  MainTabView()
+    .environment(ThemeProvider())
 }

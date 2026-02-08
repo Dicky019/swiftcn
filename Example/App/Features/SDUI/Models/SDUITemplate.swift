@@ -1,32 +1,36 @@
-// SDUITemplate.swift
-// swiftcn Example App
+//
+//  SDUITemplate.swift
+//  Example
+//
+//  Created by Dicky Darmawan on 03/02/26.
+//
 
 import Foundation
 
 struct SDUITemplate: Identifiable, Hashable {
-    let id: String
-    let name: String
-    let category: TemplateCategory
-    let description: String
-    let json: String
-
-    enum TemplateCategory: String, CaseIterable {
-        case basic = "Basic"
-        case forms = "Forms"
-        case layouts = "Layouts"
-        case cards = "Cards"
-    }
+  let id: String
+  let name: String
+  let category: TemplateCategory
+  let description: String
+  let json: String
+  
+  enum TemplateCategory: String, CaseIterable {
+    case basic = "Basic"
+    case forms = "Forms"
+    case layouts = "Layouts"
+    case cards = "Cards"
+  }
 }
 
 extension SDUITemplate {
-    static let all: [SDUITemplate] = [
-        // Basic Examples
-        SDUITemplate(
-            id: "hello-world",
-            name: "Hello World",
-            category: .basic,
-            description: "Simple text and button",
-            json: """
+  static let all: [SDUITemplate] = [
+    // Basic Examples
+    SDUITemplate(
+      id: "hello-world",
+      name: "Hello World",
+      category: .basic,
+      description: "Simple text and button",
+      json: """
             [
               {
                 "id": "1",
@@ -40,13 +44,13 @@ extension SDUITemplate {
               }
             ]
             """
-        ),
-        SDUITemplate(
-            id: "button-variants",
-            name: "Button Variants",
-            category: .basic,
-            description: "All button styles",
-            json: """
+    ),
+    SDUITemplate(
+      id: "button-variants",
+      name: "Button Variants",
+      category: .basic,
+      description: "All button styles",
+      json: """
             [
               {
                 "id": "1",
@@ -64,13 +68,13 @@ extension SDUITemplate {
               }
             ]
             """
-        ),
-        SDUITemplate(
-            id: "badge-showcase",
-            name: "Badge Showcase",
-            category: .basic,
-            description: "All badge variants",
-            json: """
+    ),
+    SDUITemplate(
+      id: "badge-showcase",
+      name: "Badge Showcase",
+      category: .basic,
+      description: "All badge variants",
+      json: """
             [
               {
                 "id": "1",
@@ -93,15 +97,15 @@ extension SDUITemplate {
               }
             ]
             """
-        ),
-
-        // Form Examples
-        SDUITemplate(
-            id: "login-form",
-            name: "Login Form",
-            category: .forms,
-            description: "Email and password login",
-            json: """
+    ),
+    
+    // Form Examples
+    SDUITemplate(
+      id: "login-form",
+      name: "Login Form",
+      category: .forms,
+      description: "Email and password login",
+      json: """
             [
               {
                 "id": "1",
@@ -118,13 +122,13 @@ extension SDUITemplate {
               }
             ]
             """
-        ),
-        SDUITemplate(
-            id: "settings-form",
-            name: "Settings Form",
-            category: .forms,
-            description: "Toggle switches and sliders",
-            json: """
+    ),
+    SDUITemplate(
+      id: "settings-form",
+      name: "Settings Form",
+      category: .forms,
+      description: "Toggle switches and sliders",
+      json: """
             [
               {
                 "id": "1",
@@ -143,13 +147,13 @@ extension SDUITemplate {
               }
             ]
             """
-        ),
-        SDUITemplate(
-            id: "feedback-form",
-            name: "Feedback Form",
-            category: .forms,
-            description: "User feedback with rating",
-            json: """
+    ),
+    SDUITemplate(
+      id: "feedback-form",
+      name: "Feedback Form",
+      category: .forms,
+      description: "User feedback with rating",
+      json: """
             [
               {
                 "id": "1",
@@ -167,15 +171,15 @@ extension SDUITemplate {
               }
             ]
             """
-        ),
-
-        // Layout Examples
-        SDUITemplate(
-            id: "two-column",
-            name: "Two Column Layout",
-            category: .layouts,
-            description: "Side by side content",
-            json: """
+    ),
+    
+    // Layout Examples
+    SDUITemplate(
+      id: "two-column",
+      name: "Two Column Layout",
+      category: .layouts,
+      description: "Side by side content",
+      json: """
             [
               {
                 "id": "1",
@@ -212,13 +216,13 @@ extension SDUITemplate {
               }
             ]
             """
-        ),
-        SDUITemplate(
-            id: "header-content-footer",
-            name: "Header/Content/Footer",
-            category: .layouts,
-            description: "Classic page structure",
-            json: """
+    ),
+    SDUITemplate(
+      id: "header-content-footer",
+      name: "Header/Content/Footer",
+      category: .layouts,
+      description: "Classic page structure",
+      json: """
             [
               {
                 "id": "1",
@@ -253,15 +257,15 @@ extension SDUITemplate {
               }
             ]
             """
-        ),
-
-        // Card Examples
-        SDUITemplate(
-            id: "product-card",
-            name: "Product Card",
-            category: .cards,
-            description: "E-commerce product display",
-            json: """
+    ),
+    
+    // Card Examples
+    SDUITemplate(
+      id: "product-card",
+      name: "Product Card",
+      category: .cards,
+      description: "E-commerce product display",
+      json: """
             [
               {
                 "id": "1",
@@ -300,13 +304,13 @@ extension SDUITemplate {
               }
             ]
             """
-        ),
-        SDUITemplate(
-            id: "notification-card",
-            name: "Notification Card",
-            category: .cards,
-            description: "Alert/notification style",
-            json: """
+    ),
+    SDUITemplate(
+      id: "notification-card",
+      name: "Notification Card",
+      category: .cards,
+      description: "Alert/notification style",
+      json: """
             [
               {
                 "id": "1",
@@ -343,10 +347,10 @@ extension SDUITemplate {
               }
             ]
             """
-        )
-    ]
-
-    static func templates(for category: TemplateCategory) -> [SDUITemplate] {
-        all.filter { $0.category == category }
-    }
+    )
+  ]
+  
+  static func templates(for category: TemplateCategory) -> [SDUITemplate] {
+    all.filter { $0.category == category }
+  }
 }
