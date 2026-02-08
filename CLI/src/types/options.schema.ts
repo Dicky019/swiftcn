@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const InitOptionsSchema = z.object({
-  path: z.string().default("Sources/Components"),
-  themePath: z.string().default("Sources/Theme"),
+  path: z.string().default("Components"),
+  themePath: z.string().default("Theme"),
   sdui: z.boolean().optional(),
-  sduiPath: z.string().default("Sources/SDUI"),
+  sduiPath: z.string().default("SDUI"),
   yes: z.boolean().optional(),
 });
 

@@ -4,10 +4,46 @@ import { ui } from "../utils/ui.js";
 import { AddOptionsSchema } from "../types/options.schema.js";
 import type { Container } from "../container.js";
 
+function printAddHelp() {
+  ui.header();
+  ui.break();
+  ui.line("Usage: swiftcn add <component> [options]");
+  ui.break();
+  ui.line("Add a component to your project. Copies the component source");
+  ui.line("files into your configured directory.");
+  ui.break();
+
+  ui.section("Arguments");
+  ui.break();
+  ui.command("component              ", "The component to add (e.g., button, card, input)");
+  ui.break();
+
+  ui.section("Options");
+  ui.break();
+  ui.command("-f, --force            ", "Overwrite existing files");
+  ui.command("--no-sdui              ", "Skip SDUI extension file");
+  ui.command("-h, --help             ", "Show help for add command");
+  ui.break();
+
+  ui.section("Examples");
+  ui.break();
+  ui.command("swiftcn add button          ", "Add CNButton component");
+  ui.command("swiftcn add card            ", "Add CNCard component");
+  ui.command("swiftcn add button -f       ", "Overwrite existing files");
+  ui.command("swiftcn add button --no-sdui", "Skip SDUI extension file");
+  ui.command("swiftcn add button -f --no-sdui", "Force without SDUI");
+  ui.break();
+
+  ui.hint("Run swiftcn init first to set up your project.");
+  ui.break();
+  ui.end(`Run ${ui.accent("swiftcn list")} to see all available components.`);
+}
+
 export function createAddCommand(container: Container): Command {
-  return new Command()
+  const cmd = new Command()
     .name("add")
     .description("Add a component to your project")
+    .helpOption("-h, --help", "Show help for add command")
     .argument("<component>", "The component to add (e.g., button, card, input)")
     .option("-f, --force", "Overwrite existing files")
     .option("--no-sdui", "Skip SDUI extension file")
@@ -112,4 +148,12 @@ export function createAddCommand(container: Container): Command {
         process.exit(1);
       }
     });
+
+  cmd.configureOutput({
+    writeOut: () => {
+      printAddHelp();
+    },
+  });
+
+  return cmd;
 }

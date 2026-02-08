@@ -17,6 +17,7 @@ program
   .description("A CLI for adding shadcn-style SwiftUI components to your project.")
   .version(VERSION, "-v, --version", "Show version")
   .helpOption(false)
+  .enablePositionalOptions()
   .option("-h, --help", "Show help")
   .action((options) => {
     if (options.help) {
@@ -43,16 +44,18 @@ function printHelp() {
   ui.section("Commands");
   ui.break();
   ui.command("init [options]            ", "Initialize swiftcn in your project");
-  ui.command("add [options] <component> ", "Add a component to your project");
+  ui.command("add <component> [options]", "Add a component to your project");
   ui.command("list [options]            ", "List available components");
   ui.break();
 
   ui.section("Examples");
   ui.break();
   ui.command("swiftcn init             ", "Initialize with theme (default)");
-  ui.command("swiftcn init --sdui      ", "Initialize with SDUI support");
+  ui.command("swiftcn init --sdui -y   ", "Initialize with SDUI support and skip prompts");
+  ui.command("swiftcn init -h          ", "Show init options");
   ui.command("swiftcn add button       ", "Add a single component");
   ui.command("swiftcn add button -f    ", "Overwrite existing files");
+  ui.command("swiftcn list             ", "List all components with basic info");
   ui.command("swiftcn list --verbose   ", "List all components with details");
   ui.break();
 

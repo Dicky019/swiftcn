@@ -4,10 +4,36 @@ import { ui } from "../utils/ui.js";
 import { ListOptionsSchema } from "../types/options.schema.js";
 import type { Container } from "../container.js";
 
+function printListHelp() {
+  ui.header();
+  ui.break();
+  ui.line("Usage: swiftcn list [options]");
+  ui.break();
+  ui.line("List all available components from the registry.");
+  ui.line("Shows component names, descriptions, and SDUI support.");
+  ui.break();
+
+  ui.section("Options");
+  ui.break();
+  ui.command("-v, --verbose          ", "Show detailed component information");
+  ui.command("-h, --help             ", "Show help for list command");
+  ui.break();
+
+  ui.section("Examples");
+  ui.break();
+  ui.command("swiftcn list           ", "List all components");
+  ui.command("swiftcn list -v        ", "Show variants, sizes, and SDUI info");
+  ui.command("swiftcn list --verbose ", "Same as -v");
+  ui.break();
+
+  ui.end(`Run ${ui.accent("swiftcn add <name>")} to install a component.`);
+}
+
 export function createListCommand(container: Container): Command {
-  return new Command()
+  const cmd = new Command()
     .name("list")
     .description("List available components")
+    .helpOption("-h, --help", "Show help for list command")
     .option("-v, --verbose", "Show detailed information")
     .action(async (rawOptions) => {
       const options = ListOptionsSchema.parse(rawOptions);
@@ -52,8 +78,8 @@ export function createListCommand(container: Container): Command {
           ui.section("Usage");
           ui.break();
           ui.command("swiftcn add button          ", "Add CNButton");
-          ui.command("swiftcn add button --sdui   ", "Include SDUI extension");
-          ui.command("swiftcn add button --theme  ", "Include theme files");
+          ui.command("swiftcn add button -f       ", "Overwrite existing files");
+          ui.command("swiftcn add button --no-sdui", "Skip SDUI extension");
           ui.break();
           ui.end(`${components.length} components available`);
         } else {
@@ -84,4 +110,12 @@ export function createListCommand(container: Container): Command {
         process.exit(1);
       }
     });
+
+  cmd.configureOutput({
+    writeOut: () => {
+      printListHelp();
+    },
+  });
+
+  return cmd;
 }

@@ -6,14 +6,51 @@ import { InitOptionsSchema } from "../types/options.schema.js";
 import type { ProjectConfig } from "../types/config.schema.js";
 import type { Container } from "../container.js";
 
+function printInitHelp() {
+  ui.header();
+  ui.break();
+  ui.line("Usage: swiftcn init [options]");
+  ui.break();
+  ui.line("Initialize swiftcn in your project. Creates a swiftcn.json config");
+  ui.line("file, installs theme files, and optionally sets up SDUI.");
+  ui.break();
+
+  ui.section("Options");
+  ui.break();
+  ui.command("-p, --path <path>      ", "Path to components directory (default: Components)");
+  ui.command("--theme-path <path>    ", "Path to theme directory (default: Theme)");
+  ui.command("--sdui                 ", "Include SDUI infrastructure");
+  ui.command("--sdui-path <path>     ", "Path to SDUI directory (default: SDUI)");
+  ui.command("-y, --yes              ", "Skip prompts and use defaults");
+  ui.command("-h, --help             ", "Show help for init command");
+  ui.break();
+
+  ui.section("Examples");
+  ui.break();
+  ui.command("swiftcn init                       ", "Initialize with interactive prompts");
+  ui.command("swiftcn init -y                    ", "Initialize with all defaults");
+  ui.command("swiftcn init --sdui -y             ", "Initialize with SDUI, skip prompts");
+  ui.command("swiftcn init -p App/Components     ", "Set custom components directory");
+  ui.command("swiftcn init --theme-path App/Theme", "Set custom theme directory");
+  ui.command("swiftcn init --sdui                ", "Include SDUI infrastructure");
+  ui.command("swiftcn init --sdui-path App/SDUI  ", "Set custom SDUI directory (implies --sdui)");
+  ui.command("swiftcn init -p App/Components --theme-path App/Theme --sdui-path App/SDUI", "Full custom paths");
+  ui.break();
+
+  ui.hint("Theme files are always installed. SDUI is opt-in via --sdui or --sdui-path.");
+  ui.break();
+  ui.end(`Run ${ui.accent("swiftcn add <component>")} after init to add components.`);
+}
+
 export function createInitCommand(container: Container): Command {
-  return new Command()
+  const cmd = new Command()
     .name("init")
     .description("Initialize swiftcn in your project")
-    .option("-p, --path <path>", "Path to components directory", "Components")
-    .option("--theme-path <path>", "Path to theme directory", "Theme")
+    .helpOption("-h, --help", "Show help for init command")
+    .option("-p, --path <path>", "Path to components directory")
+    .option("--theme-path <path>", "Path to theme directory")
     .option("--sdui", "Include SDUI infrastructure")
-    .option("--sdui-path <path>", "Path to SDUI directory", "SDUI")
+    .option("--sdui-path <path>", "Path to SDUI directory")
     .option("-y, --yes", "Skip prompts and use defaults")
     .action(async (rawOptions) => {
       const options = InitOptionsSchema.parse(rawOptions);
@@ -35,40 +72,51 @@ export function createInitCommand(container: Container): Command {
       }
 
       // Step 2: Gather configuration (CLI flags or interactive prompts)
+      // Detect explicitly passed flags (undefined = not passed)
+      const hasPath = !!rawOptions.path;
+      const hasThemePath = !!rawOptions.themePath;
+      const hasSduiPath = !!rawOptions.sduiPath;
+
       let componentsPath = options.path;
       let themePath = options.themePath;
-      let withSdui = options.sdui ?? false;
+      let withSdui = options.sdui ?? hasSduiPath;
       let sduiPath = options.sduiPath;
 
       if (!options.yes) {
         const answers = await p.group(
           {
             componentsPath: () =>
-              p.text({
-                message: "Where would you like to store components?",
-                initialValue: componentsPath,
-                validate: (value) => {
-                  if (!value) return "Path is required";
-                },
-              }),
+              hasPath
+                ? Promise.resolve(componentsPath)
+                : p.text({
+                    message: "Where would you like to store components?",
+                    initialValue: componentsPath,
+                    validate: (value) => {
+                      if (!value) return "Path is required";
+                    },
+                  }),
 
             themePath: () =>
-              p.text({
-                message: "Where would you like to store theme files?",
-                initialValue: themePath,
-                validate: (value) => {
-                  if (!value) return "Path is required";
-                },
-              }),
+              hasThemePath
+                ? Promise.resolve(themePath)
+                : p.text({
+                    message: "Where would you like to store theme files?",
+                    initialValue: themePath,
+                    validate: (value) => {
+                      if (!value) return "Path is required";
+                    },
+                  }),
 
             withSdui: () =>
-              p.confirm({
-                message: "Include SDUI infrastructure?",
-                initialValue: false,
-              }),
+              withSdui
+                ? Promise.resolve(true)
+                : p.confirm({
+                    message: "Include SDUI infrastructure?",
+                    initialValue: false,
+                  }),
 
             sduiPath: ({ results }) =>
-              results.withSdui
+              results.withSdui && !hasSduiPath
                 ? p.text({
                     message: "Where would you like to store SDUI files?",
                     initialValue: sduiPath,
@@ -167,4 +215,12 @@ export function createInitCommand(container: Container): Command {
         process.exit(1);
       }
     });
+
+  cmd.configureOutput({
+    writeOut: () => {
+      printInitHelp();
+    },
+  });
+
+  return cmd;
 }

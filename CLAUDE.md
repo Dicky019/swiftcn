@@ -129,10 +129,12 @@ swiftcn/
 │   │   │   ├── ui.ts                # Terminal UI (@clack/prompts)
 │   │   │   ├── paths.ts             # Path sanitization
 │   │   │   ├── errors.ts            # SwiftCNError + ErrorCode enum
-│   │   │   └── constants.ts         # ALLOWED_REPO_URLS, SOURCE_PATH
+│   │   │   └── constants.ts         # ALLOWED_REPO_URLS, REGISTRY_URL, VERSION
 │   │   └── __tests__/               # Unit tests (Vitest)
-│   │       ├── services/            # 5 service test files
-│   │       └── utils/               # paths, errors tests
+│   │       ├── commands/            # Command unit tests + helpers
+│   │       ├── services/            # Service unit tests
+│   │       ├── types/               # Schema validation tests
+│   │       └── utils/               # Utility unit tests
 │   ├── registry.json                # Component manifest
 │   ├── package.json
 │   ├── tsconfig.json
@@ -200,7 +202,7 @@ xcodebuild -workspace Example/Example.xcworkspace -scheme Example build
 cd CLI && npm run build
 node dist/index.js list
 node dist/index.js add button
-node dist/index.js add button --sdui --theme
+node dist/index.js add button -f
 node dist/index.js init
 
 # Or use npx (when published)

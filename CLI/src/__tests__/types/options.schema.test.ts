@@ -8,9 +8,9 @@ import {
 describe("InitOptionsSchema", () => {
   it("applies defaults when no options provided", () => {
     const result = InitOptionsSchema.parse({});
-    expect(result.path).toBe("Sources/Components");
-    expect(result.themePath).toBe("Sources/Theme");
-    expect(result.sduiPath).toBe("Sources/SDUI");
+    expect(result.path).toBe("Components");
+    expect(result.themePath).toBe("Theme");
+    expect(result.sduiPath).toBe("SDUI");
   });
 
   it("accepts custom paths", () => {
