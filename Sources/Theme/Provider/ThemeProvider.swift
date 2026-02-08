@@ -62,10 +62,13 @@ public final class ThemeProvider: Sendable {
     self.currentTheme = theme
 
     let savedMode = UserDefaults.standard.string(forKey: "themeMode")
-    self.colorSchemePreference = ColorSchemePreference(rawValue: savedMode ?? "") ?? .system
+    let preference = ColorSchemePreference(rawValue: savedMode ?? "") ?? .system
+    self.colorSchemePreference = preference
 
-    // Initial resolve (will be updated when system scheme is known)
-    self.resolvedTheme = ResolvedTheme.resolve(theme: theme, isDark: false)
+    // Resolve based on loaded preference
+    // For .system, defaults to light until view appears and updates with actual system scheme
+    let isDark = preference == .dark
+    self.resolvedTheme = ResolvedTheme.resolve(theme: theme, isDark: isDark)
   }
 
   // MARK: - Theme Updates
@@ -112,8 +115,12 @@ public final class ThemeProvider: Sendable {
   // MARK: - Private
 
   private func updateResolvedTheme() {
-    let isDark = effectiveColorScheme == .dark
-    resolvedTheme = ResolvedTheme.resolve(theme: currentTheme, isDark: isDark)
+    var transaction = Transaction(animation: nil)
+    transaction.disablesAnimations = true
+    withTransaction(transaction) {
+      let isDark = effectiveColorScheme == .dark
+      resolvedTheme = ResolvedTheme.resolve(theme: currentTheme, isDark: isDark)
+    }
   }
 }
 

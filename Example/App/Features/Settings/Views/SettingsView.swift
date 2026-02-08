@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SettingsView: View {
   @Environment(ThemeProvider.self) private var themeProvider
-  @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
   @State private var viewModel: SettingsViewModel?
   
   var body: some View {
@@ -23,8 +22,7 @@ struct SettingsView: View {
                 mode: mode,
                 isSelected: viewModel.isSelected(mode),
                 action: {
-                  let shouldReduce = viewModel.shouldReduceMotion(systemReduceMotion: systemReduceMotion)
-                  viewModel.selectMode(mode, reduceMotion: shouldReduce)
+                  viewModel.selectMode(mode)
                 }
               )
             }

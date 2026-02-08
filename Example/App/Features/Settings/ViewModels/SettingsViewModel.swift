@@ -42,14 +42,8 @@ final class SettingsViewModel {
     ColorSchemePreference.allCases
   }
   
-  func selectMode(_ mode: ColorSchemePreference, reduceMotion: Bool) {
-    guard !reduceMotion else {
-      themeProvider.colorSchemePreference = mode
-      return
-    }
-    withAnimation(.easeInOut) {
-      themeProvider.colorSchemePreference = mode
-    }
+  func selectMode(_ mode: ColorSchemePreference) {
+    themeProvider.colorSchemePreference = mode
   }
   
   func isSelected(_ mode: ColorSchemePreference) -> Bool {
