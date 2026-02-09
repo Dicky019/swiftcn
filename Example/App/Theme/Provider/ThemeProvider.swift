@@ -116,12 +116,12 @@ public final class ThemeProvider: Sendable {
     }
   }
 
-  /// Cycle to the next color scheme preference
-  public func cyclePreference() {
-    switch colorSchemePreference {
+  /// Toggle between light and dark based on current effective appearance
+  public func toggleColorScheme() {
+    switch effectiveColorScheme {
     case .light: colorSchemePreference = .dark
-    case .dark: colorSchemePreference = .system
-    case .system: colorSchemePreference = .light
+    case .dark: colorSchemePreference = .light
+    @unknown default: colorSchemePreference = .light
     }
   }
 

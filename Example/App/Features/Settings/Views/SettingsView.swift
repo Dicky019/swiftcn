@@ -32,15 +32,6 @@ struct SettingsView: View {
             Text("Choose how the app appears. System mode follows your device settings.")
           }
           
-          // MARK: - Accessibility Section
-          Section {
-            ReduceMotionRow()
-          } header: {
-            Text("Accessibility")
-          } footer: {
-            Text("Reduce motion disables animations throughout the app. Also respects iOS system setting.")
-          }
-          
           // MARK: - About Section
           Section {
             InfoRow(label: "Version", value: viewModel.appVersion)

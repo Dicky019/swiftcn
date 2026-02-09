@@ -12,22 +12,6 @@ import SwiftUI
 final class SettingsViewModel {
   private let themeProvider: ThemeProvider
   
-  // MARK: - Reduce Motion
-  
-  /// App-specific reduce motion preference (overrides system if set)
-  @ObservationIgnored
-  @AppStorage("reduceMotion") private var _reduceMotion: Bool = false
-  
-  var reduceMotion: Bool {
-    get { _reduceMotion }
-    set { _reduceMotion = newValue }
-  }
-  
-  /// Check if motion should be reduced (app setting OR system setting)
-  func shouldReduceMotion(systemReduceMotion: Bool) -> Bool {
-    reduceMotion || systemReduceMotion
-  }
-  
   init(themeProvider: ThemeProvider) {
     self.themeProvider = themeProvider
   }
