@@ -26,10 +26,6 @@ private struct ContentWrapper: View {
 
   var body: some View {
     MainTabView()
-      .environment(\.theme, themeProvider.resolvedTheme)
-      .preferredColorScheme(themeProvider.resolvedColorScheme)
-      .onChange(of: systemColorScheme, initial: true) { _, newScheme in
-        themeProvider.updateSystemColorScheme(newScheme)
-      }
+      .withThemeTracking(themeProvider, systemColorScheme: systemColorScheme)
   }
 }

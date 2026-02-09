@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+import OSLog
+
+private let logger = Logger(subsystem: "com.swiftcn.theme", category: "ThemeProvider")
 
 // MARK: - Color Scheme Preference
 
@@ -75,9 +78,19 @@ public final class ThemeProvider: Sendable {
 
   /// Apply theme from JSON data (SDUI)
   public func apply(_ data: Data) throws {
-    let theme = try JSONDecoder().decode(Theme.self, from: data)
-    currentTheme = theme
-    updateResolvedTheme()
+    do {
+      let theme = try JSONDecoder().decode(Theme.self, from: data)
+      currentTheme = theme
+      updateResolvedTheme()
+      #if DEBUG
+      logger.info("Applied theme from JSON data (\(data.count) bytes)")
+      #endif
+    } catch {
+      #if DEBUG
+      logger.error("Failed to decode theme: \(error.localizedDescription, privacy: .public)")
+      #endif
+      throw ThemeError.decodingFailed(error)
+    }
   }
 
   /// Apply theme from JSON string (SDUI)
@@ -120,6 +133,9 @@ public final class ThemeProvider: Sendable {
     withTransaction(transaction) {
       let isDark = effectiveColorScheme == .dark
       resolvedTheme = ResolvedTheme.resolve(theme: currentTheme, isDark: isDark)
+      #if DEBUG
+      logger.debug("Theme updated: colorScheme=\(isDark ? "dark" : "light", privacy: .public)")
+      #endif
     }
   }
 }

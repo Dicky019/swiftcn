@@ -21,27 +21,17 @@ extension EnvironmentValues {
   }
 }
 
-// MARK: - Legacy Theme Provider Key (for backward compatibility)
-
-private struct ThemeProviderKey: EnvironmentKey {
-  static let defaultValue: ThemeProvider? = nil
-}
-
-extension EnvironmentValues {
-  /// Access the theme provider from the environment (legacy)
-  public var themeProvider: ThemeProvider? {
-    get { self[ThemeProviderKey.self] }
-    set { self[ThemeProviderKey.self] = newValue }
-  }
-}
-
 // MARK: - View Extension
 
 extension View {
-  /// Inject a theme provider into the environment
-  public func themeProvider(_ provider: ThemeProvider) -> some View {
+  /// Apply theme environment and track system color scheme changes
+  /// Use this on your root content view to enable theme support
+  public func withThemeTracking(_ themeProvider: ThemeProvider, systemColorScheme: ColorScheme) -> some View {
     self
-      .environment(\.themeProvider, provider)
-      .environment(\.theme, provider.resolvedTheme)
+      .environment(\.theme, themeProvider.resolvedTheme)
+      .preferredColorScheme(themeProvider.resolvedColorScheme)
+      .onChange(of: systemColorScheme, initial: true) { _, newScheme in
+        themeProvider.updateSystemColorScheme(newScheme)
+      }
   }
 }

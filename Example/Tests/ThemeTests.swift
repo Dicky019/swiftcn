@@ -283,4 +283,31 @@ struct ThemeTests {
     provider.colorSchemePreference = .dark
     #expect(provider.resolvedColorScheme == .dark)
   }
+
+  // MARK: - ThemeProvider Error Handling
+
+  @Test("ThemeProvider.apply throws ThemeError.decodingFailed for invalid JSON structure")
+  @MainActor
+  func themeProviderThrowsDecodingFailed() {
+    let provider = ThemeProvider()
+    let invalidJSON = """
+      {"light": {"background": "#fff"}}
+      """
+    let data = invalidJSON.data(using: .utf8)!
+
+    do {
+      try provider.apply(data)
+      Issue.record("Expected ThemeError.decodingFailed to be thrown")
+    } catch let error as ThemeError {
+      switch error {
+      case .decodingFailed:
+        // Expected
+        break
+      case .invalidJSON:
+        Issue.record("Expected .decodingFailed, got .invalidJSON")
+      }
+    } catch {
+      Issue.record("Expected ThemeError, got \(type(of: error))")
+    }
+  }
 }
