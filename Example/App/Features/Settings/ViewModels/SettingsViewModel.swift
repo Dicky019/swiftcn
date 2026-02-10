@@ -12,22 +12,6 @@ import SwiftUI
 final class SettingsViewModel {
   private let themeProvider: ThemeProvider
 
-  // MARK: - Reduce Motion
-
-  /// App-specific reduce motion preference (overrides system if set)
-  @ObservationIgnored
-  @AppStorage("reduceMotion") private var _reduceMotion: Bool = false
-
-  var reduceMotion: Bool {
-    get { _reduceMotion }
-    set { _reduceMotion = newValue }
-  }
-
-  /// Check if motion should be reduced (app setting OR system setting)
-  func shouldReduceMotion(systemReduceMotion: Bool) -> Bool {
-    reduceMotion || systemReduceMotion
-  }
-
   init(themeProvider: ThemeProvider) {
     self.themeProvider = themeProvider
   }
@@ -42,14 +26,8 @@ final class SettingsViewModel {
     ColorSchemePreference.allCases
   }
 
-  func selectMode(_ mode: ColorSchemePreference, reduceMotion: Bool) {
-    guard !reduceMotion else {
-      themeProvider.colorSchemePreference = mode
-      return
-    }
-    withAnimation(.easeInOut) {
-      themeProvider.colorSchemePreference = mode
-    }
+  func selectMode(_ mode: ColorSchemePreference) {
+    themeProvider.colorSchemePreference = mode
   }
 
   func isSelected(_ mode: ColorSchemePreference) -> Bool {
@@ -58,6 +36,11 @@ final class SettingsViewModel {
 
   // MARK: - App Info
 
-  var appVersion: String { "1.0.0" }
-  var buildNumber: String { "1" }
+  var appVersion: String {
+    Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+  }
+
+  var buildNumber: String {
+    Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+  }
 }

@@ -205,6 +205,15 @@ export function createInitCommand(container: Container): Command {
         ui.command("swiftcn add button", "Add your first component");
         ui.command("swiftcn list      ", "Browse all components");
         ui.break();
+        ui.hint("Add ThemeProvider to your App:");
+        ui.break();
+        ui.line("  @State private var themeProvider = ThemeProvider()");
+        ui.break();
+        ui.line("  ContentView()");
+        ui.line("      .environment(themeProvider)");
+        ui.line("      .environment(\\.theme, themeProvider.resolvedTheme)");
+        ui.line("      .preferredColorScheme(themeProvider.resolvedColorScheme)");
+        ui.break();
         ui.hint("Components are copied to your project — you own the code!");
         ui.break();
         ui.end("Happy coding!");

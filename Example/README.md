@@ -39,7 +39,7 @@ Example/
 │   ├── Components/     # CN components (synced from Sources/) + app helpers
 │   ├── Theme/          # Design tokens & ThemeProvider (synced from Sources/)
 │   ├── SDUI/           # Server-Driven UI engine (synced from Sources/)
-│   ├── Features/       # Feature modules (Components, SDUI, Settings)
+│   ├── Features/       # Feature modules (Components, SDUI, Settings, Theme)
 │   └── Navigation/     # Router, tabs, routes
 └── Tests/              # Unit tests
     ├── ThemeTests.swift

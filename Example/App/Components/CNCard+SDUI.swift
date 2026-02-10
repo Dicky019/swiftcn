@@ -10,12 +10,12 @@ import SwiftUI
 // MARK: - SDUI Configuration
 
 extension CNCard {
-    /// Configuration for SDUI rendering
-    public struct Configuration: Codable, Sendable, Hashable {
-        public let variant: Variant
+  /// Configuration for SDUI rendering
+  public struct Configuration: Codable, Sendable, Hashable {
+    public let variant: Variant
 
-        public init(variant: Variant = .elevated) {
-            self.variant = variant
-        }
+    public init(variant: Variant = .elevated) {
+      self.variant = variant
     }
+  }
 }

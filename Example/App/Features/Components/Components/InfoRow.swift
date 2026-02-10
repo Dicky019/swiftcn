@@ -9,21 +9,21 @@ import SwiftUI
 
 struct InfoRow: View {
   @Environment(\.theme) private var theme
-
+  
   let label: String
   let value: String
-
+  
   var body: some View {
     HStack {
       Text(label)
         .font(.subheadline)
-        .foregroundStyle(theme.mutedForeground)
-
+        .foregroundStyle(theme.textSecondary)
+      
       Spacer()
-
+      
       Text(value)
         .font(.body)
-        .foregroundStyle(theme.foreground)
+        .foregroundStyle(theme.text)
     }
   }
 }
