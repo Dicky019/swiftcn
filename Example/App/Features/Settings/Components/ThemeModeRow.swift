@@ -36,20 +36,20 @@ struct ThemeModeRow: View {
         .font(.title2)
         .foregroundStyle(isSelected ? theme.primary : theme.mutedForeground)
         .frame(width: 32)
-        .animation(.easeInOut(duration: 0.2), value: isSelected)
+        .animation(.easeInOut(duration: theme.motion.fast), value: isSelected)
 
       Text(displayName)
         .font(.body)
-        .foregroundStyle(theme.foreground)
+        .foregroundStyle(theme.text)
 
       Spacer()
 
       Image(systemName: "checkmark")
         .foregroundStyle(theme.primary)
         .opacity(isSelected ? 1 : 0)
-        .animation(.easeInOut(duration: 0.2), value: isSelected)
+        .animation(.easeInOut(duration: theme.motion.fast), value: isSelected)
     }
-    .padding(.vertical, theme.spacing.xs)
+    .padding(.vertical, theme.spacing.sm)
     .contentShape(Rectangle())
     .onTapGesture {
       action()

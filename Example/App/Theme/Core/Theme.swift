@@ -105,6 +105,11 @@ public struct Theme: Codable, Sendable, Equatable {
     public let chart4: String
     public let chart5: String
 
+    // Text Hierarchy
+    public let text: String
+    public let textSecondary: String
+    public let textMuted: String
+
     public init(
       background: String,
       foreground: String,
@@ -133,7 +138,10 @@ public struct Theme: Codable, Sendable, Equatable {
       chart2: String,
       chart3: String,
       chart4: String,
-      chart5: String
+      chart5: String,
+      text: String? = nil,
+      textSecondary: String? = nil,
+      textMuted: String? = nil
     ) {
       self.background = background
       self.foreground = foreground
@@ -163,6 +171,45 @@ public struct Theme: Codable, Sendable, Equatable {
       self.chart3 = chart3
       self.chart4 = chart4
       self.chart5 = chart5
+      self.text = text ?? foreground
+      self.textSecondary = textSecondary ?? mutedForeground
+      self.textMuted = textMuted ?? mutedForeground
+    }
+
+    public init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      background = try container.decode(String.self, forKey: .background)
+      foreground = try container.decode(String.self, forKey: .foreground)
+      card = try container.decode(String.self, forKey: .card)
+      cardForeground = try container.decode(String.self, forKey: .cardForeground)
+      sheet = try container.decode(String.self, forKey: .sheet)
+      sheetForeground = try container.decode(String.self, forKey: .sheetForeground)
+      primary = try container.decode(String.self, forKey: .primary)
+      primaryForeground = try container.decode(String.self, forKey: .primaryForeground)
+      secondary = try container.decode(String.self, forKey: .secondary)
+      secondaryForeground = try container.decode(String.self, forKey: .secondaryForeground)
+      muted = try container.decode(String.self, forKey: .muted)
+      mutedForeground = try container.decode(String.self, forKey: .mutedForeground)
+      accent = try container.decode(String.self, forKey: .accent)
+      accentForeground = try container.decode(String.self, forKey: .accentForeground)
+      destructive = try container.decode(String.self, forKey: .destructive)
+      destructiveForeground = try container.decode(String.self, forKey: .destructiveForeground)
+      border = try container.decode(String.self, forKey: .border)
+      input = try container.decode(String.self, forKey: .input)
+      focus = try container.decode(String.self, forKey: .focus)
+      warning = try container.decode(String.self, forKey: .warning)
+      warningForeground = try container.decode(String.self, forKey: .warningForeground)
+      success = try container.decode(String.self, forKey: .success)
+      successForeground = try container.decode(String.self, forKey: .successForeground)
+      chart1 = try container.decode(String.self, forKey: .chart1)
+      chart2 = try container.decode(String.self, forKey: .chart2)
+      chart3 = try container.decode(String.self, forKey: .chart3)
+      chart4 = try container.decode(String.self, forKey: .chart4)
+      chart5 = try container.decode(String.self, forKey: .chart5)
+      // Text hierarchy — fallback to foreground/mutedForeground for backward compat
+      text = try container.decodeIfPresent(String.self, forKey: .text) ?? foreground
+      textSecondary = try container.decodeIfPresent(String.self, forKey: .textSecondary) ?? mutedForeground
+      textMuted = try container.decodeIfPresent(String.self, forKey: .textMuted) ?? mutedForeground
     }
   }
 }

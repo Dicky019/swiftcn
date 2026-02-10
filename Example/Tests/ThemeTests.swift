@@ -20,6 +20,19 @@ struct ThemeTests {
     #expect(theme.light.background == "#ffffff")
     #expect(theme.dark.background == "#09090b")
   }
+
+  @Test("Default theme has text hierarchy tokens")
+  func defaultThemeHasTextHierarchy() {
+    let theme = Theme.default
+    // Light
+    #expect(theme.light.text == "#09090b")
+    #expect(theme.light.textSecondary == "#52525b")
+    #expect(theme.light.textMuted == "#71717a")
+    // Dark
+    #expect(theme.dark.text == "#fafafa")
+    #expect(theme.dark.textSecondary == "#a1a1aa")
+    #expect(theme.dark.textMuted == "#71717a")
+  }
   
   @Test("Default theme has design tokens")
   func defaultThemeHasTokens() {
@@ -105,6 +118,10 @@ struct ThemeTests {
     
     #expect(theme.light.primary == "#0000ff")
     #expect(theme.dark.primary == "#3333ff")
+    // Text hierarchy falls back to foreground/mutedForeground when not in JSON
+    #expect(theme.light.text == "#000000")
+    #expect(theme.light.textSecondary == "#666666")
+    #expect(theme.light.textMuted == "#666666")
   }
   
   @Test("Theme with custom tokens can be decoded")

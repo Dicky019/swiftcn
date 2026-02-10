@@ -25,7 +25,7 @@ struct ComponentGalleryView: View {
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
           Text("Copy-paste ready components")
             .font(.subheadline)
-            .foregroundStyle(theme.mutedForeground)
+            .foregroundStyle(theme.textMuted)
         }
         .padding(.horizontal, theme.spacing.md)
         

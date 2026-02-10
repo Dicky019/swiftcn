@@ -22,7 +22,7 @@ struct CardShowcase: View {
                         .font(.headline)
                     Text("This card has a shadow for depth.")
                         .font(.body)
-                        .foregroundStyle(theme.mutedForeground)
+                        .foregroundStyle(theme.textMuted)
                 }
             }
 
@@ -32,7 +32,7 @@ struct CardShowcase: View {
                         .font(.headline)
                     Text("This card has a border instead of shadow.")
                         .font(.body)
-                        .foregroundStyle(theme.mutedForeground)
+                        .foregroundStyle(theme.textMuted)
                 }
             }
 
@@ -42,7 +42,7 @@ struct CardShowcase: View {
                         .font(.headline)
                     Text("This card has just a background color.")
                         .font(.body)
-                        .foregroundStyle(theme.mutedForeground)
+                        .foregroundStyle(theme.textMuted)
                 }
             }
         }

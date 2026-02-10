@@ -26,10 +26,10 @@ struct SDUITemplatePickerView: View {
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                   Text(template.name)
                     .font(.headline)
-                    .foregroundStyle(theme.foreground)
+                    .foregroundStyle(theme.text)
                   Text(template.description)
                     .font(.caption)
-                    .foregroundStyle(theme.mutedForeground)
+                    .foregroundStyle(theme.textMuted)
                 }
                 .padding(.vertical, theme.spacing.xs)
               }

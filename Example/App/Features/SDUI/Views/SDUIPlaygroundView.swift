@@ -31,10 +31,9 @@ struct SDUIPlaygroundView: View {
               )
             }
           }
-          .padding()
+          .padding(theme.spacing.md)
         }
         .frame(maxHeight: .infinity)
-        .background(theme.background)
         
         Divider()
         
@@ -43,32 +42,38 @@ struct SDUIPlaygroundView: View {
           HStack {
             Text("JSON Input")
               .font(.headline)
-            
+              .foregroundStyle(theme.text)
+
             if let template = selectedTemplate {
               CNBadge(template.name, variant: .secondary)
             }
-            
+
             Spacer()
-            
+
             Button {
               showTemplatePicker = true
             } label: {
               Label("Templates", systemImage: "doc.text")
-                .font(.caption)
+                .foregroundStyle(theme.primary)
             }
           }
-          
+
           TextEditor(text: $jsonInput)
             .font(.system(.caption, design: .monospaced))
+            .foregroundStyle(theme.text)
+            .scrollContentBackground(.hidden)
+            .padding(theme.spacing.sm)
             .frame(height: 200)
+            .clipShape(RoundedRectangle(cornerRadius: theme.radius.md))
             .overlay(
               RoundedRectangle(cornerRadius: theme.radius.md)
-                .stroke(theme.border, lineWidth: 1)
+                .stroke(theme.border, lineWidth: theme.borderWidth.regular)
             )
         }
-        .padding()
+        .padding(theme.spacing.md)
         .background(theme.card)
       }
+      .background(theme.background)
       .navigationTitle("SDUI Playground")
       .sheet(isPresented: $showTemplatePicker) {
         SDUITemplatePickerView { template in

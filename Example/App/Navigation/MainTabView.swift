@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct MainTabView: View {
+  @Environment(\.theme) private var theme
   @State private var router = AppRouter()
-  
+
   var body: some View {
     TabView {
       ComponentsCoordinatorView()
@@ -32,6 +33,7 @@ struct MainTabView: View {
           Label("Settings", systemImage: "gear")
         }
     }
+    .tint(theme.primary)
     .environment(router)
   }
 }

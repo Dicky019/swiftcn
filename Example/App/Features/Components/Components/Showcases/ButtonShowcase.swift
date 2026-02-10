@@ -57,13 +57,13 @@ struct ButtonShowcase: View {
         HStack(spacing: theme.spacing.sm) {
           Text("fast: \(theme.motion.fast, specifier: "%.2f")s")
             .font(.caption)
-            .foregroundStyle(theme.mutedForeground)
+            .foregroundStyle(theme.textMuted)
           Text("normal: \(theme.motion.normal, specifier: "%.2f")s")
             .font(.caption)
-            .foregroundStyle(theme.mutedForeground)
+            .foregroundStyle(theme.textMuted)
           Text("slow: \(theme.motion.slow, specifier: "%.2f")s")
             .font(.caption)
-            .foregroundStyle(theme.mutedForeground)
+            .foregroundStyle(theme.textMuted)
         }
 
         CNButton(showMotionDemo ? "Hide" : "Show Animation") {

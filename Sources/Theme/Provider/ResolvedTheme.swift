@@ -40,6 +40,12 @@ public struct ResolvedTheme: Sendable {
   public let chart4: Color
   public let chart5: Color
 
+  // MARK: - Text Hierarchy
+
+  public let text: Color
+  public let textSecondary: Color
+  public let textMuted: Color
+
   // MARK: - Design Tokens
 
   public let radius: ThemeRadius
@@ -89,6 +95,11 @@ public struct ResolvedTheme: Sendable {
     self.chart3 = Color(hex: colorScheme.chart3)
     self.chart4 = Color(hex: colorScheme.chart4)
     self.chart5 = Color(hex: colorScheme.chart5)
+
+    // Text Hierarchy
+    self.text = Color(hex: colorScheme.text)
+    self.textSecondary = Color(hex: colorScheme.textSecondary)
+    self.textMuted = Color(hex: colorScheme.textMuted)
 
     // Tokens
     self.radius = radius

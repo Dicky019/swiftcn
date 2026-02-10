@@ -45,7 +45,10 @@ extension Theme.ColorScheme {
     chart2: "#2a9d90",
     chart3: "#274754",
     chart4: "#e8c468",
-    chart5: "#f4a462"
+    chart5: "#f4a462",
+    text: "#09090b",
+    textSecondary: "#52525b",
+    textMuted: "#71717a"
   )
 
   /// Default dark color scheme (Zinc palette)
@@ -77,6 +80,9 @@ extension Theme.ColorScheme {
     chart2: "#2a9d90",
     chart3: "#274754",
     chart4: "#e8c468",
-    chart5: "#f4a462"
+    chart5: "#f4a462",
+    text: "#fafafa",
+    textSecondary: "#a1a1aa",
+    textMuted: "#71717a"
   )
 }

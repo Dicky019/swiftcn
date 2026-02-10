@@ -24,11 +24,11 @@ struct ComponentCard: View {
         VStack(spacing: theme.spacing.xs) {
           Text(component.cnName)
             .font(.headline)
-            .foregroundStyle(theme.foreground)
+            .foregroundStyle(theme.text)
 
           Text(component.description)
             .font(.caption)
-            .foregroundStyle(theme.mutedForeground)
+            .foregroundStyle(theme.textMuted)
             .lineLimit(2)
         }
 

@@ -10,6 +10,7 @@ import SwiftUI
 // MARK: - Color Row
 
 struct ColorRow: View {
+  @Environment(\.theme) private var theme
   let name: String
   let color: Color
 
@@ -22,7 +23,7 @@ struct ColorRow: View {
         .frame(width: 40, height: 24)
         .overlay(
           RoundedRectangle(cornerRadius: 4)
-            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+            .stroke(theme.border, lineWidth: 1)
         )
     }
   }
@@ -31,6 +32,7 @@ struct ColorRow: View {
 // MARK: - Spacing Row
 
 struct SpacingRow: View {
+  @Environment(\.theme) private var theme
   let name: String
   let value: CGFloat
 
@@ -39,9 +41,9 @@ struct SpacingRow: View {
       Text(name)
       Spacer()
       Text("\(Int(value))pt")
-        .foregroundStyle(.secondary)
+        .foregroundStyle(theme.textSecondary)
       Rectangle()
-        .fill(Color.blue.opacity(0.3))
+        .fill(theme.primary.opacity(0.3))
         .frame(width: max(value, 1), height: 16)
     }
   }
@@ -59,7 +61,7 @@ struct RadiusRow: View {
       Text(name)
       Spacer()
       Text("\(Int(value))pt")
-        .foregroundStyle(.secondary)
+        .foregroundStyle(theme.textSecondary)
       RoundedRectangle(cornerRadius: min(value, 16))
         .fill(theme.primary)
         .frame(width: 32, height: 32)
@@ -80,8 +82,8 @@ struct ShadowRow: View {
       Spacer()
       Text("r:\(Int(shadow.radius)) y:\(Int(shadow.y))")
         .font(.caption)
-        .foregroundStyle(.secondary)
-      RoundedRectangle(cornerRadius: 8)
+        .foregroundStyle(theme.textSecondary)
+      RoundedRectangle(cornerRadius: theme.radius.md)
         .fill(theme.card)
         .frame(width: 40, height: 24)
         .shadow(
@@ -96,6 +98,7 @@ struct ShadowRow: View {
 // MARK: - Motion Row
 
 struct MotionRow: View {
+  @Environment(\.theme) private var theme
   let name: String
   let duration: Double
   @State private var isAnimating = false
@@ -105,9 +108,9 @@ struct MotionRow: View {
       Text(name)
       Spacer()
       Text("\(duration, specifier: "%.2f")s")
-        .foregroundStyle(.secondary)
+        .foregroundStyle(theme.textSecondary)
       Circle()
-        .fill(Color.blue)
+        .fill(theme.primary)
         .frame(width: 16, height: 16)
         .offset(x: isAnimating ? 20 : 0)
         .animation(.easeInOut(duration: duration), value: isAnimating)
@@ -131,7 +134,7 @@ struct OpacityRow: View {
       Text(name)
       Spacer()
       Text("\(Int(value * 100))%")
-        .foregroundStyle(.secondary)
+        .foregroundStyle(theme.textSecondary)
       RoundedRectangle(cornerRadius: 4)
         .fill(theme.primary.opacity(value))
         .frame(width: 40, height: 24)
@@ -151,7 +154,7 @@ struct BorderWidthRow: View {
       Text(name)
       Spacer()
       Text("\(value, specifier: "%.1f")pt")
-        .foregroundStyle(.secondary)
+        .foregroundStyle(theme.textSecondary)
       RoundedRectangle(cornerRadius: 4)
         .stroke(theme.border, lineWidth: max(value, 0.5))
         .frame(width: 40, height: 24)

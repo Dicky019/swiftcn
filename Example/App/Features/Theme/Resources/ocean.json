@@ -27,7 +27,10 @@
     "chart2": "#38BDF8",
     "chart3": "#7DD3FC",
     "chart4": "#0369A1",
-    "chart5": "#075985"
+    "chart5": "#075985",
+    "text": "#0C4A6E",
+    "textSecondary": "#475569",
+    "textMuted": "#64748B"
   },
   "dark": {
     "background": "#0C4A6E",
@@ -57,6 +60,9 @@
     "chart2": "#7DD3FC",
     "chart3": "#0284C7",
     "chart4": "#BAE6FD",
-    "chart5": "#0369A1"
+    "chart5": "#0369A1",
+    "text": "#F0F9FF",
+    "textSecondary": "#CBD5E1",
+    "textMuted": "#94A3B8"
   }
 }

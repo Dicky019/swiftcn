@@ -85,9 +85,14 @@ swiftcn/
 │   │   │   ├── SDUI/                # SDUI playground
 │   │   │   │   ├── Models/
 │   │   │   │   └── Views/
-│   │   │   └── Settings/            # Theme & preferences
+│   │   │   ├── Settings/            # Preferences
+│   │   │   │   ├── Components/
+│   │   │   │   ├── ViewModels/
+│   │   │   │   └── Views/
+│   │   │   └── Theme/               # Theme explorer & token showcase
 │   │   │       ├── Components/
-│   │   │       ├── ViewModels/
+│   │   │       ├── Models/
+│   │   │       ├── Resources/       # Bundled palettes (forest, ocean, etc.)
 │   │   │       └── Views/
 │   │   └── Navigation/
 │   │       ├── AppRoute.swift

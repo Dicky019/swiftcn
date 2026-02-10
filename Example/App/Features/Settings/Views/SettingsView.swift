@@ -8,40 +8,56 @@
 import SwiftUI
 
 struct SettingsView: View {
+  @Environment(\.theme) private var theme
   @Environment(ThemeProvider.self) private var themeProvider
   @State private var viewModel: SettingsViewModel?
-  
+
   var body: some View {
     NavigationStack {
-      List {
+      ScrollView {
         if let viewModel {
-          // MARK: - Appearance Section
-          Section {
-            ForEach(viewModel.allModes, id: \.self) { mode in
-              ThemeModeRow(
-                mode: mode,
-                isSelected: viewModel.isSelected(mode),
-                action: {
-                  viewModel.selectMode(mode)
+          VStack(spacing: theme.spacing.lg) {
+            // MARK: - Appearance Section
+            CNCard(variant: .outlined) {
+              VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                Text("Appearance")
+                  .font(.headline)
+                  .foregroundStyle(theme.text)
+                Divider()
+
+                ForEach(viewModel.allModes, id: \.self) { mode in
+                  ThemeModeRow(
+                    mode: mode,
+                    isSelected: viewModel.isSelected(mode),
+                    action: {
+                      viewModel.selectMode(mode)
+                    }
+                  )
                 }
-              )
+
+                Text("Choose how the app appears. System mode follows your device settings.")
+                  .font(.caption)
+                  .foregroundStyle(theme.textMuted)
+              }
             }
-          } header: {
-            Text("Appearance")
-          } footer: {
-            Text("Choose how the app appears. System mode follows your device settings.")
+
+            // MARK: - About Section
+            CNCard(variant: .outlined) {
+              VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                Text("About")
+                  .font(.headline)
+                  .foregroundStyle(theme.text)
+                Divider()
+                InfoRow(label: "Version", value: viewModel.appVersion)
+                InfoRow(label: "Build", value: viewModel.buildNumber)
+              }
+            }
           }
-          
-          // MARK: - About Section
-          Section {
-            InfoRow(label: "Version", value: viewModel.appVersion)
-            InfoRow(label: "Build", value: viewModel.buildNumber)
-          } header: {
-            Text("About")
-          }
+          .padding(theme.spacing.md)
         }
       }
       .navigationTitle("Settings")
+      .background(theme.background)
       .onAppear {
         if viewModel == nil {
           viewModel = SettingsViewModel(themeProvider: themeProvider)

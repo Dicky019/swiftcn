@@ -23,7 +23,7 @@ struct ComponentDetailView: View {
             HStack {
               Text(component.cnName)
                 .font(.headline)
-                .foregroundStyle(theme.foreground)
+                .foregroundStyle(theme.text)
               
               Spacer()
               
@@ -34,7 +34,7 @@ struct ComponentDetailView: View {
             
             Text(component.description)
               .font(.body)
-              .foregroundStyle(theme.mutedForeground)
+              .foregroundStyle(theme.textMuted)
             
             Divider()
             
@@ -42,11 +42,11 @@ struct ComponentDetailView: View {
             Text("Usage")
               .font(.subheadline)
               .fontWeight(.semibold)
-              .foregroundStyle(theme.foreground)
+              .foregroundStyle(theme.text)
             
             Text("Copy this component into your project and customize as needed.")
               .font(.caption)
-              .foregroundStyle(theme.mutedForeground)
+              .foregroundStyle(theme.textMuted)
           }
         }
         
@@ -71,7 +71,7 @@ struct ComponentDetailView: View {
         case "badge": BadgeShowcase()
         default:
           Text("Component preview")
-            .foregroundStyle(theme.mutedForeground)
+            .foregroundStyle(theme.textMuted)
         }
       }
     }
