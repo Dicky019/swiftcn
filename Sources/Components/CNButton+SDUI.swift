@@ -28,6 +28,14 @@ extension CNButton {
       self.variant = variant
       self.actionId = actionId
     }
+
+    /// Initialize from SDUI node props
+    public init(from props: [String: AnyCodable]) {
+      self.label = props["label"]?.asString ?? ""
+      self.size = props["size"]?.asString.flatMap(Size.init(rawValue:)) ?? .md
+      self.variant = props["variant"]?.asString.flatMap(Variant.init(rawValue:)) ?? .default
+      self.actionId = props["actionId"]?.asString
+    }
   }
 }
 

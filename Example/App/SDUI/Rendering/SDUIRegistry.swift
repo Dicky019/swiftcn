@@ -45,16 +45,10 @@ public final class SDUIRegistry {
   private func registerDefaultComponents() {
     // CNButton
     register("button") { node, handler in
-      let label = node.props["label"]?.value as? String ?? ""
-      let sizeRaw = node.props["size"]?.value as? String ?? "md"
-      let variantRaw = node.props["variant"]?.value as? String ?? "default"
-      let actionId = node.props["actionId"]?.value as? String
+      let config = CNButton.Configuration(from: node.props)
 
-      let size = CNButton.Size(rawValue: sizeRaw) ?? .md
-      let variant = CNButton.Variant(rawValue: variantRaw) ?? .default
-
-      return CNButton(label, size: size, variant: variant) {
-        if let actionId {
+      return CNButton(configuration: config) {
+        if let actionId = config.actionId {
           handler?.handleAction(id: actionId, payload: nil)
         }
       }
@@ -62,27 +56,23 @@ public final class SDUIRegistry {
 
     // CNCard - use type annotation to help inference
     register("card") { node, handler -> CNCard<SDUIRenderer> in
-      let variantRaw = node.props["variant"]?.value as? String ?? "elevated"
-      let variant = CNCard<SDUIRenderer>.Variant(rawValue: variantRaw) ?? .elevated
+      let config = CNCard<SDUIRenderer>.Configuration(from: node.props)
       let children = node.children ?? []
 
-      return CNCard(variant: variant) {
+      return CNCard(variant: config.variant) {
         SDUIRenderer(nodes: children, actionHandler: handler)
       }
     }
 
     // CNBadge
     register("badge") { node, _ in
-      let label = node.props["label"]?.value as? String ?? ""
-      let variantRaw = node.props["variant"]?.value as? String ?? "default"
-      let variant = CNBadge.Variant(rawValue: variantRaw) ?? .default
-
-      return CNBadge(label, variant: variant)
+      let config = CNBadge.Configuration(from: node.props)
+      return CNBadge(configuration: config)
     }
 
     // Layout: VStack
     register("vstack") { node, handler in
-      let spacing = node.props["spacing"]?.value as? Double ?? 8
+      let spacing = node.props["spacing"]?.asDouble ?? 8
 
       return VStack(spacing: spacing) {
         if let children = node.children {
@@ -93,7 +83,7 @@ public final class SDUIRegistry {
 
     // Layout: HStack
     register("hstack") { node, handler in
-      let spacing = node.props["spacing"]?.value as? Double ?? 8
+      let spacing = node.props["spacing"]?.asDouble ?? 8
 
       return HStack(spacing: spacing) {
         if let children = node.children {
@@ -104,8 +94,8 @@ public final class SDUIRegistry {
 
     // Text
     register("text") { node, _ in
-      let content = node.props["content"]?.value as? String ?? ""
-      let style = node.props["style"]?.value as? String ?? "body"
+      let content = node.props["content"]?.asString ?? ""
+      let style = node.props["style"]?.asString ?? "body"
 
       return Text(content)
         .font(Self.font(for: style))
@@ -123,51 +113,40 @@ public final class SDUIRegistry {
 
     // CNInput
     register("input") { node, handler in
-      let placeholder = node.props["placeholder"]?.value as? String ?? ""
-      let label = node.props["label"]?.value as? String
-      let isError = node.props["isError"]?.value as? Bool ?? false
-      let errorMessage = node.props["errorMessage"]?.value as? String
-      let inputId = node.props["inputId"]?.value as? String
+      let config = CNInput.Configuration(from: node.props)
 
       return SDUIInputWrapper(
-        placeholder: placeholder,
-        label: label,
-        isError: isError,
-        errorMessage: errorMessage,
-        inputId: inputId,
+        placeholder: config.placeholder,
+        label: config.label,
+        isError: config.isError,
+        errorMessage: config.errorMessage,
+        inputId: config.inputId,
         actionHandler: handler
       )
     }
 
     // CNSwitch
     register("switch") { node, handler in
-      let label = node.props["label"]?.value as? String ?? ""
-      let isOn = node.props["isOn"]?.value as? Bool ?? false
-      let switchId = node.props["switchId"]?.value as? String
+      let config = CNSwitch.Configuration(from: node.props)
 
       return SDUISwitchWrapper(
-        label: label,
-        initialValue: isOn,
-        switchId: switchId,
+        label: config.label,
+        initialValue: config.isOn,
+        switchId: config.switchId,
         actionHandler: handler
       )
     }
 
     // CNSlider
     register("slider") { node, handler in
-      let label = node.props["label"]?.value as? String ?? ""
-      let value = node.props["value"]?.value as? Double ?? 0.5
-      let minValue = node.props["min"]?.value as? Double ?? 0.0
-      let maxValue = node.props["max"]?.value as? Double ?? 1.0
-      let step = node.props["step"]?.value as? Double
-      let sliderId = node.props["sliderId"]?.value as? String
+      let config = CNSlider.Configuration(from: node.props)
 
       return SDUISliderWrapper(
-        label: label,
-        initialValue: value,
-        range: minValue...maxValue,
-        step: step,
-        sliderId: sliderId,
+        label: config.label ?? "",
+        initialValue: config.value,
+        range: config.minValue...config.maxValue,
+        step: config.step,
+        sliderId: config.sliderId,
         actionHandler: handler
       )
     }

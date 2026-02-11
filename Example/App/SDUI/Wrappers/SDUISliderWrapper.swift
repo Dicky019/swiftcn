@@ -33,14 +33,14 @@ struct SDUISliderWrapper: View {
       CNSlider(label, value: $value, in: range, step: step)
         .onChange(of: value) { _, newValue in
           if let sliderId {
-            actionHandler?.handleAction(id: sliderId, payload: ["value": newValue])
+            actionHandler?.handleAction(id: sliderId, payload: ["value": AnyCodable(newValue)])
           }
         }
     } else {
       CNSlider(label, value: $value, in: range)
         .onChange(of: value) { _, newValue in
           if let sliderId {
-            actionHandler?.handleAction(id: sliderId, payload: ["value": newValue])
+            actionHandler?.handleAction(id: sliderId, payload: ["value": AnyCodable(newValue)])
           }
         }
     }

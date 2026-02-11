@@ -22,7 +22,7 @@ struct SDUIInputWrapper: View {
     CNInput(placeholder, text: $text, label: label, isError: isError, errorMessage: errorMessage)
       .onChange(of: text) { _, newValue in
         if let inputId {
-          actionHandler?.handleAction(id: inputId, payload: ["value": newValue])
+          actionHandler?.handleAction(id: inputId, payload: ["value": AnyCodable(newValue)])
         }
       }
   }
