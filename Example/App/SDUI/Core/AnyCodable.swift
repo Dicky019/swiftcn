@@ -82,3 +82,49 @@ public enum AnyCodable: Codable, Sendable, Hashable {
     }
   }
 }
+
+// MARK: - Typed Accessors
+
+extension AnyCodable {
+  /// Extract as String (no coercion)
+  public var asString: String? {
+    if case .string(let v) = self { return v }
+    return nil
+  }
+
+  /// Extract as Int, coercing from Double if needed
+  public var asInt: Int? {
+    switch self {
+    case .int(let v): return v
+    case .double(let v): return Int(exactly: v)
+    default: return nil
+    }
+  }
+
+  /// Extract as Double, coercing from Int if needed
+  public var asDouble: Double? {
+    switch self {
+    case .double(let v): return v
+    case .int(let v): return Double(v)
+    default: return nil
+    }
+  }
+
+  /// Extract as Bool (no coercion)
+  public var asBool: Bool? {
+    if case .bool(let v) = self { return v }
+    return nil
+  }
+
+  /// Extract as array of AnyCodable
+  public var asArray: [AnyCodable]? {
+    if case .array(let v) = self { return v }
+    return nil
+  }
+
+  /// Extract as dictionary
+  public var asDictionary: [String: AnyCodable]? {
+    if case .dictionary(let v) = self { return v }
+    return nil
+  }
+}

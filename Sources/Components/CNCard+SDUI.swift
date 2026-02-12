@@ -17,5 +17,14 @@ extension CNCard {
     public init(variant: Variant = .elevated) {
       self.variant = variant
     }
+
+    /// Initialize from SDUI node props
+    public init(from props: [String: AnyCodable]) {
+      if let raw = props["variant"]?.asString, let v = Variant(rawValue: raw) {
+        self.variant = v
+      } else {
+        self.variant = .elevated
+      }
+    }
   }
 }

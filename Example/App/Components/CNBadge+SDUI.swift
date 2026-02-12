@@ -22,6 +22,12 @@ extension CNBadge {
       self.label = label
       self.variant = variant
     }
+
+    /// Initialize from SDUI node props
+    public init(from props: [String: AnyCodable]) {
+      self.label = props["label"]?.asString ?? ""
+      self.variant = props["variant"]?.asString.flatMap(Variant.init(rawValue:)) ?? .default
+    }
   }
 }
 

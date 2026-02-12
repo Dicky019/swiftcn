@@ -19,6 +19,7 @@ struct SDUITemplate: Identifiable, Hashable {
     case forms = "Forms"
     case layouts = "Layouts"
     case cards = "Cards"
+    case interactive = "Interactive"
   }
 }
 
@@ -341,6 +342,63 @@ extension SDUITemplate {
                           {"id": "9", "type": "button", "props": {"label": "Later", "variant": "ghost", "size": "sm", "actionId": "dismiss"}}
                         ]
                       }
+                    ]
+                  }
+                ]
+              }
+            ]
+            """
+    ),
+
+    // Interactive Examples
+    SDUITemplate(
+      id: "full-example",
+      name: "Full Example",
+      category: .interactive,
+      description: "Actions, navigation, and counter",
+      json: """
+            [
+              {
+                "id": "root",
+                "type": "vstack",
+                "props": {"spacing": 16},
+                "children": [
+                  {"id": "title", "type": "text", "props": {"content": "Full Example", "style": "title"}},
+                  {
+                    "id": "counter_section",
+                    "type": "card",
+                    "props": {},
+                    "children": [
+                      {
+                        "id": "counter_content",
+                        "type": "vstack",
+                        "props": {"spacing": 12},
+                        "children": [
+                          {"id": "counter_label", "type": "text", "props": {"content": "Tap Count", "style": "headline"}},
+                          {"id": "counter_hint", "type": "text", "props": {"content": "Tap the buttons and watch the Action Log", "style": "caption"}},
+                          {
+                            "id": "counter_buttons",
+                            "type": "hstack",
+                            "props": {"spacing": 8},
+                            "children": [
+                              {"id": "btn_count_1", "type": "button", "props": {"label": "Count +1", "variant": "default", "actionId": "count_increment"}},
+                              {"id": "btn_count_5", "type": "button", "props": {"label": "Count +5", "variant": "secondary", "actionId": "count_batch"}},
+                              {"id": "btn_reset", "type": "button", "props": {"label": "Reset", "variant": "outline", "actionId": "count_reset"}}
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {"id": "nav_header", "type": "text", "props": {"content": "Navigation", "style": "headline"}},
+                  {
+                    "id": "nav_section",
+                    "type": "vstack",
+                    "props": {"spacing": 8},
+                    "children": [
+                      {"id": "btn_settings", "type": "button", "props": {"label": "Go to Settings", "variant": "default", "actionId": "nav_settings"}},
+                      {"id": "btn_profile", "type": "button", "props": {"label": "Go to Profile", "variant": "secondary", "actionId": "nav_profile"}},
+                      {"id": "btn_detail", "type": "button", "props": {"label": "Open Detail", "variant": "outline", "actionId": "nav_detail"}}
                     ]
                   }
                 ]
