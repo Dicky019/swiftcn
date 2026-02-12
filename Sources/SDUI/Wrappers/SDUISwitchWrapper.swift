@@ -31,5 +31,8 @@ struct SDUISwitchWrapper: View {
           actionHandler?.handleAction(id: switchId, payload: ["value": AnyCodable(newValue)])
         }
       }
+      .onChange(of: initialValue) { _, newValue in
+        isOn = newValue
+      }
   }
 }

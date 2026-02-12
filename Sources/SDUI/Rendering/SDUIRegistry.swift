@@ -12,144 +12,147 @@ import SwiftUI
 public final class SDUIRegistry {
   public static let shared = SDUIRegistry()
 
-  private var renderers: [String: @MainActor (SDUINode, SDUIActionHandler?) -> AnyView] = [:]
+  /// Custom renderers registered by the user (AnyView for extensibility)
+  private var customRenderers: [String: @MainActor (SDUINode, SDUIActionHandler?) -> AnyView] = [:]
 
-  private init() {
-    registerDefaultComponents()
-  }
+  /// Maximum text content length before truncation
+  static let maxTextLength = 10_000
 
-  /// Register a component renderer
+  private init() {}
+
+  /// Register a custom component renderer
   public func register<V: View>(
     _ type: String,
     renderer: @MainActor @escaping (SDUINode, SDUIActionHandler?) -> V
   ) {
-    renderers[type] = { node, handler in
+    customRenderers[type] = { node, handler in
       AnyView(renderer(node, handler))
     }
   }
 
-  /// Render a node using registered renderer
-  public func render(_ node: SDUINode, actionHandler: SDUIActionHandler?) -> AnyView {
-    if let renderer = renderers[node.type] {
-      return renderer(node, actionHandler)
-    }
-    return AnyView(SDUIUnknownComponent(type: node.type))
-  }
-
-  /// Check if a component type is registered
-  public func isRegistered(_ type: String) -> Bool {
-    renderers[type] != nil
-  }
-
-  /// Register default CN components
-  private func registerDefaultComponents() {
-    // CNButton
-    register("button") { node, handler in
+  /// Render a node using built-in @ViewBuilder switch or custom renderer fallback
+  @ViewBuilder
+  public func render(_ node: SDUINode, actionHandler: SDUIActionHandler?, depth: Int = 0) -> some View {
+    let childDepth = depth + 1
+    switch node.type {
+    case "button":
       let config = CNButton.Configuration(from: node.props)
-
-      return CNButton(configuration: config) {
+      CNButton(configuration: config) {
         if let actionId = config.actionId {
-          handler?.handleAction(id: actionId, payload: nil)
+          actionHandler?.handleAction(id: actionId, payload: nil)
         }
       }
-    }
 
-    // CNCard - use type annotation to help inference
-    register("card") { node, handler -> CNCard<SDUIRenderer> in
+    case "card":
       let config = CNCard<SDUIRenderer>.Configuration(from: node.props)
       let children = node.children ?? []
-
-      return CNCard(variant: config.variant) {
-        SDUIRenderer(nodes: children, actionHandler: handler)
+      CNCard(variant: config.variant) {
+        SDUIRenderer(nodes: children, actionHandler: actionHandler, depth: childDepth)
       }
-    }
 
-    // CNBadge
-    register("badge") { node, _ in
+    case "badge":
       let config = CNBadge.Configuration(from: node.props)
-      return CNBadge(configuration: config)
-    }
+      CNBadge(configuration: config)
 
-    // Layout: VStack
-    register("vstack") { node, handler in
+    case "vstack":
       let spacing = node.props["spacing"]?.asDouble ?? 8
-
-      return VStack(spacing: spacing) {
+      VStack(spacing: spacing) {
         if let children = node.children {
-          SDUIRenderer(nodes: children, actionHandler: handler)
+          SDUIRenderer(nodes: children, actionHandler: actionHandler, depth: childDepth)
         }
       }
-    }
 
-    // Layout: HStack
-    register("hstack") { node, handler in
+    case "hstack":
       let spacing = node.props["spacing"]?.asDouble ?? 8
-
-      return HStack(spacing: spacing) {
+      HStack(spacing: spacing) {
         if let children = node.children {
-          SDUIRenderer(nodes: children, actionHandler: handler)
+          SDUIRenderer(nodes: children, actionHandler: actionHandler, depth: childDepth)
         }
       }
-    }
 
-    // Text
-    register("text") { node, _ in
-      let content = node.props["content"]?.asString ?? ""
+    case "lazy-vstack":
+      let spacing = node.props["spacing"]?.asDouble ?? 8
+      ScrollView {
+        LazyVStack(spacing: spacing) {
+          if let children = node.children {
+            SDUIRenderer(nodes: children, actionHandler: actionHandler, depth: childDepth)
+          }
+        }
+      }
+
+    case "lazy-hstack":
+      let spacing = node.props["spacing"]?.asDouble ?? 8
+      ScrollView(.horizontal) {
+        LazyHStack(spacing: spacing) {
+          if let children = node.children {
+            SDUIRenderer(nodes: children, actionHandler: actionHandler, depth: childDepth)
+          }
+        }
+      }
+
+    case "text":
+      let rawContent = node.props["content"]?.asString ?? ""
+      let content = rawContent.count > Self.maxTextLength
+        ? String(rawContent.prefix(Self.maxTextLength))
+        : rawContent
       let style = node.props["style"]?.asString ?? "body"
-
-      return Text(content)
+      Text(content)
         .font(Self.font(for: style))
-    }
 
-    // Spacer
-    register("spacer") { _, _ in
+    case "spacer":
       Spacer()
-    }
 
-    // Divider
-    register("divider") { _, _ in
+    case "divider":
       Divider()
-    }
 
-    // CNInput
-    register("input") { node, handler in
+    case "input":
       let config = CNInput.Configuration(from: node.props)
-
-      return SDUIInputWrapper(
+      SDUIInputWrapper(
         placeholder: config.placeholder,
         label: config.label,
         isError: config.isError,
         errorMessage: config.errorMessage,
         inputId: config.inputId,
-        actionHandler: handler
+        actionHandler: actionHandler
       )
-    }
 
-    // CNSwitch
-    register("switch") { node, handler in
+    case "switch":
       let config = CNSwitch.Configuration(from: node.props)
-
-      return SDUISwitchWrapper(
+      SDUISwitchWrapper(
         label: config.label,
         initialValue: config.isOn,
         switchId: config.switchId,
-        actionHandler: handler
+        actionHandler: actionHandler
       )
-    }
 
-    // CNSlider
-    register("slider") { node, handler in
+    case "slider":
       let config = CNSlider.Configuration(from: node.props)
-
-      return SDUISliderWrapper(
+      SDUISliderWrapper(
         label: config.label ?? "",
         initialValue: config.value,
         range: config.minValue...config.maxValue,
         step: config.step,
         sliderId: config.sliderId,
-        actionHandler: handler
+        actionHandler: actionHandler
       )
+
+    default:
+      if let customRenderer = customRenderers[node.type] {
+        customRenderer(node, actionHandler)
+      } else {
+        SDUIUnknownComponent(type: node.type)
+      }
     }
+  }
+
+  /// Check if a component type is registered (built-in or custom)
+  public func isRegistered(_ type: String) -> Bool {
+    let builtIn: Set<String> = [
+      "button", "card", "badge", "vstack", "hstack",
+      "lazy-vstack", "lazy-hstack", "text", "spacer",
+      "divider", "input", "switch", "slider"
+    ]
+    return builtIn.contains(type) || customRenderers[type] != nil
   }
 
   private static func font(for style: String) -> Font {
@@ -174,10 +177,14 @@ struct SDUIUnknownComponent: View {
   let type: String
 
   var body: some View {
+    #if DEBUG
     Text("Unknown: \(type)")
       .font(.caption)
       .foregroundStyle(.red)
       .padding(4)
       .background(Color.red.opacity(0.1), in: .rect(cornerRadius: 4))
+    #else
+    EmptyView()
+    #endif
   }
 }
