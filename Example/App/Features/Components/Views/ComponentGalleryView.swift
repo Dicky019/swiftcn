@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ComponentGalleryView: View {
-  @Environment(AppRouter.self) private var router
+  @Environment(NavController.self) private var navController
   @Environment(\.theme) private var theme
   @Environment(\.horizontalSizeClass) private var sizeClass
   
@@ -33,7 +33,7 @@ struct ComponentGalleryView: View {
         LazyVGrid(columns: columns, spacing: theme.spacing.md) {
           ForEach(ComponentInfo.all) { component in
             Button {
-              router.navigate(to: .detail(component))
+              navController.navigateTo(Destination.ComponentDetail(info: component))
             } label: {
               ComponentCard(component: component, isCompact: sizeClass == .compact)
             }
@@ -51,6 +51,5 @@ struct ComponentGalleryView: View {
 
 #Preview {
   ComponentsCoordinatorView()
-    .environment(AppRouter())
     .environment(ThemeProvider())
 }

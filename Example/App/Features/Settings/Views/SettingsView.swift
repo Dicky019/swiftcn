@@ -10,10 +10,13 @@ import SwiftUI
 struct SettingsView: View {
   @Environment(\.theme) private var theme
   @Environment(ThemeProvider.self) private var themeProvider
+  @Environment(AppNavController.self) private var appNav
   @State private var viewModel: SettingsViewModel?
 
   var body: some View {
-    NavigationStack {
+    @Bindable var navController = appNav.settings
+
+    NavigationStack(path: $navController.stack) {
       ScrollView {
         if let viewModel {
           VStack(spacing: theme.spacing.lg) {
@@ -58,16 +61,21 @@ struct SettingsView: View {
       }
       .navigationTitle("Settings")
       .background(theme.background)
+      .navigationDestination(for: BaseDestination.self) { destination in
+        AnyView(destination.getScreen())
+      }
       .onAppear {
         if viewModel == nil {
           viewModel = SettingsViewModel(themeProvider: themeProvider)
         }
       }
     }
+    .environment(appNav.settings)
   }
 }
 
 #Preview {
   SettingsView()
+    .environment(AppNavController())
     .environment(ThemeProvider())
 }

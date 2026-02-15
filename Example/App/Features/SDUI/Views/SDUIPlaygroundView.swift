@@ -9,11 +9,13 @@ import SwiftUI
 
 struct SDUIPlaygroundView: View {
   @Environment(\.theme) private var theme
+  @Environment(AppNavController.self) private var appNav
 
   @State private var jsonInput = SDUITemplate.all.first?.json ?? ""
   @State private var selectedTemplate: SDUITemplate? = SDUITemplate.all.first
   @State private var actionHandler = PlaygroundActionHandler()
   @State private var selectedTab: BottomTab = .editor
+  @State private var showTemplatePicker = false
 
   private enum BottomTab: String, CaseIterable {
     case editor = "Editor"
@@ -22,68 +24,67 @@ struct SDUIPlaygroundView: View {
   }
 
   var body: some View {
-    NavigationStack {
+    @Bindable var navController = appNav.sdui
+
+    NavigationStack(path: $navController.stack) {
       VStack(spacing: 0) {
-        templateBar
-        Divider()
         previewArea
         Divider()
         bottomPanel
       }
       .background(theme.background)
       .navigationTitle("SDUI Playground")
+      .navigationDestination(for: BaseDestination.self) { destination in
+        AnyView(destination.getScreen())
+      }
 #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)
 #endif
-    }
-  }
-
-  // MARK: - Template Bar
-
-  private var templateBar: some View {
-    ScrollView(.horizontal, showsIndicators: false) {
-      HStack(spacing: theme.spacing.sm) {
-        ForEach(SDUITemplate.TemplateCategory.allCases, id: \.self) { category in
-          templateCategorySection(category)
+      .toolbar {
+        ToolbarItem(placement: .topBarTrailing) {
+          Button {
+            showTemplatePicker = true
+          } label: {
+            Label("Templates", systemImage: "list.bullet")
+          }
         }
       }
-      .padding(.horizontal, theme.spacing.md)
-      .padding(.vertical, theme.spacing.sm)
-    }
-    .background(theme.card)
-  }
-
-  private func templateCategorySection(_ category: SDUITemplate.TemplateCategory) -> some View {
-    HStack(spacing: theme.spacing.xs) {
-      Text(category.rawValue)
-        .font(.caption2)
-        .foregroundStyle(theme.textMuted)
-        .textCase(.uppercase)
-
-      ForEach(SDUITemplate.templates(for: category)) { template in
-        Button {
-          selectedTemplate = template
-          jsonInput = template.json
-        } label: {
-          CNBadge(
-            template.name,
-            variant: selectedTemplate?.id == template.id ? .default : .outline
-          )
-        }
+      .sheet(isPresented: $showTemplatePicker) {
+        TemplatePickerSheet(
+          selectedTemplate: $selectedTemplate,
+          jsonInput: $jsonInput
+        )
+        .presentationDetents([.medium, .large])
       }
+    }
+    .environment(appNav.sdui)
+    .onAppear {
+      actionHandler.navController = appNav.sdui
+      actionHandler.appNavController = appNav
     }
   }
 
   // MARK: - Preview Area
 
   private var previewArea: some View {
-    ScrollView {
+    ScrollView(showsIndicators: false) {
       VStack(spacing: theme.spacing.md) {
+        if selectedTemplate?.id == "full-example" {
+          counterDisplay
+        }
         renderResult
       }
       .padding(theme.spacing.md)
     }
     .frame(maxHeight: .infinity)
+  }
+
+  private var counterDisplay: some View {
+    Text("\(actionHandler.counter)")
+      .font(.system(size: 48, weight: .bold, design: .rounded))
+      .foregroundStyle(theme.text)
+      .contentTransition(.numericText())
+      .animation(.snappy, value: actionHandler.counter)
   }
 
   @ViewBuilder

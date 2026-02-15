@@ -179,38 +179,115 @@ extension SDUITemplate {
       id: "two-column",
       name: "Two Column Layout",
       category: .layouts,
-      description: "Side by side content",
+      description: "Dashboard with stat cards",
       json: """
             [
               {
-                "id": "1",
+                "id": "root",
                 "type": "vstack",
                 "props": {"spacing": 16},
                 "children": [
-                  {"id": "2", "type": "text", "props": {"content": "Dashboard", "style": "title"}},
                   {
-                    "id": "3",
+                    "id": "header",
                     "type": "hstack",
-                    "props": {"spacing": 16},
+                    "props": {"spacing": 8},
+                    "children": [
+                      {"id": "title", "type": "text", "props": {"content": "Dashboard", "style": "title"}},
+                      {"id": "spacer_h", "type": "spacer", "props": {}},
+                      {"id": "status", "type": "badge", "props": {"label": "Live", "variant": "default"}}
+                    ]
+                  },
+                  {"id": "subtitle", "type": "text", "props": {"content": "Your overview at a glance", "style": "subheadline"}},
+                  {
+                    "id": "row1",
+                    "type": "hstack",
+                    "props": {"spacing": 12},
                     "children": [
                       {
-                        "id": "4",
+                        "id": "card_users",
                         "type": "card",
                         "props": {"variant": "elevated"},
                         "children": [
-                          {"id": "5", "type": "text", "props": {"content": "Users", "style": "headline"}},
-                          {"id": "6", "type": "text", "props": {"content": "1,234", "style": "largeTitle"}}
+                          {
+                            "id": "card_users_inner",
+                            "type": "vstack",
+                            "props": {"spacing": 4},
+                            "children": [
+                              {"id": "users_label", "type": "text", "props": {"content": "Users", "style": "caption"}},
+                              {"id": "users_value", "type": "text", "props": {"content": "1,234", "style": "title"}},
+                              {"id": "users_badge", "type": "badge", "props": {"label": "+12%", "variant": "secondary"}}
+                            ]
+                          }
                         ]
                       },
                       {
-                        "id": "7",
+                        "id": "card_revenue",
                         "type": "card",
                         "props": {"variant": "elevated"},
                         "children": [
-                          {"id": "8", "type": "text", "props": {"content": "Revenue", "style": "headline"}},
-                          {"id": "9", "type": "text", "props": {"content": "$12.5K", "style": "largeTitle"}}
+                          {
+                            "id": "card_revenue_inner",
+                            "type": "vstack",
+                            "props": {"spacing": 4},
+                            "children": [
+                              {"id": "revenue_label", "type": "text", "props": {"content": "Revenue", "style": "caption"}},
+                              {"id": "revenue_value", "type": "text", "props": {"content": "$12.5K", "style": "title"}},
+                              {"id": "revenue_badge", "type": "badge", "props": {"label": "+8.3%", "variant": "secondary"}}
+                            ]
+                          }
                         ]
                       }
+                    ]
+                  },
+                  {
+                    "id": "row2",
+                    "type": "hstack",
+                    "props": {"spacing": 12},
+                    "children": [
+                      {
+                        "id": "card_orders",
+                        "type": "card",
+                        "props": {"variant": "outlined"},
+                        "children": [
+                          {
+                            "id": "card_orders_inner",
+                            "type": "vstack",
+                            "props": {"spacing": 4},
+                            "children": [
+                              {"id": "orders_label", "type": "text", "props": {"content": "Orders", "style": "caption"}},
+                              {"id": "orders_value", "type": "text", "props": {"content": "356", "style": "title"}},
+                              {"id": "orders_badge", "type": "badge", "props": {"label": "Pending 5", "variant": "outline"}}
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "id": "card_conversion",
+                        "type": "card",
+                        "props": {"variant": "outlined"},
+                        "children": [
+                          {
+                            "id": "card_conv_inner",
+                            "type": "vstack",
+                            "props": {"spacing": 4},
+                            "children": [
+                              {"id": "conv_label", "type": "text", "props": {"content": "Conversion", "style": "caption"}},
+                              {"id": "conv_value", "type": "text", "props": {"content": "4.2%", "style": "title"}},
+                              {"id": "conv_badge", "type": "badge", "props": {"label": "-0.5%", "variant": "destructive"}}
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {"id": "div", "type": "divider", "props": {}},
+                  {
+                    "id": "actions",
+                    "type": "hstack",
+                    "props": {"spacing": 8},
+                    "children": [
+                      {"id": "btn_detail", "type": "button", "props": {"label": "View Details", "variant": "default", "navigate": "detail"}},
+                      {"id": "btn_settings", "type": "button", "props": {"label": "Settings", "variant": "outline", "navigate": "settings"}}
                     ]
                   }
                 ]
@@ -222,38 +299,86 @@ extension SDUITemplate {
       id: "header-content-footer",
       name: "Header/Content/Footer",
       category: .layouts,
-      description: "Classic page structure",
+      description: "Profile page structure",
       json: """
             [
               {
-                "id": "1",
+                "id": "root",
                 "type": "vstack",
-                "props": {"spacing": 0},
+                "props": {"spacing": 12},
                 "children": [
                   {
-                    "id": "2",
+                    "id": "header",
                     "type": "hstack",
                     "props": {"spacing": 8},
                     "children": [
-                      {"id": "3", "type": "text", "props": {"content": "App Name", "style": "headline"}},
-                      {"id": "4", "type": "spacer", "props": {}},
-                      {"id": "5", "type": "badge", "props": {"label": "Pro", "variant": "secondary"}}
+                      {
+                        "id": "header_left",
+                        "type": "vstack",
+                        "props": {"spacing": 2},
+                        "children": [
+                          {"id": "app_name", "type": "text", "props": {"content": "My Profile", "style": "headline"}},
+                          {"id": "app_sub", "type": "text", "props": {"content": "Manage your account", "style": "caption"}}
+                        ]
+                      },
+                      {"id": "spacer_h", "type": "spacer", "props": {}},
+                      {"id": "plan_badge", "type": "badge", "props": {"label": "Pro", "variant": "default"}}
                     ]
                   },
-                  {"id": "6", "type": "divider", "props": {}},
-                  {"id": "7", "type": "spacer", "props": {}},
+                  {"id": "div1", "type": "divider", "props": {}},
                   {
-                    "id": "8",
+                    "id": "content",
                     "type": "vstack",
-                    "props": {"spacing": 12},
+                    "props": {"spacing": 16},
                     "children": [
-                      {"id": "9", "type": "text", "props": {"content": "Main Content Area", "style": "title"}},
-                      {"id": "10", "type": "text", "props": {"content": "This is where your primary content goes.", "style": "body"}}
+                      {
+                        "id": "info_card",
+                        "type": "card",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "info_inner",
+                            "type": "vstack",
+                            "props": {"spacing": 12},
+                            "children": [
+                              {"id": "info_title", "type": "text", "props": {"content": "Account Info", "style": "headline"}},
+                              {"id": "input_name", "type": "input", "props": {"placeholder": "Your name", "label": "Display Name", "inputId": "name"}},
+                              {"id": "input_email", "type": "input", "props": {"placeholder": "you@example.com", "label": "Email", "inputId": "email"}}
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "id": "prefs_card",
+                        "type": "card",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "prefs_inner",
+                            "type": "vstack",
+                            "props": {"spacing": 12},
+                            "children": [
+                              {"id": "prefs_title", "type": "text", "props": {"content": "Preferences", "style": "headline"}},
+                              {"id": "sw_dark", "type": "switch", "props": {"label": "Dark Mode", "isOn": true, "switchId": "dark_mode"}},
+                              {"id": "sw_notif", "type": "switch", "props": {"label": "Notifications", "isOn": true, "switchId": "notifications"}}
+                            ]
+                          }
+                        ]
+                      }
                     ]
                   },
-                  {"id": "11", "type": "spacer", "props": {}},
-                  {"id": "12", "type": "divider", "props": {}},
-                  {"id": "13", "type": "text", "props": {"content": "© 2026 swiftcn", "style": "caption"}}
+                  {"id": "div2", "type": "divider", "props": {}},
+                  {
+                    "id": "footer",
+                    "type": "hstack",
+                    "props": {"spacing": 8},
+                    "children": [
+                      {"id": "footer_text", "type": "text", "props": {"content": "swiftcn v1.0", "style": "caption"}},
+                      {"id": "spacer_f", "type": "spacer", "props": {}},
+                      {"id": "btn_save", "type": "button", "props": {"label": "Save", "variant": "default", "size": "sm", "actionId": "submit_feedback"}},
+                      {"id": "btn_cancel", "type": "button", "props": {"label": "Cancel", "variant": "ghost", "size": "sm", "actionId": "dismiss"}}
+                    ]
+                  }
                 ]
               }
             ]
@@ -374,16 +499,16 @@ extension SDUITemplate {
                         "type": "vstack",
                         "props": {"spacing": 12},
                         "children": [
-                          {"id": "counter_label", "type": "text", "props": {"content": "Tap Count", "style": "headline"}},
+                          {"id": "counter_label", "type": "text", "props": {"content": "Counter", "style": "headline"}},
                           {"id": "counter_hint", "type": "text", "props": {"content": "Tap the buttons and watch the Action Log", "style": "caption"}},
                           {
                             "id": "counter_buttons",
                             "type": "hstack",
                             "props": {"spacing": 8},
                             "children": [
-                              {"id": "btn_count_1", "type": "button", "props": {"label": "Count +1", "variant": "default", "actionId": "count_increment"}},
-                              {"id": "btn_count_5", "type": "button", "props": {"label": "Count +5", "variant": "secondary", "actionId": "count_batch"}},
-                              {"id": "btn_reset", "type": "button", "props": {"label": "Reset", "variant": "outline", "actionId": "count_reset"}}
+                              {"id": "btn_decrement", "type": "button", "props": {"label": "−", "variant": "outline", "actionId": "count_decrement"}},
+                              {"id": "btn_increment", "type": "button", "props": {"label": "+", "variant": "default", "actionId": "count_increment"}},
+                              {"id": "btn_reset", "type": "button", "props": {"label": "Reset", "variant": "secondary", "actionId": "count_reset"}}
                             ]
                           }
                         ]
@@ -396,9 +521,11 @@ extension SDUITemplate {
                     "type": "vstack",
                     "props": {"spacing": 8},
                     "children": [
-                      {"id": "btn_settings", "type": "button", "props": {"label": "Go to Settings", "variant": "default", "actionId": "nav_settings"}},
-                      {"id": "btn_profile", "type": "button", "props": {"label": "Go to Profile", "variant": "secondary", "actionId": "nav_profile"}},
-                      {"id": "btn_detail", "type": "button", "props": {"label": "Open Detail", "variant": "outline", "actionId": "nav_detail"}}
+                      {"id": "btn_settings", "type": "button", "props": {"label": "Go to Settings", "variant": "default", "navigate": "settings"}},
+                      {"id": "btn_components", "type": "button", "props": {"label": "Go to Components", "variant": "secondary", "navigate": "components"}},
+                      {"id": "btn_comp_button", "type": "button", "props": {"label": "Button Detail", "variant": "outline", "navigate": "components_button"}},
+                      {"id": "btn_comp_card", "type": "button", "props": {"label": "Card Detail", "variant": "outline", "navigate": "components_card"}},
+                      {"id": "btn_comp_slider", "type": "button", "props": {"label": "Slider Detail", "variant": "outline", "navigate": "components_slider"}}
                     ]
                   }
                 ]

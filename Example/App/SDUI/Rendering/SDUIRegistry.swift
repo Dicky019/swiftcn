@@ -38,7 +38,9 @@ public final class SDUIRegistry {
     case "button":
       let config = CNButton.Configuration(from: node.props)
       CNButton(configuration: config) {
-        if let actionId = config.actionId {
+        if let route = config.navigate {
+          actionHandler?.handleNavigation(route: route, params: nil)
+        } else if let actionId = config.actionId {
           actionHandler?.handleAction(id: actionId, payload: nil)
         }
       }

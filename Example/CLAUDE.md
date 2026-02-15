@@ -55,6 +55,7 @@ Components, Theme, and SDUI in `App/` are **copies** of the root `Sources/` dire
 | `App/Theme/` | Design tokens & ThemeProvider |
 | `App/SDUI/` | Server-Driven UI engine |
 | `App/Features/` | Feature modules (Components, SDUI, Settings) |
+| `App/Navigation/` | NavController, BaseDestination, Destination, AppNavController |
 | `Tests/` | Unit tests using Swift Testing framework |
 
 ## Testing
