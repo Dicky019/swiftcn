@@ -9,22 +9,32 @@ import SwiftUI
 
 /// Renders an array of SDUI nodes
 public struct SDUIRenderer: View {
+  /// Maximum allowed JSON payload size in bytes. Edit this constant to adjust the limit.
+  public static let maxPayloadSize = 512 * 1024
+
+  private static let decoder = JSONDecoder()
+
   private let nodes: [SDUINode]
   private var actionHandler: SDUIActionHandler?
+  let depth: Int
 
-  public init(nodes: [SDUINode], actionHandler: SDUIActionHandler? = nil) {
+  public init(nodes: [SDUINode], actionHandler: SDUIActionHandler? = nil, depth: Int = 0) {
     self.nodes = nodes
     self.actionHandler = actionHandler
+    self.depth = depth
   }
 
-  public init(node: SDUINode, actionHandler: SDUIActionHandler? = nil) {
+  public init(node: SDUINode, actionHandler: SDUIActionHandler? = nil, depth: Int = 0) {
     self.nodes = [node]
     self.actionHandler = actionHandler
+    self.depth = depth
   }
 
   public var body: some View {
     ForEach(nodes) { node in
-      SDUIRegistry.shared.render(node, actionHandler: actionHandler)
+      if depth < SDUINode.maxDepth {
+        SDUIRegistry.shared.render(node, actionHandler: actionHandler, depth: depth)
+      }
     }
   }
 }
@@ -32,9 +42,13 @@ public struct SDUIRenderer: View {
 // MARK: - Convenience initializers from JSON
 
 extension SDUIRenderer {
-  /// Initialize from JSON data
+  /// Initialize from JSON data with payload size, depth, and node count validation
   public init(jsonData: Data, actionHandler: SDUIActionHandler? = nil) throws {
-    let nodes = try JSONDecoder().decode([SDUINode].self, from: jsonData)
+    guard jsonData.count <= Self.maxPayloadSize else {
+      throw SDUIError.payloadTooLarge(jsonData.count)
+    }
+    let nodes = try Self.decoder.decode([SDUINode].self, from: jsonData)
+    try Self.validateTree(nodes)
     self.init(nodes: nodes, actionHandler: actionHandler)
   }
 
@@ -48,8 +62,27 @@ extension SDUIRenderer {
 
   /// Initialize from a single node JSON
   public init(singleNodeJSON: Data, actionHandler: SDUIActionHandler? = nil) throws {
-    let node = try JSONDecoder().decode(SDUINode.self, from: singleNodeJSON)
+    guard singleNodeJSON.count <= Self.maxPayloadSize else {
+      throw SDUIError.payloadTooLarge(singleNodeJSON.count)
+    }
+    let node = try Self.decoder.decode(SDUINode.self, from: singleNodeJSON)
+    try Self.validateTree([node])
     self.init(node: node, actionHandler: actionHandler)
+  }
+
+  private static func validateTree(_ nodes: [SDUINode]) throws {
+    var totalCount = 0
+    var maxDepth = 0
+    for node in nodes {
+      totalCount += node.totalNodeCount()
+      maxDepth = max(maxDepth, node.maxTreeDepth())
+    }
+    if maxDepth > SDUINode.maxDepth {
+      throw SDUIError.maxDepthExceeded(SDUINode.maxDepth)
+    }
+    if totalCount > SDUINode.maxNodeCount {
+      throw SDUIError.maxNodeCountExceeded(SDUINode.maxNodeCount)
+    }
   }
 }
 

@@ -28,8 +28,11 @@ struct SDUISwitchWrapper: View {
     CNSwitch(label, isOn: $isOn)
       .onChange(of: isOn) { _, newValue in
         if let switchId {
-          actionHandler?.handleAction(id: switchId, payload: ["value": newValue])
+          actionHandler?.handleAction(id: switchId, payload: ["value": AnyCodable(newValue)])
         }
+      }
+      .onChange(of: initialValue) { _, newValue in
+        isOn = newValue
       }
   }
 }

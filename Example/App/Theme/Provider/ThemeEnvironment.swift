@@ -29,7 +29,8 @@ extension View {
   public func withThemeTracking(_ themeProvider: ThemeProvider, systemColorScheme: ColorScheme) -> some View {
     self
       .environment(\.theme, themeProvider.resolvedTheme)
-      .preferredColorScheme(themeProvider.resolvedColorScheme)
+      .environment(\.colorScheme, themeProvider.effectiveColorScheme)
+      .preferredColorScheme(themeProvider.systemChromeScheme)
       .onChange(of: systemColorScheme, initial: true) { _, newScheme in
         themeProvider.updateSystemColorScheme(newScheme)
       }

@@ -46,9 +46,10 @@ swiftcn add button
 - **Copy-paste, not install** — Components are copied into your project via CLI
 - **You own the code** — Full customization, no library dependency
 - **Beautiful defaults** — Design token system provides consistency
-- **SDUI Ready** — Optional Server-Driven UI support
+- **SDUI Ready** — Optional Server-Driven UI support with `components_*` routing
 - **Swift 6** — Full strict concurrency support
 - **Accessibility** — Dynamic Type, Reduce Motion, VoiceOver support
+- **Programmatic Navigation** — Class-based destinations with duplicate prevention
 
 ## Requirements
 

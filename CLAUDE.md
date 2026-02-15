@@ -85,6 +85,10 @@ swiftcn/
 │   │   │   ├── SDUI/                # SDUI playground
 │   │   │   │   ├── Models/
 │   │   │   │   └── Views/
+│   │   │   │       ├── SDUIPlaygroundView.swift
+│   │   │   │       ├── SDUIActionLogView.swift
+│   │   │   │       ├── SDUIInfoPanelView.swift
+│   │   │   │       └── TemplatePickerSheet.swift
 │   │   │   ├── Settings/            # Preferences
 │   │   │   │   ├── Components/
 │   │   │   │   ├── ViewModels/
@@ -95,14 +99,16 @@ swiftcn/
 │   │   │       ├── Resources/       # Bundled palettes (forest, ocean, etc.)
 │   │   │       └── Views/
 │   │   └── Navigation/
-│   │       ├── AppRoute.swift
-│   │       ├── AppRouter.swift
-│   │       ├── ComponentRoute.swift
+│   │       ├── BaseDestination.swift
+│   │       ├── NavController.swift
+│   │       ├── AppNavController.swift
+│   │       ├── Destination.swift
 │   │       └── MainTabView.swift
 │   └── Tests/                       # Unit tests
 │       ├── ThemeTests.swift
 │       ├── ComponentTests.swift
 │       ├── TokenTests.swift
+│       ├── NavControllerTests.swift
 │       └── Fixtures/
 │           └── custom-theme.json
 ├── scripts/

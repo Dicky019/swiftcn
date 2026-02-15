@@ -29,20 +29,23 @@ struct SDUISliderWrapper: View {
   }
 
   var body: some View {
+    slider
+      .onChange(of: value) { _, newValue in
+        if let sliderId {
+          actionHandler?.handleAction(id: sliderId, payload: ["value": AnyCodable(newValue)])
+        }
+      }
+      .onChange(of: initialValue) { _, newValue in
+        value = newValue
+      }
+  }
+
+  @ViewBuilder
+  private var slider: some View {
     if let step {
       CNSlider(label, value: $value, in: range, step: step)
-        .onChange(of: value) { _, newValue in
-          if let sliderId {
-            actionHandler?.handleAction(id: sliderId, payload: ["value": newValue])
-          }
-        }
     } else {
       CNSlider(label, value: $value, in: range)
-        .onChange(of: value) { _, newValue in
-          if let sliderId {
-            actionHandler?.handleAction(id: sliderId, payload: ["value": newValue])
-          }
-        }
     }
   }
 }

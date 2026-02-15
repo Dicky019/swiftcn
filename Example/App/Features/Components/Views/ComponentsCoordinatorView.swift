@@ -8,24 +8,17 @@
 import SwiftUI
 
 struct ComponentsCoordinatorView: View {
-  @Environment(AppRouter.self) private var router
-  
+  @Environment(AppNavController.self) private var appNav
+
   var body: some View {
-    @Bindable var router = router
-    
-    NavigationStack(path: $router.componentsPath) {
+    @Bindable var navController = appNav.components
+
+    NavigationStack(path: $navController.stack) {
       ComponentGalleryView()
-        .navigationDestination(for: ComponentRoute.self) { route in
-          destinationView(for: route)
+        .navigationDestination(for: BaseDestination.self) { destination in
+          AnyView(destination.getScreen())
         }
     }
-  }
-  
-  @ViewBuilder
-  private func destinationView(for route: ComponentRoute) -> some View {
-    switch route {
-    case .detail(let component):
-      ComponentDetailView(component: component)
-    }
+    .environment(appNav.components)
   }
 }

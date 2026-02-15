@@ -10,6 +10,7 @@ import SwiftUI
 struct ThemeExplorerView: View {
   @Environment(\.theme) private var theme
   @Environment(\.horizontalSizeClass) private var sizeClass
+  @Environment(NavController.self) private var navController
 
   private var columns: [GridItem] {
     sizeClass == .compact
@@ -27,8 +28,8 @@ struct ThemeExplorerView: View {
 
         // Explore section
         HStack(spacing: theme.spacing.md) {
-          NavigationLink {
-            TokenShowcaseView()
+          Button {
+            navController.navigateTo(Destination.TokenShowcase())
           } label: {
             CNCard(variant: .elevated) {
               VStack(spacing: theme.spacing.sm) {
@@ -45,8 +46,8 @@ struct ThemeExplorerView: View {
           }
           .buttonStyle(.plain)
 
-          NavigationLink {
-            ThemeActionsView()
+          Button {
+            navController.navigateTo(Destination.ThemeActions())
           } label: {
             CNCard(variant: .elevated) {
               VStack(spacing: theme.spacing.sm) {
@@ -74,8 +75,8 @@ struct ThemeExplorerView: View {
         // Category grid
         LazyVGrid(columns: columns, spacing: theme.spacing.md) {
           ForEach(TokenCategory.allCases) { category in
-            NavigationLink {
-              category.destinationView
+            Button {
+              navController.navigateTo(Destination.TokenCategoryDetail(category: category))
             } label: {
               CNCard(variant: .outlined) {
                 HStack(spacing: theme.spacing.sm) {
@@ -107,8 +108,6 @@ struct ThemeExplorerView: View {
 }
 
 #Preview {
-  NavigationStack {
-    ThemeExplorerView()
-  }
-  .environment(ThemeProvider())
+  ThemeCoordinatorView()
+    .environment(ThemeProvider())
 }

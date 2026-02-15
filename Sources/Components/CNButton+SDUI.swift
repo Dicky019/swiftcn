@@ -16,17 +16,29 @@ extension CNButton {
     public let size: Size
     public let variant: Variant
     public let actionId: String?
+    public let navigate: String?
 
     public init(
       label: String,
       size: Size = .md,
       variant: Variant = .default,
-      actionId: String? = nil
+      actionId: String? = nil,
+      navigate: String? = nil
     ) {
       self.label = label
       self.size = size
       self.variant = variant
       self.actionId = actionId
+      self.navigate = navigate
+    }
+
+    /// Initialize from SDUI node props
+    public init(from props: [String: AnyCodable]) {
+      self.label = props["label"]?.asString ?? ""
+      self.size = props["size"]?.asString.flatMap(Size.init(rawValue:)) ?? .md
+      self.variant = props["variant"]?.asString.flatMap(Variant.init(rawValue:)) ?? .default
+      self.actionId = props["actionId"]?.asString
+      self.navigate = props["navigate"]?.asString
     }
   }
 }

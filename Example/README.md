@@ -40,11 +40,12 @@ Example/
 │   ├── Theme/          # Design tokens & ThemeProvider (synced from Sources/)
 │   ├── SDUI/           # Server-Driven UI engine (synced from Sources/)
 │   ├── Features/       # Feature modules (Components, SDUI, Settings, Theme)
-│   └── Navigation/     # Router, tabs, routes
+│   └── Navigation/     # NavController, Destinations, tab coordinator
 └── Tests/              # Unit tests
     ├── ThemeTests.swift
     ├── ComponentTests.swift
     ├── TokenTests.swift
+    ├── NavControllerTests.swift
     └── Fixtures/
 ```
 

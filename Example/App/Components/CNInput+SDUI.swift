@@ -31,5 +31,14 @@ extension CNInput {
       self.errorMessage = errorMessage
       self.inputId = inputId
     }
+
+    /// Initialize from SDUI node props
+    public init(from props: [String: AnyCodable]) {
+      self.placeholder = props["placeholder"]?.asString ?? ""
+      self.label = props["label"]?.asString
+      self.isError = props["isError"]?.asBool ?? false
+      self.errorMessage = props["errorMessage"]?.asString
+      self.inputId = props["inputId"]?.asString
+    }
   }
 }
