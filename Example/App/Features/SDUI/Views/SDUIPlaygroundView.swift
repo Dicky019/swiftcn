@@ -59,8 +59,12 @@ struct SDUIPlaygroundView: View {
     }
     .environment(appNav.sdui)
     .onAppear {
-      actionHandler.navController = appNav.sdui
-      actionHandler.appNavController = appNav
+      if actionHandler.navController == nil {
+        actionHandler.navController = appNav.sdui
+      }
+      if actionHandler.appNavController == nil {
+        actionHandler.appNavController = appNav
+      }
     }
   }
 

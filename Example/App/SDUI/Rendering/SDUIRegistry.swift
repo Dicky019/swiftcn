@@ -37,6 +37,10 @@ public final class SDUIRegistry {
     switch node.type {
     case "button":
       let config = CNButton.Configuration(from: node.props)
+      let _ = assert(
+        config.navigate == nil || config.actionId == nil,
+        "SDUI button '\(node.id)' has both navigate and actionId — use only one"
+      )
       CNButton(configuration: config) {
         if let route = config.navigate {
           actionHandler?.handleNavigation(route: route, params: nil)

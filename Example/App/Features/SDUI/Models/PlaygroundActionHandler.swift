@@ -27,8 +27,8 @@ final class PlaygroundActionHandler: SDUIActionHandler {
   private(set) var logEntries: [ActionLogEntry] = []
   private(set) var counter: Int = 0
 
-  var navController: NavController?
-  var appNavController: AppNavController?
+  weak var navController: NavController?
+  weak var appNavController: AppNavController?
 
   private let inner = DefaultSDUIActionHandler()
 
@@ -72,7 +72,13 @@ final class PlaygroundActionHandler: SDUIActionHandler {
   }
 
   func handleNavigation(route: String, params: [String: AnyCodable]?) {
-    let isAllowed = inner.allowedRoutes.contains(route) || route.hasPrefix("components_")
+    let isAllowed: Bool
+    if route.hasPrefix("components_") {
+      let componentId = String(route.dropFirst("components_".count))
+      isAllowed = ComponentInfo.all.contains { $0.id == componentId }
+    } else {
+      isAllowed = inner.allowedRoutes.contains(route)
+    }
     let description = params.map { dict in
       dict.map { "\($0.key): \($0.value)" }.joined(separator: ", ")
     }

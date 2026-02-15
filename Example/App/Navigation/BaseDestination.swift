@@ -10,7 +10,7 @@ import SwiftUI
 /// Abstract base class for all navigation destinations.
 /// Subclass and override `getScreen()` to define the view for each route.
 @MainActor
-open class BaseDestination: Hashable {
+open class BaseDestination: Hashable, @unchecked Sendable {
   /// Route identifier, auto-derived from the class type name.
   nonisolated public var route: String {
     String(describing: type(of: self))
