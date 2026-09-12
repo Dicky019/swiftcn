@@ -1,0 +1,11 @@
+appId: com.swiftcn.Example
+---
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      notVisible: "SDUI Playground"
+    commands:
+      - tapOn:
+          id: "server.rack"
+- assertVisible: "SDUI Playground"
