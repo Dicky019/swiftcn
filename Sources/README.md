@@ -26,8 +26,7 @@ Sources/
 └── SDUI/                # Server-Driven UI (optional)
     ├── Core/            # SDUINode, AnyCodable, SDUIError
     ├── Rendering/       # SDUIRenderer, SDUIRegistry
-    ├── Actions/         # SDUIActionHandler
-    └── Wrappers/        # Input, Switch, Slider state wrappers
+    └── Actions/         # SDUIActionHandler
 ```
 
 ## Component Pattern
@@ -38,6 +37,17 @@ Each component has two files:
 - **SDUI extension** (`CNButton+SDUI.swift`) — Optional `Configuration` struct for server-driven rendering
 
 The `--sdui` flag on `swiftcn add` controls whether the extension file is included.
+
+```swift
+let registry = SDUIRegistry.shared
+registry.registerCNButton()
+registry.registerCNSlider()
+```
+
+SDUI core installs independently. Each `CNComponent+SDUI.swift` file owns
+that component's state wrapper, wire-property parsing, and explicit registry
+method. Call each installed component's registration method once during app
+startup.
 
 ## Editing Templates
 
