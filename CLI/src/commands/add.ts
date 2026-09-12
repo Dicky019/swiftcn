@@ -90,9 +90,12 @@ export function createAddCommand(container: Container): Command {
 
       try {
         const destDir = path.join(cwd, config.componentsPath);
+        const installsSdui = Boolean(
+          config.sduiPath && component.sdui_files?.length && options.sdui !== false
+        );
         const filesToFetch = [...component.files];
 
-        if (config.sduiPath && component.sdui_files && options.sdui !== false) {
+        if (installsSdui && component.sdui_files) {
           filesToFetch.push(...component.sdui_files);
         }
 
@@ -130,6 +133,11 @@ export function createAddCommand(container: Container): Command {
 
         if (component.sizes) {
           ui.labeledList("Sizes", component.sizes);
+        }
+
+        if (installsSdui) {
+          ui.break();
+          ui.hint(`Register once: SDUIRegistry.shared.register${component.name}()`);
         }
 
         if (component.sduiType && !config.sduiPath) {

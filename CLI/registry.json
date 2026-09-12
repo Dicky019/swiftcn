@@ -152,6 +152,7 @@
         "min",
         "max",
         "step",
+        "showValue",
         "sliderId"
       ]
     }
@@ -165,11 +166,7 @@
       "SDUI/Rendering/SDUIRegistry.swift",
       "SDUI/Actions/SDUIActionHandler.swift"
     ],
-    "wrappers": [
-      "SDUI/Wrappers/SDUIInputWrapper.swift",
-      "SDUI/Wrappers/SDUISwitchWrapper.swift",
-      "SDUI/Wrappers/SDUISliderWrapper.swift"
-    ],
+    "wrappers": [],
     "transports": {
       "json": "Built-in (Codable)",
       "grpc": "Optional (grpc-swift)",

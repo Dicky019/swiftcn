@@ -30,6 +30,24 @@ public enum AnyCodable: Codable, Sendable, Hashable {
     }
   }
 
+  public var stringValue: String? {
+    guard case .string(let value) = self else { return nil }
+    return value
+  }
+
+  public var boolValue: Bool? {
+    guard case .bool(let value) = self else { return nil }
+    return value
+  }
+
+  public var doubleValue: Double? {
+    switch self {
+    case .double(let value): value
+    case .int(let value): Double(value)
+    default: nil
+    }
+  }
+
   public init(_ value: Any) {
     switch value {
     case let string as String:

@@ -1,0 +1,18 @@
+appId: com.swiftcn.Example
+---
+- runFlow: subflows/launch-sdui.yaml
+
+# Open JSON Editor from top-right nav
+- tapOn: "JSON Input"
+- assertVisible: "JSON Input"
+- assertVisible: "Format"
+- assertVisible: "Done"
+
+# Tap Format button
+- tapOn: "Format"
+
+# Dismiss sheet via Done
+- tapOn: "Done"
+- assertNotVisible: "Format"
+- assertNotVisible: "Done"
+- assertVisible: "SDUI Playground"

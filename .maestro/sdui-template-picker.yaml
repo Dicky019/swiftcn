@@ -1,0 +1,45 @@
+appId: com.swiftcn.Example
+---
+- runFlow: subflows/launch-sdui.yaml
+
+# Open Templates Picker from top-left nav
+- tapOn: "Templates"
+- assertVisible: "Featured Showcases"
+- assertVisible: "SaaS Analytics & Cloud"
+- assertVisible: "Account & Security Hub"
+
+# Switch to SaaS Analytics & Cloud
+- tapOn: "SaaS Analytics & Cloud"
+- assertVisible: "SaaS Analytics & Cloud"
+- assertVisible: "Cloud Cluster 01"
+- assertVisible: "Online"
+- assertVisible: "Performance Tuning"
+- assertVisible: "Dynamic Auto-Scaling"
+- assertVisible: "Deploy Changes"
+
+# Test SaaS interaction
+- tapOn: "Dynamic Auto-Scaling"
+- assertVisible: "Action: autoscale_toggle.*"
+
+- tapOn: "Deploy Changes"
+- assertVisible: "Action: deploy_cluster"
+
+# Switch to Account & Security Hub
+- tapOn: "Templates"
+- assertVisible: "Featured Showcases"
+- tapOn: "Account & Security Hub"
+- assertVisible: "Account & Security Hub"
+- assertVisible: "Developer Settings"
+- assertVisible: "Security & Sessions"
+- assertVisible: "Pro Tier"
+- assertVisible: "Enforce Hardware 2FA"
+- assertVisible: "Danger Zone"
+- assertVisible: "Revoke Keys"
+- assertVisible: "Lock Workspace"
+
+# Test Smart Settings interaction
+- tapOn: "Enforce Hardware 2FA"
+- assertVisible: "Action: hardware_2fa.*"
+
+- tapOn: "Lock Workspace"
+- assertVisible: "Action: lock_workspace"

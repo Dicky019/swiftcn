@@ -1,0 +1,31 @@
+appId: com.swiftcn.Example
+---
+- runFlow: subflows/launch-sdui.yaml
+
+# Verify E-Commerce template elements
+- assertVisible: "E-Commerce Checkout"
+- assertVisible: "Shopping Cart"
+- assertVisible: "2 Items"
+- assertVisible: "Studio Pro Headphones"
+- assertVisible: "-20% OFF"
+- assertVisible: "Delivery & Options"
+- assertVisible: "Estimated Total"
+- assertVisible: "\\$255.00"
+
+# Test full-row switch toggle: Express Priority Shipping
+- tapOn: "Express Priority Shipping"
+- assertVisible: "Action: express_shipping.*"
+
+# Test full-row switch toggle: Eco-Friendly Gift Wrapping
+- tapOn: "Eco-Friendly Gift Wrapping"
+- assertVisible: "Action: gift_wrap.*"
+
+# Test Promo Code Input Field
+- tapOn: "e.g. SWIFTCN20"
+- inputText: "SWIFT2026"
+- tapOn: "Delivery & Options"
+- assertVisible: "Action: promo_code.*"
+
+# Test Button action
+- tapOn: "Wishlist"
+- assertVisible: "Action: add_wishlist"

@@ -57,6 +57,19 @@ let project = Project(
             dependencies: []
         ),
 
+        .target(
+            name: "SDUICoreCompile",
+            destinations: .iOS,
+            product: .framework,
+            bundleId: "com.swiftcn.SDUICoreCompile",
+            deploymentTargets: .iOS("17.0"),
+            infoPlist: .default,
+            buildableFolders: [
+                "App/SDUI/"
+            ],
+            dependencies: []
+        ),
+
         // MARK: - Tests
         .target(
             name: "ExampleTests",
@@ -76,7 +89,7 @@ let project = Project(
     schemes: [
         .scheme(
             name: "Example",
-            buildAction: .buildAction(targets: ["Example"]),
+            buildAction: .buildAction(targets: ["SDUICoreCompile", "Example"]),
             testAction: .targets(["ExampleTests"]),
             runAction: .runAction(executable: "Example")
         )

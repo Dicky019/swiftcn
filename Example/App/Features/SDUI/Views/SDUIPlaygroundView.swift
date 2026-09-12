@@ -13,86 +13,191 @@ struct SDUIPlaygroundView: View {
   @State private var jsonInput = SDUITemplate.all.first?.json ?? ""
   @State private var selectedTemplate: SDUITemplate? = SDUITemplate.all.first
   @State private var showTemplatePicker = false
-  @State private var actionHandler = DemoActionHandler()
+  @State private var showJsonEditor = false
+  @State private var lastActionMessage: String?
+  @State private var actionDismissTask: Task<Void, Never>?
+  @State private var actionHandler = PlaygroundActionHandler()
   
   var body: some View {
     NavigationStack {
-      VStack(spacing: 0) {
+      ZStack(alignment: .bottom) {
         // Preview Area
         ScrollView {
           VStack(spacing: theme.spacing.md) {
+            if let template = selectedTemplate {
+              HStack {
+                CNBadge(template.name, variant: .secondary)
+                Spacer()
+              }
+            }
+
             if let renderer = try? SDUIRenderer(jsonString: jsonInput, actionHandler: actionHandler) {
               renderer
             } else {
               ContentUnavailableView(
                 "Invalid JSON",
                 systemImage: "exclamationmark.triangle",
-                description: Text("Check your JSON syntax")
+                description: Text("Check your JSON syntax in the JSON Editor")
               )
             }
           }
           .padding(theme.spacing.md)
+          .padding(.bottom, 64)
         }
         .frame(maxHeight: .infinity)
-        
-        Divider()
-        
-        // JSON Editor
-        VStack(alignment: .leading, spacing: theme.spacing.sm) {
-          HStack {
-            Text("JSON Input")
-              .font(.headline)
+
+        // Live Action Toast
+        if let msg = lastActionMessage {
+          HStack(spacing: 8) {
+            Image(systemName: "bolt.fill")
+              .foregroundStyle(theme.primary)
+            Text(msg)
+              .font(.system(.caption, design: .monospaced, weight: .semibold))
               .foregroundStyle(theme.text)
-
-            if let template = selectedTemplate {
-              CNBadge(template.name, variant: .secondary)
-            }
-
-            Spacer()
-
-            Button {
-              showTemplatePicker = true
-            } label: {
-              Label("Templates", systemImage: "doc.text")
-                .foregroundStyle(theme.primary)
-            }
+              .lineLimit(1)
           }
-
-          TextEditor(text: $jsonInput)
-            .font(.system(.caption, design: .monospaced))
-            .foregroundStyle(theme.text)
-            .scrollContentBackground(.hidden)
-            .padding(theme.spacing.sm)
-            .frame(height: 200)
-            .clipShape(RoundedRectangle(cornerRadius: theme.radius.md))
-            .overlay(
-              RoundedRectangle(cornerRadius: theme.radius.md)
-                .stroke(theme.border, lineWidth: theme.borderWidth.regular)
-            )
+          .padding(.horizontal, 14)
+          .padding(.vertical, 8)
+          .background(
+            Capsule()
+              .fill(theme.card)
+              .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+          )
+          .overlay(
+            Capsule()
+              .stroke(theme.primary.opacity(0.4), lineWidth: 1)
+          )
+          .padding(.bottom, 16)
+          .allowsHitTesting(false)
+          .transition(.move(edge: .bottom).combined(with: .opacity))
         }
-        .padding(theme.spacing.md)
-        .background(theme.card)
       }
       .background(theme.background)
       .navigationTitle("SDUI Playground")
+#if os(iOS)
+      .navigationBarTitleDisplayMode(.inline)
+#endif
+      .toolbar {
+        ToolbarItem(placement: .topBarLeading) {
+          Button {
+            showTemplatePicker = true
+          } label: {
+            Label("Templates", systemImage: "doc.text")
+              .foregroundStyle(theme.primary)
+          }
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+          Button {
+            showJsonEditor = true
+          } label: {
+            Label("JSON Input", systemImage: "curlybraces")
+              .foregroundStyle(theme.primary)
+          }
+        }
+      }
       .sheet(isPresented: $showTemplatePicker) {
         SDUITemplatePickerView { template in
           selectedTemplate = template
           jsonInput = template.json
         }
+        .presentationDetents([.medium, .large])
+      }
+      .sheet(isPresented: $showJsonEditor) {
+        jsonEditorSheet
+      }
+      .onAppear {
+        actionHandler.onAction = { id, payload in
+          handleUserAction(id: id, payload: payload)
+        }
       }
     }
   }
+
+  private var jsonEditorSheet: some View {
+    NavigationStack {
+      VStack(alignment: .leading, spacing: theme.spacing.sm) {
+        TextEditor(text: $jsonInput)
+          .font(.system(.caption, design: .monospaced))
+          .foregroundStyle(theme.text)
+          .scrollContentBackground(.hidden)
+          .padding(theme.spacing.sm)
+          .background(theme.card)
+          .clipShape(RoundedRectangle(cornerRadius: theme.radius.md))
+          .overlay(
+            RoundedRectangle(cornerRadius: theme.radius.md)
+              .stroke(theme.border, lineWidth: theme.borderWidth.regular)
+          )
+          .padding(theme.spacing.md)
+          .onChange(of: jsonInput) { _, newValue in
+            selectedTemplate = SDUITemplate.all.first { $0.json == newValue }
+          }
+      }
+      .background(theme.background)
+      .navigationTitle("JSON Input")
+#if os(iOS)
+      .navigationBarTitleDisplayMode(.inline)
+#endif
+      .toolbar {
+        ToolbarItem(placement: .topBarLeading) {
+          Button("Format") {
+            formatJSON()
+          }
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+          Button("Done") {
+            showJsonEditor = false
+          }
+          .fontWeight(.semibold)
+        }
+      }
+    }
+    .presentationDetents([.medium, .large])
+  }
+
+  private func handleUserAction(id: String, payload: [String: AnyCodable]?) {
+    var desc = "Action: \(id)"
+    if let payload, !payload.isEmpty {
+      let values = payload.map { "\($0.key): \($0.value.value)" }.sorted().joined(separator: ", ")
+      desc += " [\(values)]"
+    }
+    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+      lastActionMessage = desc
+    }
+    actionDismissTask?.cancel()
+    actionDismissTask = Task { @MainActor in
+      try? await Task.sleep(for: .seconds(3))
+      guard !Task.isCancelled else { return }
+      withAnimation(.easeInOut(duration: 0.25)) {
+        lastActionMessage = nil
+      }
+    }
+  }
+
+  private func formatJSON() {
+    guard
+      let data = jsonInput.data(using: .utf8),
+      let json = try? JSONSerialization.jsonObject(with: data),
+      let formatted = try? JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted, .sortedKeys]),
+      let string = String(data: formatted, encoding: .utf8)
+    else { return }
+    jsonInput = string
+  }
 }
 
-// Demo action handler
-final class DemoActionHandler: SDUIActionHandler {
-  func handleAction(id: String, payload: [String: Any]?) {
-    print("Action: \(id), payload: \(payload ?? [:])")
+// Interactive demo action handler
+@MainActor
+final class PlaygroundActionHandler: SDUIActionHandler {
+  var onAction: (@MainActor (String, [String: AnyCodable]?) -> Void)?
+
+  func handleAction(id: String, payload: [String: AnyCodable]?) {
+    print("[SDUI] Action: \(id), payload: \(payload ?? [:])")
+    onAction?(id, payload)
   }
   
-  func handleNavigation(route: String, params: [String: Any]?) {
-    print("Navigate: \(route)")
+  func handleNavigation(route: String, params: [String: AnyCodable]?) {
+    print("[SDUI] Navigate: \(route)")
+    onAction?("navigate:\(route)", params)
   }
 }
 

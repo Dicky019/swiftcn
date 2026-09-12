@@ -57,6 +57,17 @@ swiftcn add button -f --no-sdui  # Force without SDUI
 | `-f, --force` | Overwrite existing files | `false` |
 | `--no-sdui` | Skip SDUI extension file | includes SDUI |
 
+```swift
+let registry = SDUIRegistry.shared
+registry.registerCNButton()
+registry.registerCNSlider()
+```
+
+SDUI core installs independently. Each `CNComponent+SDUI.swift` file owns
+that component's state wrapper, wire-property parsing, and explicit registry
+method. Call each installed component's registration method once during app
+startup.
+
 ### `list`
 
 List all available components.

@@ -109,6 +109,62 @@ describe("add command", () => {
         { force: undefined }
       );
     });
+
+    it("prints the component registration call when SDUI is installed", async () => {
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+      await runAdd(["button"], {
+        config: {
+          load: vi.fn().mockResolvedValue(sampleConfigWithSdui),
+          write: vi.fn(),
+          exists: vi.fn().mockResolvedValue(true),
+        },
+        registry: {
+          load: vi.fn().mockResolvedValue({}),
+          getComponent: vi.fn().mockResolvedValue(sampleButton),
+          listComponents: vi.fn().mockResolvedValue(sampleComponents),
+          getThemeFiles: vi.fn().mockResolvedValue([]),
+          getSduiFiles: vi.fn().mockResolvedValue([]),
+        },
+        fetcher: {
+          fetchComponents: vi.fn().mockResolvedValue(addedWithSduiResult),
+          fetchTheme: vi.fn(),
+          fetchSdui: vi.fn(),
+        },
+      });
+
+      expect(logSpy.mock.calls.flat().join("\n")).toContain(
+        "SDUIRegistry.shared.registerCNButton()"
+      );
+    });
+
+    it("does not print registration when SDUI installation is disabled", async () => {
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+      await runAdd(["button", "--no-sdui"], {
+        config: {
+          load: vi.fn().mockResolvedValue(sampleConfigWithSdui),
+          write: vi.fn(),
+          exists: vi.fn().mockResolvedValue(true),
+        },
+        registry: {
+          load: vi.fn().mockResolvedValue({}),
+          getComponent: vi.fn().mockResolvedValue(sampleButton),
+          listComponents: vi.fn().mockResolvedValue(sampleComponents),
+          getThemeFiles: vi.fn().mockResolvedValue([]),
+          getSduiFiles: vi.fn().mockResolvedValue([]),
+        },
+        fetcher: {
+          fetchComponents: vi.fn().mockResolvedValue(addedWithSduiResult),
+          fetchTheme: vi.fn(),
+          fetchSdui: vi.fn(),
+        },
+      });
+
+      expect(logSpy.mock.calls.flat().join("\n")).not.toContain(
+        "SDUIRegistry.shared.registerCNButton()"
+      );
+    });
   });
 
   describe("--force", () => {

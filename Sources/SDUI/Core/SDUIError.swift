@@ -11,6 +11,7 @@ public enum SDUIError: Error, LocalizedError {
   case invalidJSON
   case componentNotFound(String)
   case decodingFailed(Error)
+  case invalidProps(component: String, reason: String)
 
   public var errorDescription: String? {
     switch self {
@@ -20,6 +21,8 @@ public enum SDUIError: Error, LocalizedError {
       return "Component not found: \(type)"
     case .decodingFailed(let error):
       return "Decoding failed: \(error.localizedDescription)"
+    case .invalidProps(let component, let reason):
+      return "Invalid \(component) props: \(reason)"
     }
   }
 }

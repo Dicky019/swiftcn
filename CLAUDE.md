@@ -63,12 +63,8 @@ swiftcn/
 │       ├── Rendering/
 │       │   ├── SDUIRenderer.swift
 │       │   └── SDUIRegistry.swift
-│       ├── Actions/
-│       │   └── SDUIActionHandler.swift
-│       └── Wrappers/
-│           ├── SDUIInputWrapper.swift
-│           ├── SDUISwitchWrapper.swift
-│           └── SDUISliderWrapper.swift
+│       └── Actions/
+│           └── SDUIActionHandler.swift
 ├── Example/                         # Self-contained demo app (has its own Project.swift)
 │   ├── Project.swift                # Tuist manifest (run `tuist generate` from here)
 │   ├── swiftcn.json                 # CLI config (component install paths)
@@ -177,6 +173,17 @@ extension CNButton {
     }
 }
 ```
+
+```swift
+let registry = SDUIRegistry.shared
+registry.registerCNButton()
+registry.registerCNSlider()
+```
+
+SDUI core installs independently. Each `CNComponent+SDUI.swift` file owns
+that component's state wrapper, wire-property parsing, and explicit registry
+method. Call each installed component's registration method once during app
+startup.
 
 ## Architecture
 

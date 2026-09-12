@@ -1,0 +1,85 @@
+appId: com.swiftcn.Example
+---
+- runFlow: subflows/launch-sdui.yaml
+
+# ==============================================================================
+# Phase 1: Rapid Toggle & Button Action Spam (Event Flooding Stress)
+# ==============================================================================
+- assertVisible: "E-Commerce Checkout"
+
+# Rapid switch toggling (6x)
+- repeat:
+    times: 6
+    commands:
+      - tapOn: "Express Priority Shipping"
+
+# Rapid second switch toggling (6x)
+- repeat:
+    times: 6
+    commands:
+      - tapOn: "Eco-Friendly Gift Wrapping"
+
+# Rapid button tap spam (5x)
+- repeat:
+    times: 5
+    commands:
+      - tapOn: "Wishlist"
+
+- assertVisible: "Action: add_wishlist"
+
+# ==============================================================================
+# Phase 2: Sheet Presentation & Dismissal Churn Stress
+# ==============================================================================
+- repeat:
+    times: 3
+    commands:
+      - tapOn: "JSON Input"
+      - assertVisible: "Format"
+      - tapOn: "Format"
+      - tapOn: "Done"
+      - assertNotVisible: "Format"
+
+- assertVisible: "SDUI Playground"
+
+# ==============================================================================
+# Phase 3: High-Frequency Template Switching (Decode & Re-render Stress)
+# ==============================================================================
+- repeat:
+    times: 3
+    commands:
+      # Switch to SaaS Analytics & Cloud
+      - tapOn: "Templates"
+      - tapOn: "SaaS Analytics & Cloud"
+      - assertVisible: "Cloud Cluster 01"
+      - tapOn: "Dynamic Auto-Scaling"
+      - tapOn: "Deploy Changes"
+
+      # Switch to Account & Security Hub
+      - tapOn: "Templates"
+      - tapOn: "Account & Security Hub"
+      - assertVisible: "Security & Sessions"
+      - tapOn: "Enforce Hardware 2FA"
+      - tapOn: "Lock Workspace"
+
+      # Switch back to E-Commerce Checkout
+      - tapOn: "Templates"
+      - tapOn: "E-Commerce Checkout"
+      - assertVisible: "Shopping Cart"
+
+# ==============================================================================
+# Phase 4: Input Stress, Keyboard Churn & Scroll Stability
+# ==============================================================================
+- tapOn: "e.g. SWIFTCN20"
+- inputText: "STRESS2026"
+- tapOn: "Delivery & Options"
+- assertVisible: "Action: promo_code.*"
+
+- scroll
+- assertVisible: "Estimated Total"
+
+- scrollUntilVisible:
+    element: "Shopping Cart"
+    direction: UP
+
+- assertVisible: "Shopping Cart"
+- assertVisible: "SDUI Playground"

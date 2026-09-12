@@ -31,6 +31,35 @@ extension CNButton {
   }
 }
 
+extension CNButton.Configuration {
+  init(node: SDUINode) throws {
+    guard let label = node.props["label"]?.stringValue else {
+      throw SDUIError.invalidProps(component: "button", reason: "label is required")
+    }
+    let size = try node.props["size"].map { prop in
+      guard let raw = prop.stringValue, let value = CNButton.Size(rawValue: raw) else {
+        throw SDUIError.invalidProps(component: "button", reason: "size is invalid")
+      }
+      return value
+    } ?? .md
+    let variant = try node.props["variant"].map { prop in
+      guard let raw = prop.stringValue, let value = CNButton.Variant(rawValue: raw) else {
+        throw SDUIError.invalidProps(component: "button", reason: "variant is invalid")
+      }
+      return value
+    } ?? .default
+    guard node.props["actionId"] == nil || node.props["actionId"]?.stringValue != nil else {
+      throw SDUIError.invalidProps(component: "button", reason: "actionId must be a string")
+    }
+    self.init(
+      label: label,
+      size: size,
+      variant: variant,
+      actionId: node.props["actionId"]?.stringValue
+    )
+  }
+}
+
 // MARK: - SDUI Initializer
 
 extension CNButton {
@@ -42,5 +71,18 @@ extension CNButton {
       variant: configuration.variant,
       action: action
     )
+  }
+}
+
+extension SDUIRegistry {
+  public func registerCNButton() {
+    register("button") { node, handler in
+      let configuration = try CNButton.Configuration(node: node)
+      return CNButton(configuration: configuration) {
+        if let actionId = configuration.actionId {
+          handler?.handleAction(id: actionId, payload: nil)
+        }
+      }
+    }
   }
 }
