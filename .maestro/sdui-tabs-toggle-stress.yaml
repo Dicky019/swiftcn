@@ -1,0 +1,93 @@
+appId: com.swiftcn.Example
+---
+- runFlow: subflows/launch-sdui.yaml
+
+# ==============================================================================
+# Phase 1: High-Frequency SDUI Toggle Churn (Full-Row Hit-Test Stress)
+# ==============================================================================
+- assertVisible: "E-Commerce Checkout"
+
+# Rapid 10x toggle of Express Priority Shipping
+- repeat:
+    times: 10
+    commands:
+      - tapOn: "Express Priority Shipping"
+
+- assertVisible: "Action: express_shipping.*"
+
+# Rapid 10x toggle of Eco-Friendly Gift Wrapping
+- repeat:
+    times: 10
+    commands:
+      - tapOn: "Eco-Friendly Gift Wrapping"
+
+- assertVisible: "Action: gift_wrap.*"
+
+# ==============================================================================
+# Phase 2: Rapid Tab Switching & Inter-Tab Responsiveness Stress
+# ==============================================================================
+# Rapidly cycle across all 4 app tabs 5 times
+- repeat:
+    times: 5
+    commands:
+      # Switch to Components tab
+      - tapOn:
+          id: "square.grid.2x2"
+      - assertVisible: "CN Components"
+
+      # Switch to Theme tab
+      - tapOn:
+          id: "paintpalette"
+      - assertVisible: "Design Tokens"
+
+      # Switch to Settings tab
+      - tapOn:
+          id: "gear"
+      - assertVisible: "Settings"
+
+      # Return to SDUI tab
+      - tapOn:
+          id: "server.rack"
+      - assertVisible: "SDUI Playground"
+
+      # Immediately toggle switch to prove responsiveness after tab switch
+      - tapOn: "Express Priority Shipping"
+
+# ==============================================================================
+# Phase 3: Cross-Showcase Dynamic Toggle Churn
+# ==============================================================================
+# Switch to SaaS Analytics
+- tapOn: "Templates"
+- tapOn: "SaaS Analytics & Cloud"
+- assertVisible: "Cloud Cluster 01"
+
+# Rapid 8x toggle on dynamic autoscale switch
+- repeat:
+    times: 8
+    commands:
+      - tapOn: "Dynamic Auto-Scaling"
+
+- assertVisible: "Action: autoscale_toggle.*"
+
+# Switch to Account & Security Hub
+- tapOn: "Templates"
+- tapOn: "Account & Security Hub"
+- assertVisible: "Security & Sessions"
+
+# Rapid 8x toggle on security switch
+- repeat:
+    times: 8
+    commands:
+      - tapOn: "Enforce Hardware 2FA"
+
+- assertVisible: "Action: hardware_2fa.*"
+
+# Switch back to E-Commerce Checkout
+- tapOn: "Templates"
+- tapOn: "E-Commerce Checkout"
+- assertVisible: "Shopping Cart"
+
+# Final toggle check to verify SDUI state consistency
+- tapOn: "Express Priority Shipping"
+- assertVisible: "Action: express_shipping.*"
+- assertVisible: "SDUI Playground"
