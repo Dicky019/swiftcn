@@ -86,12 +86,13 @@ struct SDUIPlaygroundView: View {
 }
 
 // Demo action handler
+@MainActor
 final class DemoActionHandler: SDUIActionHandler {
-  func handleAction(id: String, payload: [String: Any]?) {
+  func handleAction(id: String, payload: [String: AnyCodable]?) {
     print("Action: \(id), payload: \(payload ?? [:])")
   }
   
-  func handleNavigation(route: String, params: [String: Any]?) {
+  func handleNavigation(route: String, params: [String: AnyCodable]?) {
     print("Navigate: \(route)")
   }
 }

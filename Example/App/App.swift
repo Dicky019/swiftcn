@@ -11,6 +11,17 @@ import SwiftUI
 struct ExampleApp: App {
   @State private var themeProvider = ThemeProvider()
 
+  @MainActor
+  init() {
+    let registry = SDUIRegistry.shared
+    registry.registerCNButton()
+    registry.registerCNCard()
+    registry.registerCNBadge()
+    registry.registerCNInput()
+    registry.registerCNSwitch()
+    registry.registerCNSlider()
+  }
+
   var body: some Scene {
     WindowGroup {
       ContentWrapper()

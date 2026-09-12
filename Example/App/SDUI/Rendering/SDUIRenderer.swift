@@ -72,21 +72,8 @@ extension SDUIRenderer {
         ),
         SDUINode(
           id: "3",
-          type: "button",
-          props: [
-            "label": AnyCodable("Click Me"),
-            "variant": AnyCodable("default"),
-            "actionId": AnyCodable("btn_click")
-          ]
-        ),
-        SDUINode(
-          id: "4",
-          type: "hstack",
-          props: ["spacing": AnyCodable(8)],
-          children: [
-            SDUINode(id: "5", type: "badge", props: ["label": AnyCodable("New")]),
-            SDUINode(id: "6", type: "badge", props: ["label": AnyCodable("SDUI"), "variant": AnyCodable("secondary")])
-          ]
+          type: "text",
+          props: ["content": AnyCodable("Core renders without CN components.")]
         )
       ]
     )

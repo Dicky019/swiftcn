@@ -25,11 +25,34 @@ extension CNBadge {
   }
 }
 
+extension CNBadge.Configuration {
+  init(node: SDUINode) throws {
+    guard let label = node.props["label"]?.stringValue else {
+      throw SDUIError.invalidProps(component: "badge", reason: "label is required")
+    }
+    let variant = try node.props["variant"].map { prop in
+      guard let raw = prop.stringValue, let value = CNBadge.Variant(rawValue: raw) else {
+        throw SDUIError.invalidProps(component: "badge", reason: "variant is invalid")
+      }
+      return value
+    } ?? .default
+    self.init(label: label, variant: variant)
+  }
+}
+
 // MARK: - SDUI Initializer
 
 extension CNBadge {
   /// Create from SDUI configuration
   public init(configuration: Configuration) {
     self.init(configuration.label, variant: configuration.variant)
+  }
+}
+
+extension SDUIRegistry {
+  public func registerCNBadge() {
+    register("badge") { node, _ in
+      CNBadge(configuration: try CNBadge.Configuration(node: node))
+    }
   }
 }
