@@ -16,23 +16,43 @@ struct SDUITemplatePickerView: View {
   var body: some View {
     NavigationStack {
       List {
-        ForEach(SDUITemplate.TemplateCategory.allCases, id: \.self) { category in
-          Section(category.rawValue) {
-            ForEach(SDUITemplate.templates(for: category)) { template in
-              Button {
-                onSelect(template)
-                dismiss()
-              } label: {
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+        Section("Featured Showcases") {
+          ForEach(SDUITemplate.all) { template in
+            Button {
+              onSelect(template)
+              dismiss()
+            } label: {
+              VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                HStack {
                   Text(template.name)
                     .font(.headline)
                     .foregroundStyle(theme.text)
-                  Text(template.description)
-                    .font(.caption)
-                    .foregroundStyle(theme.textMuted)
+                  Spacer()
+                  CNBadge(template.tags.first ?? "Showcase", variant: .secondary)
                 }
-                .padding(.vertical, theme.spacing.xs)
+                
+                Text(template.description)
+                  .font(.subheadline)
+                  .foregroundStyle(theme.textMuted)
+                
+                HStack(spacing: 6) {
+                  ForEach(template.tags, id: \.self) { tag in
+                    Text(tag)
+                      .font(.system(size: 11, weight: .medium, design: .rounded))
+                      .padding(.horizontal, 8)
+                      .padding(.vertical, 3)
+                      .background(theme.card)
+                      .clipShape(Capsule())
+                      .foregroundStyle(theme.text)
+                      .overlay(
+                        Capsule()
+                          .stroke(theme.border, lineWidth: 1)
+                      )
+                  }
+                }
+                .padding(.top, 4)
               }
+              .padding(.vertical, theme.spacing.xs)
             }
           }
         }

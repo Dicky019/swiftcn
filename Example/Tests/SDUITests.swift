@@ -148,4 +148,24 @@ struct SDUITests {
     #expect(configuration.minValue == 0)
     #expect(configuration.maxValue == 100)
   }
+
+  @Test("All featured SDUI templates parse into valid renderers")
+  @MainActor
+  func allFeaturedTemplatesParseSuccessfully() throws {
+    let registry = SDUIRegistry.shared
+    registry.registerCNButton()
+    registry.registerCNCard()
+    registry.registerCNBadge()
+    registry.registerCNInput()
+    registry.registerCNSwitch()
+    registry.registerCNSlider()
+
+    #expect(SDUITemplate.all.count == 3)
+    for template in SDUITemplate.all {
+      let data = try #require(template.json.data(using: .utf8))
+      let nodes = try JSONDecoder().decode([SDUINode].self, from: data)
+      #expect(!nodes.isEmpty)
+      _ = try SDUIRenderer(jsonString: template.json)
+    }
+  }
 }

@@ -14,11 +14,13 @@ struct SDUIPlaygroundView: View {
   @State private var selectedTemplate: SDUITemplate? = SDUITemplate.all.first
   @State private var showTemplatePicker = false
   @State private var showJsonEditor = false
-  @State private var actionHandler = DemoActionHandler()
+  @State private var lastActionMessage: String?
+  @State private var actionDismissTask: Task<Void, Never>?
+  @State private var actionHandler = PlaygroundActionHandler()
   
   var body: some View {
     NavigationStack {
-      VStack(spacing: 0) {
+      ZStack(alignment: .bottom) {
         // Preview Area
         ScrollView {
           VStack(spacing: theme.spacing.md) {
@@ -40,8 +42,34 @@ struct SDUIPlaygroundView: View {
             }
           }
           .padding(theme.spacing.md)
+          .padding(.bottom, lastActionMessage != nil ? 60 : 0)
         }
         .frame(maxHeight: .infinity)
+
+        // Live Action Toast
+        if let msg = lastActionMessage {
+          HStack(spacing: 8) {
+            Image(systemName: "bolt.fill")
+              .foregroundStyle(theme.primary)
+            Text(msg)
+              .font(.system(.caption, design: .monospaced, weight: .semibold))
+              .foregroundStyle(theme.text)
+              .lineLimit(1)
+          }
+          .padding(.horizontal, 14)
+          .padding(.vertical, 8)
+          .background(
+            Capsule()
+              .fill(theme.card)
+              .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+          )
+          .overlay(
+            Capsule()
+              .stroke(theme.primary.opacity(0.4), lineWidth: 1)
+          )
+          .padding(.bottom, 16)
+          .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
       }
       .background(theme.background)
       .navigationTitle("SDUI Playground")
@@ -76,6 +104,11 @@ struct SDUIPlaygroundView: View {
       }
       .sheet(isPresented: $showJsonEditor) {
         jsonEditorSheet
+      }
+      .onAppear {
+        actionHandler.onAction = { id, payload in
+          handleUserAction(id: id, payload: payload)
+        }
       }
     }
   }
@@ -121,6 +154,25 @@ struct SDUIPlaygroundView: View {
     .presentationDetents([.medium, .large])
   }
 
+  private func handleUserAction(id: String, payload: [String: AnyCodable]?) {
+    var desc = "Action: \(id)"
+    if let payload, !payload.isEmpty {
+      let values = payload.map { "\($0.key): \($0.value.value)" }.sorted().joined(separator: ", ")
+      desc += " [\(values)]"
+    }
+    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+      lastActionMessage = desc
+    }
+    actionDismissTask?.cancel()
+    actionDismissTask = Task { @MainActor in
+      try? await Task.sleep(for: .seconds(3))
+      guard !Task.isCancelled else { return }
+      withAnimation(.easeInOut(duration: 0.25)) {
+        lastActionMessage = nil
+      }
+    }
+  }
+
   private func formatJSON() {
     guard
       let data = jsonInput.data(using: .utf8),
@@ -132,15 +184,19 @@ struct SDUIPlaygroundView: View {
   }
 }
 
-// Demo action handler
+// Interactive demo action handler
 @MainActor
-final class DemoActionHandler: SDUIActionHandler {
+final class PlaygroundActionHandler: SDUIActionHandler {
+  var onAction: (@MainActor (String, [String: AnyCodable]?) -> Void)?
+
   func handleAction(id: String, payload: [String: AnyCodable]?) {
-    print("Action: \(id), payload: \(payload ?? [:])")
+    print("[SDUI] Action: \(id), payload: \(payload ?? [:])")
+    onAction?(id, payload)
   }
   
   func handleNavigation(route: String, params: [String: AnyCodable]?) {
-    print("Navigate: \(route)")
+    print("[SDUI] Navigate: \(route)")
+    onAction?("navigate:\(route)", params)
   }
 }
 
