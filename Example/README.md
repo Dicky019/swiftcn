@@ -28,6 +28,22 @@ xcodebuild -workspace Example.xcworkspace -scheme Example build
 xcodebuild -workspace Example.xcworkspace -scheme Example test
 ```
 
+### E2E Testing with Maestro
+
+The Example app includes automated E2E tests powered by [Maestro](https://docs.maestro.dev):
+
+```bash
+# Run all E2E flows
+./scripts/test-e2e.sh
+
+# Or run a specific flow
+maestro test .maestro/sdui-ecommerce-checkout.yaml
+maestro test .maestro/sdui-template-picker.yaml
+maestro test .maestro/sdui-json-editor.yaml
+maestro test .maestro/sdui-stress-test.yaml
+maestro test .maestro/sdui-tabs-toggle-stress.yaml
+```
+
 ## Structure
 
 ```

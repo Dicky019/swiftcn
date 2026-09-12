@@ -68,6 +68,32 @@ After editing template files in `Sources/`, sync them to the Example app:
 ./scripts/sync-source.sh
 ```
 
+### Testing
+
+```bash
+# Run all tests (CLI + Example)
+./scripts/test-all.sh
+
+# Run all tests including Maestro E2E
+./scripts/test-all.sh --e2e
+```
+
+### E2E Testing with Maestro
+
+The Example app includes automated E2E tests powered by [Maestro](https://docs.maestro.dev):
+
+```bash
+# Run all E2E flows
+./scripts/test-e2e.sh
+
+# Or run a specific flow
+maestro test .maestro/sdui-ecommerce-checkout.yaml
+maestro test .maestro/sdui-template-picker.yaml
+maestro test .maestro/sdui-json-editor.yaml
+maestro test .maestro/sdui-stress-test.yaml
+maestro test .maestro/sdui-tabs-toggle-stress.yaml
+```
+
 ## Contributing
 
 Please read our [Contributing Guide](CONTRIBUTING.md) before submitting a Pull Request.
