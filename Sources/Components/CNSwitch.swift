@@ -38,12 +38,31 @@ public struct CNSwitch: View {
   // MARK: - Body
 
   public var body: some View {
-    Toggle(label, isOn: $isOn)
-      .tint(theme.primary)
-      .opacity(isEnabled ? 1.0 : theme.opacity.disabled)
-      .accessibilityLabel(label)
-      .accessibilityValue(isOn ? "On" : "Off")
-      .accessibilityAddTraits(.isButton)
+    HStack {
+      if !label.isEmpty {
+        Text(label)
+          .font(.body)
+          .foregroundStyle(theme.text)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .contentShape(Rectangle())
+          .onTapGesture {
+            guard isEnabled else { return }
+            withAnimation(.easeInOut(duration: 0.2)) {
+              isOn.toggle()
+            }
+          }
+      } else {
+        Spacer()
+      }
+
+      Toggle(label, isOn: $isOn)
+        .labelsHidden()
+        .tint(theme.primary)
+    }
+    .opacity(isEnabled ? 1.0 : theme.opacity.disabled)
+    .accessibilityLabel(label)
+    .accessibilityValue(isOn ? "On" : "Off")
+    .accessibilityAddTraits(.isButton)
   }
 }
 

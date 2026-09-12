@@ -55,6 +55,7 @@ public struct CNCard<Content: View>: View {
       .overlay {
         if variant == .outlined {
           shape.stroke(theme.border, lineWidth: theme.borderWidth.regular)
+            .allowsHitTesting(false)
         }
       }
       .shadow(

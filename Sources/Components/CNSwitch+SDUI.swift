@@ -85,6 +85,9 @@ private struct SDUISwitchWrapper: View {
 
   var body: some View {
     CNSwitch(label, isOn: $isOn)
+      .onChange(of: initialValue) { _, newValue in
+        isOn = newValue
+      }
       .onChange(of: isOn) { _, newValue in
         if let switchId {
           actionHandler?.handleAction(

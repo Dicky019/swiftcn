@@ -24,21 +24,21 @@ public final class SDUIRegistry {
     renderer: @MainActor @escaping (SDUINode, SDUIActionHandler?) throws -> V
   ) {
     renderers[type] = { node, handler in
-      AnyView(try renderer(node, handler))
+      AnyView(try renderer(node, handler).id(node.id))
     }
   }
 
   /// Render a node using registered renderer
   public func render(_ node: SDUINode, actionHandler: SDUIActionHandler?) -> AnyView {
     guard let renderer = renderers[node.type] else {
-      return AnyView(SDUIUnknownComponent(type: node.type))
+      return AnyView(SDUIUnknownComponent(type: node.type).id(node.id))
     }
 
     do {
       return try renderer(node, actionHandler)
     } catch {
       return AnyView(
-        SDUIInvalidComponent(type: node.type, message: error.localizedDescription)
+        SDUIInvalidComponent(type: node.type, message: error.localizedDescription).id(node.id)
       )
     }
   }

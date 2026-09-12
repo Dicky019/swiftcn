@@ -42,7 +42,7 @@ struct SDUIPlaygroundView: View {
             }
           }
           .padding(theme.spacing.md)
-          .padding(.bottom, lastActionMessage != nil ? 60 : 0)
+          .padding(.bottom, 64)
         }
         .frame(maxHeight: .infinity)
 
@@ -68,6 +68,7 @@ struct SDUIPlaygroundView: View {
               .stroke(theme.primary.opacity(0.4), lineWidth: 1)
           )
           .padding(.bottom, 16)
+          .allowsHitTesting(false)
           .transition(.move(edge: .bottom).combined(with: .opacity))
         }
       }
