@@ -36,9 +36,18 @@ for dir in "${SUBDIRS[@]}"; do
     fi
 done
 
+NAVIGATION_SOURCE="$SRC/Navigation/Router.swift"
+NAVIGATION_DESTINATION="$DEST/Navigation/Router.swift"
+
+if [ -f "$NAVIGATION_SOURCE" ]; then
+    rsync -a --checksum --itemize-changes $DRY_RUN "$NAVIGATION_SOURCE" "$NAVIGATION_DESTINATION"
+else
+    echo "Warning: $NAVIGATION_SOURCE not found, skipping"
+fi
+
 if [ -n "$DRY_RUN" ]; then
     echo ""
     echo "(dry run — no changes made)"
 else
-    echo "Synced Sources/{Components,Theme,SDUI} → Example/App/"
+    echo "Synced Sources/{Components,Theme,SDUI} and Sources/Navigation/Router.swift → Example/App/"
 fi
