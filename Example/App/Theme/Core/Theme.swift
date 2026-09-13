@@ -178,38 +178,76 @@ public struct Theme: Codable, Sendable, Equatable {
 
     public init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
-      background = try container.decode(String.self, forKey: .background)
-      foreground = try container.decode(String.self, forKey: .foreground)
-      card = try container.decode(String.self, forKey: .card)
-      cardForeground = try container.decode(String.self, forKey: .cardForeground)
-      sheet = try container.decode(String.self, forKey: .sheet)
-      sheetForeground = try container.decode(String.self, forKey: .sheetForeground)
-      primary = try container.decode(String.self, forKey: .primary)
-      primaryForeground = try container.decode(String.self, forKey: .primaryForeground)
-      secondary = try container.decode(String.self, forKey: .secondary)
-      secondaryForeground = try container.decode(String.self, forKey: .secondaryForeground)
-      muted = try container.decode(String.self, forKey: .muted)
-      mutedForeground = try container.decode(String.self, forKey: .mutedForeground)
-      accent = try container.decode(String.self, forKey: .accent)
-      accentForeground = try container.decode(String.self, forKey: .accentForeground)
-      destructive = try container.decode(String.self, forKey: .destructive)
-      destructiveForeground = try container.decode(String.self, forKey: .destructiveForeground)
-      border = try container.decode(String.self, forKey: .border)
-      input = try container.decode(String.self, forKey: .input)
-      focus = try container.decode(String.self, forKey: .focus)
-      warning = try container.decode(String.self, forKey: .warning)
-      warningForeground = try container.decode(String.self, forKey: .warningForeground)
-      success = try container.decode(String.self, forKey: .success)
-      successForeground = try container.decode(String.self, forKey: .successForeground)
-      chart1 = try container.decode(String.self, forKey: .chart1)
-      chart2 = try container.decode(String.self, forKey: .chart2)
-      chart3 = try container.decode(String.self, forKey: .chart3)
-      chart4 = try container.decode(String.self, forKey: .chart4)
-      chart5 = try container.decode(String.self, forKey: .chart5)
+      background = try container.decodeHex(forKey: .background)
+      foreground = try container.decodeHex(forKey: .foreground)
+      card = try container.decodeHex(forKey: .card)
+      cardForeground = try container.decodeHex(forKey: .cardForeground)
+      sheet = try container.decodeHex(forKey: .sheet)
+      sheetForeground = try container.decodeHex(forKey: .sheetForeground)
+      primary = try container.decodeHex(forKey: .primary)
+      primaryForeground = try container.decodeHex(forKey: .primaryForeground)
+      secondary = try container.decodeHex(forKey: .secondary)
+      secondaryForeground = try container.decodeHex(forKey: .secondaryForeground)
+      muted = try container.decodeHex(forKey: .muted)
+      mutedForeground = try container.decodeHex(forKey: .mutedForeground)
+      accent = try container.decodeHex(forKey: .accent)
+      accentForeground = try container.decodeHex(forKey: .accentForeground)
+      destructive = try container.decodeHex(forKey: .destructive)
+      destructiveForeground = try container.decodeHex(forKey: .destructiveForeground)
+      border = try container.decodeHex(forKey: .border)
+      input = try container.decodeHex(forKey: .input)
+      focus = try container.decodeHex(forKey: .focus)
+      warning = try container.decodeHex(forKey: .warning)
+      warningForeground = try container.decodeHex(forKey: .warningForeground)
+      success = try container.decodeHex(forKey: .success)
+      successForeground = try container.decodeHex(forKey: .successForeground)
+      chart1 = try container.decodeHex(forKey: .chart1)
+      chart2 = try container.decodeHex(forKey: .chart2)
+      chart3 = try container.decodeHex(forKey: .chart3)
+      chart4 = try container.decodeHex(forKey: .chart4)
+      chart5 = try container.decodeHex(forKey: .chart5)
       // Text hierarchy — fallback to foreground/mutedForeground for backward compat
-      text = try container.decodeIfPresent(String.self, forKey: .text) ?? foreground
-      textSecondary = try container.decodeIfPresent(String.self, forKey: .textSecondary) ?? mutedForeground
-      textMuted = try container.decodeIfPresent(String.self, forKey: .textMuted) ?? mutedForeground
+      text = try container.decodeHexIfPresent(forKey: .text) ?? foreground
+      textSecondary = try container.decodeHexIfPresent(forKey: .textSecondary) ?? mutedForeground
+      textMuted = try container.decodeHexIfPresent(forKey: .textMuted) ?? mutedForeground
     }
+  }
+}
+
+// MARK: - Hex Validation Helpers
+
+private extension KeyedDecodingContainer {
+  func decodeHex(forKey key: Key) throws -> String {
+    let value = try decode(String.self, forKey: key)
+    guard value.isSupportedHexColor else {
+      throw DecodingError.dataCorruptedError(
+        forKey: key,
+        in: self,
+        debugDescription: "Expected #RRGGBB, RRGGBB, #AARRGGBB, or AARRGGBB"
+      )
+    }
+    return value
+  }
+
+  func decodeHexIfPresent(forKey key: Key) throws -> String? {
+    guard let value = try decodeIfPresent(String.self, forKey: key) else {
+      return nil
+    }
+    guard value.isSupportedHexColor else {
+      throw DecodingError.dataCorruptedError(
+        forKey: key,
+        in: self,
+        debugDescription: "Expected #RRGGBB, RRGGBB, #AARRGGBB, or AARRGGBB"
+      )
+    }
+    return value
+  }
+}
+
+private extension String {
+  var isSupportedHexColor: Bool {
+    let digits = hasPrefix("#") ? dropFirst() : self[...]
+    return (digits.count == 6 || digits.count == 8)
+      && digits.allSatisfy(\.isHexDigit)
   }
 }

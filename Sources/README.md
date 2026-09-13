@@ -49,6 +49,19 @@ that component's state wrapper, wire-property parsing, and explicit registry
 method. Call each installed component's registration method once during app
 startup.
 
+## Theme Setup
+
+```swift
+@State private var themeProvider = ThemeProvider()
+
+ContentView()
+    .environment(themeProvider)
+    .withThemeTracking(themeProvider)
+```
+
+`Theme` is the Codable transport value, `ThemeProvider` owns main-actor UI state,
+and components synchronously read `ResolvedTheme` from `@Environment(\.theme)`.
+
 ## Editing Templates
 
 After editing files here, sync to the Example app (`Example/App/`):

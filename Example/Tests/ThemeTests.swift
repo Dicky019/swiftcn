@@ -5,9 +5,9 @@
 //  Created by Dicky Darmawan on 05/02/26.
 //
 
-import Testing
-import SwiftUI
 @testable import Example
+import SwiftUI
+import Testing
 
 @Suite("Theme Tests")
 struct ThemeTests {
@@ -326,5 +326,66 @@ struct ThemeTests {
     } catch {
       Issue.record("Expected ThemeError, got \(type(of: error))")
     }
+  }
+
+  @Test("Theme rejects an invalid hexadecimal color")
+  @MainActor
+  func themeRejectsInvalidHexColor() {
+    let validScheme = """
+      "foreground": "#000000",
+      "card": "#ffffff",
+      "cardForeground": "#000000",
+      "sheet": "#ffffff",
+      "sheetForeground": "#000000",
+      "primary": "#000000",
+      "primaryForeground": "#ffffff",
+      "secondary": "#eeeeee",
+      "secondaryForeground": "#000000",
+      "muted": "#eeeeee",
+      "mutedForeground": "#666666",
+      "accent": "#eeeeee",
+      "accentForeground": "#000000",
+      "destructive": "#ff0000",
+      "destructiveForeground": "#ffffff",
+      "border": "#dddddd",
+      "input": "#dddddd",
+      "focus": "#000000",
+      "warning": "#ffaa00",
+      "warningForeground": "#000000",
+      "success": "#00aa00",
+      "successForeground": "#ffffff",
+      "chart1": "#111111",
+      "chart2": "#222222",
+      "chart3": "#333333",
+      "chart4": "#444444",
+      "chart5": "#555555"
+      """
+    let json = """
+      {
+        "light": { "background": "not-a-color", \(validScheme) },
+        "dark": { "background": "#000000", \(validScheme) }
+      }
+      """
+
+    #expect(throws: DecodingError.self) {
+      try JSONDecoder().decode(Theme.self, from: Data(json.utf8))
+    }
+
+    let provider = ThemeProvider()
+    let original = provider.currentTheme
+    #expect(throws: ThemeError.self) {
+      try provider.apply(Data(json.utf8))
+    }
+    #expect(provider.currentTheme == original)
+  }
+
+  // MARK: - Environment
+
+  @Test("Theme environment has the default resolved theme")
+  @MainActor
+  func themeEnvironmentHasDefault() {
+    let values = EnvironmentValues()
+    #expect(values.theme.radius.md == ThemeRadius.default.md)
+    #expect(values.theme.spacing.md == ThemeSpacing.default.md)
   }
 }
