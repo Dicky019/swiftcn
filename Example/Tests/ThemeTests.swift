@@ -379,6 +379,49 @@ struct ThemeTests {
     #expect(provider.currentTheme == original)
   }
 
+  @Test("Theme rejects full-width unicode hex digits")
+  func themeRejectsFullWidthHexDigits() {
+    let validScheme = """
+      "foreground": "#000000",
+      "card": "#ffffff",
+      "cardForeground": "#000000",
+      "sheet": "#ffffff",
+      "sheetForeground": "#000000",
+      "primary": "#000000",
+      "primaryForeground": "#ffffff",
+      "secondary": "#eeeeee",
+      "secondaryForeground": "#000000",
+      "muted": "#eeeeee",
+      "mutedForeground": "#666666",
+      "accent": "#eeeeee",
+      "accentForeground": "#000000",
+      "destructive": "#ff0000",
+      "destructiveForeground": "#ffffff",
+      "border": "#dddddd",
+      "input": "#dddddd",
+      "focus": "#000000",
+      "warning": "#ffaa00",
+      "warningForeground": "#000000",
+      "success": "#00aa00",
+      "successForeground": "#ffffff",
+      "chart1": "#111111",
+      "chart2": "#222222",
+      "chart3": "#333333",
+      "chart4": "#444444",
+      "chart5": "#555555"
+      """
+    let json = """
+      {
+        "light": { "background": "#ＦＦＦＦＦＦ", \(validScheme) },
+        "dark": { "background": "#000000", \(validScheme) }
+      }
+      """
+
+    #expect(throws: DecodingError.self) {
+      try JSONDecoder().decode(Theme.self, from: Data(json.utf8))
+    }
+  }
+
   // MARK: - Environment
 
   @Test("Theme environment has the default resolved theme")

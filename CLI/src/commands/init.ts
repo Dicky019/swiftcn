@@ -63,7 +63,7 @@ export function createInitCommand(container: Container): Command {
       ui.header();
 
       // Step 1: Check existing config
-      if (await container.config.exists(cwd)) {
+      if (await container.config.exists(cwd) && !options.force) {
         const shouldOverwrite = await p.confirm({
           message: "swiftcn.json already exists. Overwrite?",
           initialValue: false,

@@ -308,6 +308,18 @@ describe("init command", () => {
         { force: true }
       );
     });
+
+    it("skips existing config confirmation when force is set with -y", async () => {
+      const container = await runInit(["-f", "-y"], {
+        config: {
+          exists: vi.fn().mockResolvedValue(true),
+          write: vi.fn().mockResolvedValue(undefined),
+          read: vi.fn().mockResolvedValue({}),
+        } as any,
+      });
+
+      expect(container.config.write).toHaveBeenCalled();
+    });
   });
 
   describe("setup hint", () => {

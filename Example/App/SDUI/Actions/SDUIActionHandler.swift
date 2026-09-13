@@ -26,10 +26,10 @@ public final class DefaultSDUIActionHandler: SDUIActionHandler {
   public init() {}
 
   public func handleAction(id: String, payload: [String: AnyCodable]?) {
-    sduiLogger.debug("[SDUI] Action: \(id, privacy: .public), payload: \(String(describing: payload ?? [:]), privacy: .public)")
+    sduiLogger.debug("[SDUI] Action: \(id, privacy: .public), payload: \(String(describing: payload ?? [:]), privacy: .private)")
   }
 
   public func handleNavigation(route: String, params: [String: AnyCodable]?) {
-    sduiLogger.debug("[SDUI] Navigate: \(route, privacy: .public), params: \(String(describing: params ?? [:]), privacy: .public)")
+    sduiLogger.debug("[SDUI] Navigate: \(route, privacy: .public), params: \(String(describing: params ?? [:]), privacy: .private)")
   }
 }

@@ -248,6 +248,6 @@ private extension String {
   var isSupportedHexColor: Bool {
     let digits = hasPrefix("#") ? dropFirst() : self[...]
     return (digits.count == 6 || digits.count == 8)
-      && digits.allSatisfy(\.isHexDigit)
+      && digits.allSatisfy { $0.isASCII && $0.isHexDigit }
   }
 }
