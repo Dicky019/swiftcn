@@ -37,7 +37,7 @@ for dir in "${SUBDIRS[@]}"; do
 done
 
 NAVIGATION_SOURCE="$SRC/Navigation/Router.swift"
-NAVIGATION_DESTINATION="$DEST/Navigation/Router.swift"
+NAVIGATION_DESTINATION="$DEST/Navigation/"
 
 if [ -f "$NAVIGATION_SOURCE" ]; then
     rsync -a --checksum --itemize-changes $DRY_RUN "$NAVIGATION_SOURCE" "$NAVIGATION_DESTINATION"
