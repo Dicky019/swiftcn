@@ -46,12 +46,13 @@ swiftcn init --sdui-path App/SDUI  # Custom SDUI path (implies --sdui)
 
 ### `add <component>`
 
-Add a component to your project. Copies the component source files into your configured directory.
+Add a component or optional feature to your project. Components are copied into the configured components directory; optional features may use their own project directory.
 
 ```bash
 swiftcn add button               # Add a single component
 swiftcn add button -f            # Overwrite existing files
 swiftcn add button --no-sdui     # Skip SDUI extension file
+swiftcn add navigation           # Add typed SwiftUI navigation
 swiftcn add button -f --no-sdui  # Force without SDUI
 ```
 
@@ -95,6 +96,9 @@ swiftcn list --verbose    # Same as -v
 | `switch` | CNSwitch — toggle switch for boolean values |
 | `badge` | CNBadge — small status indicator badge |
 | `slider` | CNSlider — range input control |
+| `navigation` | Router — typed SwiftUI navigation state |
+
+`swiftcn add navigation` installs `Navigation/Router.swift` into a `Navigation/` directory beside `componentsPath`. It does not change `swiftcn.json`.
 
 ## Development
 

@@ -17,6 +17,7 @@ npx swiftcn@latest init
 # Add components
 npx swiftcn@latest add button
 npx swiftcn@latest add button --sdui
+npx swiftcn@latest add navigation
 
 # List available components
 npx swiftcn@latest list
@@ -53,6 +54,7 @@ and components synchronously read `ResolvedTheme` from `@Environment(\.theme)`.
 | CNSwitch | Toggle switch for boolean values |
 | CNSlider | Range input control |
 | CNBadge | Small status indicator badge |
+| Router | Typed SwiftUI navigation state |
 
 ## Features
 
@@ -62,6 +64,8 @@ and components synchronously read `ResolvedTheme` from `@Environment(\.theme)`.
 - **SDUI Ready** — Optional Server-Driven UI support
 - **Swift 6** — Full strict concurrency support
 - **Accessibility** — Dynamic Type, Reduce Motion, VoiceOver support
+
+For native MVVM navigation, tabs, deep links, restoration, and TCA guidance, see [Navigation](docs/navigation.md).
 
 ## Requirements
 
