@@ -1,8 +1,8 @@
 # SwiftLint Best Practices & Architecture Guide for swiftcn
 
-**Document Version:** 1.0.0  
-**Target Platform:** Swift 6.0+, iOS 17.0+, macOS 14.0+, Xcode 16+  
-**Configuration File:** `.swiftlint.yml` (Root)  
+**Document Version:** 1.0.0
+**Target Platform:** Swift 6.0+, iOS 17.0+, macOS 14.0+, Xcode 16+
+**Configuration File:** `.swiftlint.yml` (Root)
 **Target Architecture:** Modular Copy-Paste SwiftUI Components (shadcn/ui model), Tuist Project Generation, Observation Framework (`@Observable`), Strict Concurrency (`-strict-concurrency=complete`).
 
 ---
@@ -136,7 +136,7 @@ Task {
 // ❌ Non-Compliant (If developer renames CNButton to PrimaryButton, this breaks):
 public struct CNButton: View {
     public static let defaultSize: Size = .md
-    
+
     public init() {
         self.size = CNButton.defaultSize
     }
@@ -145,7 +145,7 @@ public struct CNButton: View {
 // ✅ Compliant (Self-referential, copy-paste resilient):
 public struct CNButton: View {
     public static let defaultSize: Size = .md
-    
+
     public init() {
         self.size = Self.defaultSize
     }
@@ -365,7 +365,7 @@ public actor CacheManager {
 // ❌ Non-Compliant (Bypasses State storage lifecycle):
 struct CNInput: View {
     @State private var text: String
-    
+
     init(defaultText: String) {
         self.text = defaultText // Silent SwiftUI lifecycle bug!
     }
@@ -374,7 +374,7 @@ struct CNInput: View {
 // ✅ Compliant (Initializes backing storage):
 struct CNInput: View {
     @State private var text: String
-    
+
     init(defaultText: String) {
         self._text = State(initialValue: defaultText)
     }

@@ -161,4 +161,3 @@ Commands are thin orchestrators that receive a `Container` via factory functions
 
 Published CLI version `x.y.z` reads registry and templates from Git tag `vx.y.z`.
 The release script must create and push that tag before `npm publish`.
-
