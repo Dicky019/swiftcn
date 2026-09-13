@@ -58,6 +58,13 @@ export const sampleCard: ComponentWithId = {
   sduiProps: ["variant"],
 };
 
+export const sampleNavigation: ComponentWithId = {
+  id: "navigation",
+  name: "Router",
+  description: "A typed navigation router for SwiftUI",
+  files: ["Navigation/Router.swift"],
+};
+
 export const sampleComponents: ComponentWithId[] = [sampleButton, sampleCard];
 
 export function createMockContainer(

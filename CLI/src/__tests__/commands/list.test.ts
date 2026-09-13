@@ -154,7 +154,7 @@ describe("list command", () => {
       expect(output).not.toContain("Sizes:");
     });
 
-    it("shows SDUI hint", async () => {
+    it("shows the registry details hint", async () => {
       const logSpy = vi
         .spyOn(console, "log")
         .mockImplementation(() => {});
@@ -170,7 +170,10 @@ describe("list command", () => {
       });
 
       const output = logSpy.mock.calls.map((c) => c[0]).join("\n");
-      expect(output).toContain("SDUI-compatible");
+      expect(output).toContain(
+        "Use --verbose to see variants, sizes, and SDUI support."
+      );
+      expect(output).not.toContain("All components are SDUI-compatible.");
     });
   });
 

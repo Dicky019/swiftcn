@@ -10,8 +10,8 @@ function printAddHelp() {
   ui.break();
   ui.line("Usage: swiftcn add <component> [options]");
   ui.break();
-  ui.line("Add a component to your project. Copies the component source");
-  ui.line("files into your configured directory.");
+  ui.line("Add a component or optional feature to your project.");
+  ui.line("Copies its source files into the appropriate directory.");
   ui.break();
 
   ui.section("Arguments");
@@ -43,7 +43,7 @@ function printAddHelp() {
 export function createAddCommand(container: Container): Command {
   const cmd = new Command()
     .name("add")
-    .description("Add a component to your project")
+    .description("Add a component or optional feature to your project")
     .helpOption("-h, --help", "Show help for add command")
     .argument("<component>", "The component to add (e.g., button, card, input)")
     .option("-f, --force", "Overwrite existing files")
@@ -90,7 +90,11 @@ export function createAddCommand(container: Container): Command {
       ui.break();
 
       try {
-        const destDir = resolveSecurePath(cwd, config.componentsPath);
+        const installPath =
+          componentName.toLowerCase() === "navigation"
+            ? path.join(path.dirname(config.componentsPath), "Navigation")
+            : config.componentsPath;
+        const destDir = resolveSecurePath(cwd, installPath);
         const installsSdui = Boolean(
           config.sduiPath && component.sdui_files?.length && options.sdui !== false
         );

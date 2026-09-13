@@ -97,7 +97,7 @@ export function createListCommand(container: Container): Command {
           }
 
           ui.break();
-          ui.hint("All components are SDUI-compatible.");
+          ui.hint("Use --verbose to see variants, sizes, and SDUI support.");
           ui.break();
           ui.end(
             `Run ${ui.accent("swiftcn add <name>")} to install a component.`
