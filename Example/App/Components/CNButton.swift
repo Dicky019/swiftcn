@@ -43,6 +43,7 @@ public struct CNButton: View {
   private let label: String
   private let size: Size
   private let variant: Variant
+  private let isLoading: Bool
   private let action: () -> Void
 
   @Environment(\.isEnabled) private var isEnabled
@@ -54,11 +55,13 @@ public struct CNButton: View {
     _ label: String,
     size: Size = .md,
     variant: Variant = .default,
+    isLoading: Bool = false,
     action: @escaping () -> Void
   ) {
     self.label = label
     self.size = size
     self.variant = variant
+    self.isLoading = isLoading
     self.action = action
   }
 
@@ -66,13 +69,24 @@ public struct CNButton: View {
 
   public var body: some View {
     Button(action: action) {
-      Text(label)
-        .font(font)
-        .fontWeight(fontWeight)
-        .foregroundStyle(foregroundColor)
-        .padding(.horizontal, horizontalPadding)
-        .padding(.vertical, verticalPadding)
-        .frame(minWidth: minWidth)
+      HStack(spacing: contentSpacing) {
+        if isLoading {
+          ProgressView()
+            .progressViewStyle(.circular)
+            .tint(foregroundColor)
+            .controlSize(progressControlSize)
+        }
+
+        Text(label)
+          .font(font)
+          .fontWeight(fontWeight)
+          .foregroundStyle(foregroundColor)
+          .underline(variant == .link)
+      }
+      .padding(.horizontal, horizontalPadding)
+      .padding(.vertical, verticalPadding)
+      .frame(minWidth: minWidth, minHeight: minHeight)
+      .contentShape(Rectangle())
     }
     .background(backgroundColor, in: .rect(cornerRadius: cornerRadius))
     .overlay {
@@ -81,8 +95,33 @@ public struct CNButton: View {
           .stroke(borderColor, lineWidth: theme.borderWidth.regular)
       }
     }
-    .opacity(isEnabled ? 1.0 : theme.opacity.disabled)
+    .opacity(effectiveOpacity)
+    .disabled(!isEnabled || isLoading)
     .accessibilityLabel(label)
+    .accessibilityValue(isLoading ? "Loading" : "")
+  }
+
+  // MARK: - Computed Properties
+
+  private var effectiveOpacity: Double {
+    if !isEnabled {
+      theme.opacity.disabled
+    } else if isLoading {
+      0.8
+    } else {
+      1.0
+    }
+  }
+
+  private var contentSpacing: CGFloat {
+    theme.spacing.xs + 2
+  }
+
+  private var progressControlSize: ControlSize {
+    switch size {
+    case .sm: .mini
+    case .md, .lg: .small
+    }
   }
 
   // MARK: - Size Properties
@@ -100,26 +139,39 @@ public struct CNButton: View {
   }
 
   private var horizontalPadding: CGFloat {
+    if variant == .link {
+      return 0
+    }
     switch size {
-    case .sm: theme.spacing.sm
-    case .md: theme.spacing.md
-    case .lg: theme.spacing.xl
+    case .sm: return theme.spacing.sm
+    case .md: return theme.spacing.md
+    case .lg: return theme.spacing.xl
     }
   }
 
   private var verticalPadding: CGFloat {
+    if variant == .link {
+      return 2
+    }
     switch size {
-    case .sm: theme.spacing.xs + 2
-    case .md: theme.spacing.sm + 2
-    case .lg: theme.spacing.md - 2
+    case .sm: return theme.spacing.xs + 2
+    case .md: return theme.spacing.sm + 2
+    case .lg: return theme.spacing.md - 2
     }
   }
 
+  private var minHeight: CGFloat {
+    44
+  }
+
   private var minWidth: CGFloat {
+    if variant == .link {
+      return 44
+    }
     switch size {
-    case .sm: 60
-    case .md: 80
-    case .lg: 100
+    case .sm: return 60
+    case .md: return 80
+    case .lg: return 100
     }
   }
 
@@ -138,7 +190,8 @@ public struct CNButton: View {
     case .default: theme.primary
     case .destructive: theme.destructive
     case .secondary: theme.secondary
-    case .ghost, .outline, .link: .clear
+    case .outline: theme.background
+    case .ghost, .link: .clear
     }
   }
 
@@ -185,6 +238,16 @@ public struct CNButton: View {
     CNButton("Enabled") {}
     CNButton("Disabled") {}
       .disabled(true)
+  }
+  .padding()
+}
+
+#Preview("CNButton Loading") {
+  VStack(spacing: 16) {
+    CNButton("Please wait", isLoading: true) {}
+    CNButton("Outline loading", variant: .outline, isLoading: true) {}
+    CNButton("Secondary loading", variant: .secondary, isLoading: true) {}
+    CNButton("Small", size: .sm, isLoading: true) {}
   }
   .padding()
 }

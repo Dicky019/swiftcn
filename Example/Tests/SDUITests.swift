@@ -35,6 +35,38 @@ struct SDUITests {
     #expect(SDUIRegistry.shared.isRegistered("button"))
   }
 
+  @Test("Button configuration reads isLoading wire prop")
+  func buttonConfigurationReadsIsLoading() throws {
+    let node = SDUINode(
+      id: "btn-1",
+      type: "button",
+      props: [
+        "label": AnyCodable("Submit"),
+        "isLoading": AnyCodable(true)
+      ]
+    )
+
+    let configuration = try CNButton.Configuration(node: node)
+    #expect(configuration.label == "Submit")
+    #expect(configuration.isLoading == true)
+  }
+
+  @Test("Button configuration rejects non-boolean isLoading")
+  func buttonConfigurationRejectsNonBooleanIsLoading() {
+    let node = SDUINode(
+      id: "btn-2",
+      type: "button",
+      props: [
+        "label": AnyCodable("Submit"),
+        "isLoading": AnyCodable("yes")
+      ]
+    )
+
+    #expect(throws: SDUIError.self) {
+      try CNButton.Configuration(node: node)
+    }
+  }
+
   @Test("Switch configuration reads its initial value")
   func switchConfigurationReadsInitialValue() throws {
     let node = SDUINode(
