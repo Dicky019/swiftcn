@@ -22,16 +22,6 @@ export const ALLOWED_REPO_URLS = [
 ] as const
 
 /**
- * Allowed source paths within the repository
- * Files can only be copied from these subdirectories
- */
-export const ALLOWED_SOURCE_PATHS = [
-  'Sources/Components',
-  'Sources/Theme',
-  'Sources/SDUI'
-] as const
-
-/**
  * Configuration file name
  */
 export const CONFIG_FILE_NAME = 'swiftcn.json'
@@ -42,9 +32,14 @@ export const CONFIG_FILE_NAME = 'swiftcn.json'
 export const SOURCE_PATH = 'Sources'
 
 /**
+ * Git reference matching the CLI release version
+ */
+export const SOURCE_REF = `v${VERSION}`
+
+/**
  * Remote registry URL (fetched from GitHub raw)
  */
-export const REGISTRY_URL = 'https://raw.githubusercontent.com/Dicky019/swiftcn/main/CLI/registry.json'
+export const REGISTRY_URL = `https://raw.githubusercontent.com/Dicky019/swiftcn/${SOURCE_REF}/CLI/registry.json`
 
 /**
  * Maximum allowed length for component names

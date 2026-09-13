@@ -1,8 +1,24 @@
 import path from "node:path";
 import type { GitService } from "./GitService.js";
-import type { FileService, CopyResult } from "./FileService.js";
+import type { FileService } from "./FileService.js";
 import type { RegistryService } from "./RegistryService.js";
-import { ALLOWED_REPO_URLS, SOURCE_PATH } from "../utils/constants.js";
+import {
+  ALLOWED_REPO_URLS,
+  SOURCE_PATH,
+  SOURCE_REF,
+} from "../utils/constants.js";
+import { resolveSecurePath } from "../utils/paths.js";
+import { ErrorCode, SwiftCNError } from "../utils/errors.js";
+
+function destinationPath(file: string, stripPrefix: string | null): string {
+  if (!stripPrefix) return path.basename(file);
+  if (file.startsWith(stripPrefix)) return file.slice(stripPrefix.length);
+
+  throw new SwiftCNError(
+    `Registry path must start with ${stripPrefix}: ${file}`,
+    ErrorCode.INVALID_INPUT
+  );
+}
 
 export interface FetchOptions {
   force?: boolean;
@@ -73,29 +89,27 @@ export class FetcherServiceImpl implements FetcherService {
     const result: FetchResult = { added: [], skipped: [] };
 
     try {
-      await this.git.clone(repoUrl, tempDir);
+      await this.git.clone(repoUrl, tempDir, SOURCE_REF);
+
+      const sourceRoot = path.join(tempDir, SOURCE_PATH);
 
       for (const file of files) {
-        const sourcePath = path.join(tempDir, SOURCE_PATH, file);
+        const sourcePath = resolveSecurePath(sourceRoot, file);
+        const relativePath = destinationPath(file, options.stripPrefix);
+        const destPath = resolveSecurePath(destDir, relativePath);
+        const copyResult = await this.file.copy(sourcePath, destPath, {
+          force: options.force,
+        });
 
-        // Determine destination: strip prefix if provided, otherwise use basename
-        const relativePath = options.stripPrefix
-          ? file.replace(new RegExp(`^${options.stripPrefix}`), "")
-          : path.basename(file);
-
-        const destPath = path.join(destDir, relativePath);
-
-        const copyResult: CopyResult = await this.file.copy(
-          sourcePath,
-          destPath,
-          { force: options.force }
-        );
-
-        if (copyResult.status === "added") {
-          result.added.push(destPath);
-        } else if (copyResult.status === "skipped") {
-          result.skipped.push(destPath);
+        if (copyResult.status === "error") {
+          throw new SwiftCNError(
+            copyResult.error ?? `Failed to copy ${file}`,
+            ErrorCode.FILE_COPY_FAILED
+          );
         }
+
+        if (copyResult.status === "added") result.added.push(destPath);
+        if (copyResult.status === "skipped") result.skipped.push(destPath);
       }
 
       return result;

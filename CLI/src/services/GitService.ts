@@ -5,19 +5,20 @@ import os from "node:os";
 import { ALLOWED_REPO_URLS } from "../utils/constants.js";
 
 export interface GitService {
-  clone(repoUrl: string, targetDir: string): Promise<void>;
+  clone(repoUrl: string, targetDir: string, ref?: string): Promise<void>;
   cleanup(tempDir: string): Promise<void>;
   createTempDir(prefix: string): string;
 }
 
 export class GitServiceImpl implements GitService {
-  async clone(repoUrl: string, targetDir: string): Promise<void> {
+  async clone(repoUrl: string, targetDir: string, ref?: string): Promise<void> {
     if (!ALLOWED_REPO_URLS.includes(repoUrl as typeof ALLOWED_REPO_URLS[number])) {
       throw new Error(`Untrusted repository URL: ${repoUrl}`);
     }
 
-    const git = simpleGit();
-    await git.clone(repoUrl, targetDir, ["--depth=1", "--single-branch"]);
+    const args = ["--depth=1", "--single-branch"];
+    if (ref) args.push("--branch", ref);
+    await simpleGit().clone(repoUrl, targetDir, args);
   }
 
   async cleanup(tempDir: string): Promise<void> {

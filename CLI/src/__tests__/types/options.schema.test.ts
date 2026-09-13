@@ -39,6 +39,14 @@ describe("InitOptionsSchema", () => {
     const result = InitOptionsSchema.parse({ yes: true });
     expect(result.yes).toBe(true);
   });
+
+  it("accepts the init force flag", () => {
+    expect(InitOptionsSchema.parse({ force: true }).force).toBe(true);
+  });
+
+  it("defaults force to undefined", () => {
+    expect(InitOptionsSchema.parse({}).force).toBeUndefined();
+  });
 });
 
 describe("AddOptionsSchema", () => {

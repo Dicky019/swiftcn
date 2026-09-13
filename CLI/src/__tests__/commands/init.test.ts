@@ -220,6 +220,7 @@ describe("init command", () => {
       expect(output).toContain("--theme-path");
       expect(output).toContain("--sdui");
       expect(output).toContain("--sdui-path");
+      expect(output).toContain("--force");
 
       expect(container.config.write).not.toHaveBeenCalled();
       expect(container.fetcher.fetchTheme).not.toHaveBeenCalled();
@@ -246,4 +247,79 @@ describe("init command", () => {
       expect(container.config.write).not.toHaveBeenCalled();
     });
   });
+
+  describe("path containment", () => {
+    it("rejects a components path outside the project", async () => {
+      const container = await runInit(["--path", "../outside", "-y"]);
+
+      expect(container.fetcher.fetchTheme).not.toHaveBeenCalled();
+      expect(container.config.write).not.toHaveBeenCalled();
+    });
+
+    it("rejects an absolute theme path", async () => {
+      const container = await runInit(["--theme-path", "/tmp/theme", "-y"]);
+
+      expect(container.fetcher.fetchTheme).not.toHaveBeenCalled();
+      expect(container.config.write).not.toHaveBeenCalled();
+    });
+
+    it("rejects an invalid sdui path before fetching theme", async () => {
+      const container = await runInit([
+        "--sdui-path",
+        "../outside-sdui",
+        "-y",
+      ]);
+
+      expect(container.fetcher.fetchTheme).not.toHaveBeenCalled();
+      expect(container.fetcher.fetchSdui).not.toHaveBeenCalled();
+      expect(container.config.write).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("--force", () => {
+    it("preserves existing templates by default", async () => {
+      const container = await runInit(["-y"]);
+      expect(container.fetcher.fetchTheme).toHaveBeenCalledWith(
+        expect.any(String),
+        { force: undefined }
+      );
+    });
+
+    it("overwrites theme and SDUI only with force", async () => {
+      const container = await runInit(["--sdui", "--force", "-y"]);
+      expect(container.fetcher.fetchTheme).toHaveBeenCalledWith(
+        expect.any(String),
+        { force: true }
+      );
+      expect(container.fetcher.fetchSdui).toHaveBeenCalledWith(
+        expect.any(String),
+        { force: true }
+      );
+    });
+
+    it("accepts -f shorthand", async () => {
+      const container = await runInit(["--sdui", "-f", "-y"]);
+      expect(container.fetcher.fetchTheme).toHaveBeenCalledWith(
+        expect.any(String),
+        { force: true }
+      );
+      expect(container.fetcher.fetchSdui).toHaveBeenCalledWith(
+        expect.any(String),
+        { force: true }
+      );
+    });
+  });
+
+  describe("setup hint", () => {
+    it("prints the self-tracking theme setup", async () => {
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      await runInit(["-y"]);
+
+      const output = logSpy.mock.calls.flat().join("\n");
+      expect(output).toContain(".environment(themeProvider)");
+      expect(output).toContain(".withThemeTracking(themeProvider)");
+      expect(output).not.toContain("themeProvider.resolvedTheme");
+    });
+  });
 });
+

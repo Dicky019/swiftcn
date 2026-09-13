@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import * as p from "@clack/prompts";
 import path from "node:path";
+import { resolveSecurePath } from "../utils/paths.js";
 import { ui } from "../utils/ui.js";
 import { InitOptionsSchema } from "../types/options.schema.js";
 import type { ProjectConfig } from "../types/config.schema.js";
@@ -21,6 +22,7 @@ function printInitHelp() {
   ui.command("--theme-path <path>    ", "Path to theme directory (default: Theme)");
   ui.command("--sdui                 ", "Include SDUI infrastructure");
   ui.command("--sdui-path <path>     ", "Path to SDUI directory (default: SDUI)");
+  ui.command("-f, --force            ", "Overwrite existing theme and SDUI files");
   ui.command("-y, --yes              ", "Skip prompts and use defaults");
   ui.command("-h, --help             ", "Show help for init command");
   ui.break();
@@ -30,6 +32,7 @@ function printInitHelp() {
   ui.command("swiftcn init                       ", "Initialize with interactive prompts");
   ui.command("swiftcn init -y                    ", "Initialize with all defaults");
   ui.command("swiftcn init --sdui -y             ", "Initialize with SDUI, skip prompts");
+  ui.command("swiftcn init -f -y                 ", "Overwrite existing theme and SDUI files");
   ui.command("swiftcn init -p App/Components     ", "Set custom components directory");
   ui.command("swiftcn init --theme-path App/Theme", "Set custom theme directory");
   ui.command("swiftcn init --sdui                ", "Include SDUI infrastructure");
@@ -51,6 +54,7 @@ export function createInitCommand(container: Container): Command {
     .option("--theme-path <path>", "Path to theme directory")
     .option("--sdui", "Include SDUI infrastructure")
     .option("--sdui-path <path>", "Path to SDUI directory")
+    .option("-f, --force", "Overwrite existing theme and SDUI files")
     .option("-y, --yes", "Skip prompts and use defaults")
     .action(async (rawOptions) => {
       const options = InitOptionsSchema.parse(rawOptions);
@@ -146,38 +150,48 @@ export function createInitCommand(container: Container): Command {
       ui.break();
 
       try {
-        const fullComponentsPath = path.join(cwd, componentsPath);
-        await container.file.ensureDir(fullComponentsPath);
+        const fullComponentsPath = resolveSecurePath(cwd, componentsPath);
+        const fullThemePath = resolveSecurePath(cwd, themePath);
+        const fullSduiPath = withSdui
+          ? resolveSecurePath(cwd, sduiPath)
+          : undefined;
 
-        const fullThemePath = path.join(cwd, themePath);
+        await container.file.ensureDir(fullComponentsPath);
         await container.file.ensureDir(fullThemePath);
 
         ui.step("Installing theme files...");
         ui.break();
 
         const themeResult = await container.fetcher.fetchTheme(fullThemePath, {
-          force: true,
+          force: options.force,
         });
 
         for (const file of themeResult.added) {
           ui.fileAdded(path.relative(cwd, file));
         }
 
+        for (const file of themeResult.skipped ?? []) {
+          ui.fileExists(path.relative(cwd, file));
+        }
+
         ui.break();
 
-        if (withSdui) {
-          const fullSduiPath = path.join(cwd, sduiPath);
+        if (withSdui && fullSduiPath) {
           await container.file.ensureDir(fullSduiPath);
 
           ui.step("Installing SDUI files...");
           ui.break();
 
           const sduiResult = await container.fetcher.fetchSdui(fullSduiPath, {
-            force: true,
+            force: options.force,
           });
 
           for (const file of sduiResult.added) {
             ui.fileAdded(path.relative(cwd, file));
+          }
+
+          for (const file of sduiResult.skipped ?? []) {
+            ui.fileExists(path.relative(cwd, file));
           }
 
           ui.break();
@@ -211,8 +225,7 @@ export function createInitCommand(container: Container): Command {
         ui.break();
         ui.line("  ContentView()");
         ui.line("      .environment(themeProvider)");
-        ui.line("      .environment(\\.theme, themeProvider.resolvedTheme)");
-        ui.line("      .preferredColorScheme(themeProvider.resolvedColorScheme)");
+        ui.line("      .withThemeTracking(themeProvider)");
         ui.break();
         ui.hint("Components are copied to your project — you own the code!");
         ui.break();

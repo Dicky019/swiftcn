@@ -3,6 +3,7 @@ import { FetcherServiceImpl } from "../../services/FetcherService.js";
 import type { GitService } from "../../services/GitService.js";
 import type { FileService, CopyResult } from "../../services/FileService.js";
 import type { RegistryService } from "../../services/RegistryService.js";
+import { ErrorCode } from "../../utils/errors.js";
 
 function createMockGit(): GitService {
   return {
@@ -64,7 +65,11 @@ describe("FetcherServiceImpl", () => {
       );
 
       expect(mockGit.createTempDir).toHaveBeenCalledWith("swiftcn");
-      expect(mockGit.clone).toHaveBeenCalled();
+      expect(mockGit.clone).toHaveBeenCalledWith(
+        expect.any(String),
+        "/tmp/swiftcn-123",
+        expect.stringMatching(/^v\d+\.\d+\.\d+$/)
+      );
       expect(mockFile.copy).toHaveBeenCalledTimes(1);
       expect(mockGit.cleanup).toHaveBeenCalledWith("/tmp/swiftcn-123");
       expect(result.added).toHaveLength(1);
@@ -155,4 +160,82 @@ describe("FetcherServiceImpl", () => {
       expect(mockGit.cleanup).toHaveBeenCalledWith("/tmp/swiftcn-123");
     });
   });
+
+  describe("path containment and error handling", () => {
+    it("rejects a source path that escapes Sources", async () => {
+      await expect(
+        service.fetchComponents(["../../outside.swift"], "/dest")
+      ).rejects.toThrow(/outside the allowed directory|Path contains path traversal patterns/);
+      expect(mockFile.copy).not.toHaveBeenCalled();
+    });
+
+    it("rejects a theme file without the Theme prefix", async () => {
+      vi.mocked(mockRegistry.getThemeFiles).mockResolvedValue([
+        "Components/CNButton.swift",
+      ]);
+
+      await expect(service.fetchTheme("/dest/theme")).rejects.toThrow(
+        "must start with Theme/"
+      );
+    });
+
+    it("rejects an SDUI file without the SDUI prefix", async () => {
+      vi.mocked(mockRegistry.getSduiFiles).mockResolvedValue([
+        "Components/CNButton.swift",
+      ]);
+
+      await expect(service.fetchSdui("/dest/sdui")).rejects.toThrow(
+        "must start with SDUI/"
+      );
+    });
+
+    it("rejects when a file copy returns an error", async () => {
+      vi.mocked(mockFile.copy).mockResolvedValue({
+        status: "error",
+        path: "/dest/CNButton.swift",
+        error: "disk full",
+      });
+
+      await expect(
+        service.fetchComponents(["Components/CNButton.swift"], "/dest")
+      ).rejects.toThrow("disk full");
+
+      try {
+        await service.fetchComponents(["Components/CNButton.swift"], "/dest");
+        expect.unreachable();
+      } catch (e: any) {
+        expect(e.code).toBe(ErrorCode.FILE_COPY_FAILED);
+      }
+    });
+
+    it("uses fallback error message when copyResult.error is undefined", async () => {
+      vi.mocked(mockFile.copy).mockResolvedValue({
+        status: "error",
+        path: "/dest/CNButton.swift",
+      });
+
+      await expect(
+        service.fetchComponents(["Components/CNButton.swift"], "/dest")
+      ).rejects.toThrow("Failed to copy Components/CNButton.swift");
+
+      try {
+        await service.fetchComponents(["Components/CNButton.swift"], "/dest");
+        expect.unreachable();
+      } catch (e: any) {
+        expect(e.code).toBe(ErrorCode.FILE_COPY_FAILED);
+      }
+    });
+
+    it("rejects a destination path that escapes the destination directory", async () => {
+      vi.mocked(mockRegistry.getThemeFiles).mockResolvedValue([
+        "Theme/../../outside.swift",
+      ]);
+
+      await expect(service.fetchTheme("/dest/theme")).rejects.toThrow(
+        /outside the allowed directory|Path contains path traversal patterns/
+      );
+      expect(mockFile.copy).not.toHaveBeenCalled();
+    });
+  });
 });
+

@@ -25,12 +25,14 @@ npx swiftcn@latest <command>
 Initialize swiftcn in your project. Creates a `swiftcn.json` config file, installs theme files, and optionally sets up SDUI infrastructure.
 
 ```bash
-swiftcn init                       # Interactive prompts
+swiftcn init                       # Interactive prompts (preserves existing theme and SDUI files)
 swiftcn init -y                    # Use defaults, skip prompts
+swiftcn init -f                    # Overwrite existing theme and SDUI files
+swiftcn init --force               # Explicitly overwrite foundation files
 swiftcn init --sdui                # Include SDUI infrastructure
 swiftcn init -p Components         # Custom components path
 swiftcn init --theme-path Theme    # Custom theme path
-swiftcn init --sdui-path App/SDUI     # Custom SDUI path (implies --sdui)
+swiftcn init --sdui-path App/SDUI  # Custom SDUI path (implies --sdui)
 ```
 
 | Option | Description | Default |
@@ -39,6 +41,7 @@ swiftcn init --sdui-path App/SDUI     # Custom SDUI path (implies --sdui)
 | `--theme-path <path>` | Path to theme directory | `Theme` |
 | `--sdui` | Include SDUI infrastructure | `false` |
 | `--sdui-path <path>` | Path to SDUI directory (implies `--sdui`) | `SDUI` |
+| `-f, --force` | Overwrite existing theme and SDUI files | `false` |
 | `-y, --yes` | Skip prompts and use defaults | `false` |
 
 ### `add <component>`
@@ -155,3 +158,7 @@ src/
 ```
 
 Commands are thin orchestrators that receive a `Container` via factory functions. Services handle all business logic and are independently testable. The registry is fetched from GitHub at runtime.
+
+Published CLI version `x.y.z` reads registry and templates from Git tag `vx.y.z`.
+The release script must create and push that tag before `npm publish`.
+

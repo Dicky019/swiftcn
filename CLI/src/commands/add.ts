@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import path from "node:path";
+import { resolveSecurePath } from "../utils/paths.js";
 import { ui } from "../utils/ui.js";
 import { AddOptionsSchema } from "../types/options.schema.js";
 import type { Container } from "../container.js";
@@ -89,7 +90,7 @@ export function createAddCommand(container: Container): Command {
       ui.break();
 
       try {
-        const destDir = path.join(cwd, config.componentsPath);
+        const destDir = resolveSecurePath(cwd, config.componentsPath);
         const installsSdui = Boolean(
           config.sduiPath && component.sdui_files?.length && options.sdui !== false
         );
