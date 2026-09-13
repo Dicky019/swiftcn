@@ -15,8 +15,8 @@ struct ComponentInfo: Identifiable, Hashable, Sendable {
   let iconName: String
   let sduiSupport: Bool
   
-  static let all: [ComponentInfo] = [
-    ComponentInfo(
+  static let all: [Self] = [
+    .init(
       id: "button",
       name: "Button",
       cnName: "CNButton",
@@ -24,7 +24,7 @@ struct ComponentInfo: Identifiable, Hashable, Sendable {
       iconName: "rectangle.fill",
       sduiSupport: true
     ),
-    ComponentInfo(
+    .init(
       id: "input",
       name: "Input",
       cnName: "CNInput",
@@ -32,7 +32,7 @@ struct ComponentInfo: Identifiable, Hashable, Sendable {
       iconName: "character.cursor.ibeam",
       sduiSupport: true
     ),
-    ComponentInfo(
+    .init(
       id: "card",
       name: "Card",
       cnName: "CNCard",
@@ -40,7 +40,7 @@ struct ComponentInfo: Identifiable, Hashable, Sendable {
       iconName: "rectangle.portrait",
       sduiSupport: true
     ),
-    ComponentInfo(
+    .init(
       id: "switch",
       name: "Switch",
       cnName: "CNSwitch",
@@ -48,7 +48,7 @@ struct ComponentInfo: Identifiable, Hashable, Sendable {
       iconName: "switch.2",
       sduiSupport: true
     ),
-    ComponentInfo(
+    .init(
       id: "slider",
       name: "Slider",
       cnName: "CNSlider",
@@ -56,7 +56,7 @@ struct ComponentInfo: Identifiable, Hashable, Sendable {
       iconName: "slider.horizontal.3",
       sduiSupport: true
     ),
-    ComponentInfo(
+    .init(
       id: "badge",
       name: "Badge",
       cnName: "CNBadge",

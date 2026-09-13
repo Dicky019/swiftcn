@@ -12,13 +12,13 @@ public struct SDUINode: Codable, Sendable, Hashable, Identifiable {
   public let id: String
   public let type: String
   public let props: [String: AnyCodable]
-  public let children: [SDUINode]?
+  public let children: [Self]?
 
   public init(
     id: String,
     type: String,
     props: [String: AnyCodable] = [:],
-    children: [SDUINode]? = nil
+    children: [Self]? = nil
   ) {
     self.id = id
     self.type = type

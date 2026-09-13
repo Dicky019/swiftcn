@@ -6,6 +6,9 @@
 //
 
 import Foundation
+import OSLog
+
+private let sduiLogger = Logger(subsystem: "com.swiftcn", category: "SDUI")
 
 /// Protocol for handling SDUI component actions
 @MainActor
@@ -23,10 +26,10 @@ public final class DefaultSDUIActionHandler: SDUIActionHandler {
   public init() {}
 
   public func handleAction(id: String, payload: [String: AnyCodable]?) {
-    print("[SDUI] Action: \(id), payload: \(payload ?? [:])")
+    sduiLogger.debug("[SDUI] Action: \(id, privacy: .public), payload: \(String(describing: payload ?? [:]), privacy: .public)")
   }
 
   public func handleNavigation(route: String, params: [String: AnyCodable]?) {
-    print("[SDUI] Navigate: \(route), params: \(params ?? [:])")
+    sduiLogger.debug("[SDUI] Navigate: \(route, privacy: .public), params: \(String(describing: params ?? [:]), privacy: .public)")
   }
 }

@@ -73,7 +73,5 @@ struct SDUITemplatePickerView: View {
 }
 
 #Preview {
-  SDUITemplatePickerView { template in
-    print("Selected: \(template.name)")
-  }
+  SDUITemplatePickerView { _ in }
 }

@@ -5,9 +5,9 @@
 //  Created by Dicky Darmawan on 03/02/26.
 //
 
-import Testing
-import SwiftUI
 @testable import Example
+import SwiftUI
+import Testing
 
 @Suite("Component Tests")
 struct ComponentTests {

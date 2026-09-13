@@ -5,8 +5,8 @@
 //  Created by Dicky Darmawan on 03/02/26.
 //
 
-import Testing
 @testable import Example
+import Testing
 
 @Suite("Design Token Tests")
 struct TokenTests {

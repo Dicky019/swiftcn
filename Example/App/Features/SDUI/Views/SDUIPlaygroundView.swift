@@ -5,7 +5,10 @@
 //  Created by Dicky Darmawan on 03/02/26.
 //
 
+import OSLog
 import SwiftUI
+
+private let playgroundLogger = Logger(subsystem: "com.swiftcn.Example", category: "SDUIPlayground")
 
 struct SDUIPlaygroundView: View {
   @Environment(\.theme) private var theme
@@ -191,12 +194,12 @@ final class PlaygroundActionHandler: SDUIActionHandler {
   var onAction: (@MainActor (String, [String: AnyCodable]?) -> Void)?
 
   func handleAction(id: String, payload: [String: AnyCodable]?) {
-    print("[SDUI] Action: \(id), payload: \(payload ?? [:])")
+    playgroundLogger.debug("[SDUI] Action: \(id, privacy: .public), payload: \(String(describing: payload ?? [:]), privacy: .public)")
     onAction?(id, payload)
   }
   
   func handleNavigation(route: String, params: [String: AnyCodable]?) {
-    print("[SDUI] Navigate: \(route)")
+    playgroundLogger.debug("[SDUI] Navigate: \(route, privacy: .public)")
     onAction?("navigate:\(route)", params)
   }
 }

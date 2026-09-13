@@ -7,6 +7,25 @@
 
 import ProjectDescription
 
+let swiftLintScript: TargetScript = .pre(
+    script: """
+    if [[ "$(uname -m)" == arm64 ]]; then
+        export PATH="/opt/homebrew/bin:$PATH"
+    else
+        export PATH="/usr/local/bin:$PATH"
+    fi
+
+    if which swiftlint >/dev/null 2>&1; then
+        cd "$SRCROOT/.."
+        swiftlint lint --config .swiftlint.yml
+    else
+        echo "warning: SwiftLint not installed. Install via Homebrew: 'brew install swiftlint'"
+    fi
+    """,
+    name: "Run SwiftLint",
+    basedOnDependencyAnalysis: false
+)
+
 let project = Project(
     name: "Example",
     organizationName: "Dicky Darmawan",
@@ -54,6 +73,9 @@ let project = Project(
             buildableFolders: [
                 "App/"      // App-specific code
             ],
+            scripts: [
+                swiftLintScript
+            ],
             dependencies: []
         ),
 
@@ -67,7 +89,10 @@ let project = Project(
             buildableFolders: [
                 "App/SDUI/"
             ],
-            dependencies: []
+            dependencies: [],
+            settings: .settings(base: [
+                "DEFINES_MODULE": "NO"
+            ])
         ),
 
         // MARK: - Tests
