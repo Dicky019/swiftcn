@@ -23,7 +23,7 @@ final class AppRouter {
     guard !componentsPath.isEmpty else { return }
     componentsPath.removeLast()
   }
-  
+
   func popComponentsToRoot() {
     componentsPath.removeLast(componentsPath.count)
   }

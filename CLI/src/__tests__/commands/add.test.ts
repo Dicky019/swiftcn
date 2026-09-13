@@ -508,4 +508,26 @@ describe("add command", () => {
       expect(container.fetcher.fetchComponents).not.toHaveBeenCalled();
     });
   });
+
+  describe("path containment", () => {
+    it("rejects a configured components path outside the project", async () => {
+      const unsafeConfig = { ...sampleConfig, componentsPath: "../outside" };
+      const container = await runAdd(["button"], {
+        config: {
+          load: vi.fn().mockResolvedValue(unsafeConfig),
+          write: vi.fn(),
+          exists: vi.fn().mockResolvedValue(true),
+        },
+        registry: {
+          load: vi.fn().mockResolvedValue({}),
+          getComponent: vi.fn().mockResolvedValue(sampleButton),
+          listComponents: vi.fn().mockResolvedValue(sampleComponents),
+          getThemeFiles: vi.fn().mockResolvedValue([]),
+          getSduiFiles: vi.fn().mockResolvedValue([]),
+        },
+      });
+
+      expect(container.fetcher.fetchComponents).not.toHaveBeenCalled();
+    });
+  });
 });

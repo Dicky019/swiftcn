@@ -111,8 +111,8 @@ public struct ResolvedTheme: Sendable {
   }
 
   /// Create from Theme with specific color scheme
-  public static func resolve(theme: Theme, isDark: Bool) -> ResolvedTheme {
-    ResolvedTheme(
+  public static func resolve(theme: Theme, isDark: Bool) -> Self {
+    Self(
       colorScheme: isDark ? theme.dark : theme.light,
       radius: theme.radius,
       spacing: theme.spacing,
@@ -124,5 +124,5 @@ public struct ResolvedTheme: Sendable {
   }
 
   /// Default resolved theme (light mode, Zinc palette)
-  public static let `default` = ResolvedTheme.resolve(theme: .default, isDark: false)
+  public static let `default` = Self.resolve(theme: .default, isDark: false)
 }

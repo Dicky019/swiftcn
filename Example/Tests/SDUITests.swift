@@ -5,9 +5,9 @@
 //  Created by Dicky Darmawan on 11/09/26.
 //
 
+@testable import Example
 import Foundation
 import Testing
-@testable import Example
 
 @Suite("SDUI Tests")
 struct SDUITests {

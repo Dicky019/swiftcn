@@ -7,31 +7,34 @@
 
 import SwiftUI
 
-// MARK: - Theme Environment Key
-
-private struct ThemeKey: EnvironmentKey {
-  static let defaultValue: ResolvedTheme = .default
-}
+// MARK: - Theme Environment
 
 extension EnvironmentValues {
-  /// Access the resolved theme from the environment
-  public var theme: ResolvedTheme {
-    get { self[ThemeKey.self] }
-    set { self[ThemeKey.self] = newValue }
-  }
+  /// Access the resolved theme from the environment.
+  @Entry public var theme: ResolvedTheme = .default
 }
 
 // MARK: - View Extension
 
-extension View {
-  /// Apply theme environment and track system color scheme changes
-  /// Use this on your root content view to enable theme support
-  public func withThemeTracking(_ themeProvider: ThemeProvider, systemColorScheme: ColorScheme) -> some View {
-    self
+@MainActor
+private struct ThemeTrackingModifier: ViewModifier {
+  let themeProvider: ThemeProvider
+
+  @Environment(\.colorScheme) private var systemColorScheme
+
+  func body(content: Content) -> some View {
+    content
       .environment(\.theme, themeProvider.resolvedTheme)
       .preferredColorScheme(themeProvider.resolvedColorScheme)
       .onChange(of: systemColorScheme, initial: true) { _, newScheme in
         themeProvider.updateSystemColorScheme(newScheme)
       }
+  }
+}
+
+extension View {
+  /// Apply theme values and track system appearance.
+  public func withThemeTracking(_ themeProvider: ThemeProvider) -> some View {
+    modifier(ThemeTrackingModifier(themeProvider: themeProvider))
   }
 }

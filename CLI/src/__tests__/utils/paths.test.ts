@@ -1,3 +1,6 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { describe, it, expect } from "vitest";
 import {
   sanitizePath,
@@ -60,6 +63,21 @@ describe("resolveSecurePath", () => {
     expect(() =>
       resolveSecurePath("/project", "../../etc/passwd")
     ).toThrow();
+  });
+
+  it("rejects path traversing symlinks pointing outside the base directory", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "swiftcn-symlink-test-"));
+    const baseDir = path.join(tempDir, "base");
+    const outsideDir = path.join(tempDir, "outside");
+    fs.mkdirSync(baseDir);
+    fs.mkdirSync(outsideDir);
+    fs.symlinkSync(outsideDir, path.join(baseDir, "Components"), "dir");
+
+    expect(() => {
+      resolveSecurePath(baseDir, "Components/Button.swift");
+    }).toThrowError(/traverses symlinks outside/);
+
+    fs.rmSync(tempDir, { recursive: true, force: true });
   });
 });
 

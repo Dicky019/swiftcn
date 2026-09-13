@@ -30,6 +30,19 @@ swiftcn init
 swiftcn add button
 ```
 
+## Theme Setup
+
+```swift
+@State private var themeProvider = ThemeProvider()
+
+ContentView()
+    .environment(themeProvider)
+    .withThemeTracking(themeProvider)
+```
+
+`Theme` is the Codable transport value, `ThemeProvider` owns main-actor UI state,
+and components synchronously read `ResolvedTheme` from `@Environment(\.theme)`.
+
 ## Components
 
 | Component | Description |

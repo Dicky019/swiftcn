@@ -1,0 +1,310 @@
+# ==============================================================================
+# swiftcn — Production SwiftLint Configuration
+# ==============================================================================
+# Architecture:
+# - Modular, copy-paste SwiftUI component library (inspired by shadcn/ui)
+# - Swift 6 strict concurrency (-strict-concurrency=complete)
+# - iOS 17+ / macOS 14+ Observation framework (@Observable)
+# - Tuist project generation (Example demo app)
+#
+# Philosophy:
+# - High code safety & modern Swift 6 idioms without pedantic friction
+# - Zero false-positives on declarative SwiftUI view trees and design tokens
+# - Standardized declaration modifiers and collection performance optimizations
+#
+# Documentation: docs/swiftlint-best-practices.md
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Directory Inclusions & Exclusions
+# ------------------------------------------------------------------------------
+
+# Included paths for active linting
+included:
+  - Sources
+  - Example
+
+# Excluded paths: build artifacts, generated projects, tooling, and metadata
+excluded:
+  - .build
+  - Derived
+  - derivedData
+  - build
+  - .swiftpm
+  - Example/Derived
+  - Example/Example.xcodeproj
+  - Example/Example.xcworkspace
+  - Example/Project.swift
+  - Example/Tests/Fixtures
+  - Example/App/Features/SDUI/Models
+  - CLI
+  - scripts
+  - docs
+  - .agents
+  - .git
+  - .superpowers
+  - .maestro
+  - .serena
+
+# ------------------------------------------------------------------------------
+# 2. Disabled Rules (SwiftUI Ergonomics & Obsolete Frameworks)
+# ------------------------------------------------------------------------------
+
+disabled_rules:
+  # Formatting Preferences:
+  # Allow trailing whitespace / blank line indentation
+  - trailing_whitespace
+
+  # SwiftUI Multiple Trailing Closure Conflict:
+  # Critical for SwiftUI views such as Button(action:label:) and Section(content:header:).
+  # Swift 5.3+ multiple trailing closure syntax (Button { ... } label: { ... })
+  # causes false-positive violations if this rule remains enabled.
+  - multiple_closures_with_trailing_closure
+
+  # Active Development & Copy-Paste Template Placeholders:
+  # Allows // TODO: and // FIXME: markers during component development and roadmap tracking.
+  - todo
+
+  # Obsolete UIKit / Interface Builder Rules:
+  # swiftcn is a pure SwiftUI library targeting iOS 17+ and macOS 14+.
+  # Storyboards, XIBs, and Interface Builder annotations do not exist in this architecture.
+  - strong_iboutlet
+  - prohibited_interface_builder
+  - valid_ibinspectable
+  - ibinspectable_in_extension
+  - private_outlet
+  - private_action
+
+# NOTE ON INTENTIONALLY UNENABLED RULES:
+# - trailing_closure: Kept OFF. Forcing trailing closure syntax on multi-parameter
+#   methods creates ambiguity and collides with SwiftUI Button initializers.
+# - discouraged_optional_boolean: Kept OFF. Optional booleans (`Bool?`) are required
+#   for Server-Driven UI (SDUI) wire models (e.g. `CNButton.Configuration.isLoading: Bool?`)
+#   and dynamic JSON deserialization to represent absent keys.
+
+# ------------------------------------------------------------------------------
+# 3. Opt-In Rules
+# ------------------------------------------------------------------------------
+
+opt_in_rules:
+  # --- Safety & Concurrency ---
+  # Catches unhandled throwing tasks that silently swallow errors in Task { try await ... }
+  - unhandled_throwing_task
+  # Requires descriptive explanation strings in fatalError() for actionable crash diagnostics
+  - fatal_error_message
+  # Flags implicitly unwrapped optionals (T!) which break type safety
+  - implicitly_unwrapped_optional
+  # Flags async functions that never await, avoiding artificial actor hopping & task switches
+  - async_without_await
+  # Prevents referring to self in property initializers before self is fully initialized
+  - self_in_property_initialization
+  # Discourages [unowned self] captures that cause runtime crashes on deallocation
+  - unowned_variable_capture
+  # Flags redundant ': Sendable' conformances on actor-isolated (@MainActor) types in Swift 6
+  - redundant_sendable
+
+  # --- Modern Swift 5.7+ / Swift 6 Idioms ---
+  # Enforces Swift 5.7+ shorthand syntax: `if let theme` instead of `if let theme = theme`
+  - shorthand_optional_binding
+  # O(N) short-circuiting element lookup: .first(where:) instead of .filter {}.first
+  - first_where
+  # O(N) short-circuiting element lookup: .last(where:) instead of .filter {}.last
+  - last_where
+  # Enforces .contains(...) over .filter(...).count > 0
+  - contains_over_filter_count
+  # Enforces .contains(...) over !.filter(...).isEmpty
+  - contains_over_filter_is_empty
+  # Enforces .contains(where:) over .first(where:) != nil
+  - contains_over_first_not_nil
+  # Enforces .contains(...) over .range(of:) != nil
+  - contains_over_range_nil_comparison
+  # Enforces .isEmpty over .count == 0 (O(1) vs O(N) on non-random access sequences)
+  - empty_count
+  # Enforces .isEmpty over == ""
+  - empty_string
+  # Enforces flag.toggle() over flag = !flag
+  - toggle_bool
+  # Prefers Array(sequence) over sequence.map { $0 }
+  - array_init
+  # Replaces quadratic copying in reduce accumulators with in-place mutation (reduce(into:))
+  - reduce_into
+  # Prefers .zero over CGPoint(x: 0, y: 0) / CGSize(width: 0, height: 0)
+  - prefer_zero_over_explicit_init
+  # Enforces Self.token over CNButton.token inside types, making copy-paste renaming seamless
+  - prefer_self_in_static_references
+  # Eliminates redundant type annotations when the RHS type is inferred and unambiguous
+  - redundant_type_annotation
+  # Cleans up closure signatures: `{ item in }` instead of `{ (item) in }`
+  - unneeded_parentheses_in_closure_argument
+  # Enforces typed error handling or clean catches without redundant `(error as NSError)`
+  - untyped_error_in_catch
+
+  # --- Style, Layout & Formatting ---
+  # Ensures uniform single-space padding inside closure braces: `{ item in ... }`
+  - closure_spacing
+  # Matches closing closure brace indentation to the line starting the closure
+  - closure_end_indentation
+  # Vertically aligns elements in multi-line collection literals
+  - collection_alignment
+  # Matches closing bracket indentation in multi-line array and dictionary literals
+  - literal_expression_end_indentation
+  # Enforces uniform declaration modifier ordering (ACL first, then override, final, etc.)
+  - modifier_order
+  # Enforces clean line wrapping of multi-parameter method signatures
+  - multiline_parameters
+  # Vertically aligns function call arguments when broken across multiple lines
+  - vertical_parameter_alignment_on_call
+  # Alphabetizes import declarations at top of file, preventing duplicates and merge conflicts
+  - sorted_imports
+
+  # --- SwiftUI Ergonomics ---
+  # Enforces private/fileprivate access control on @State and @StateObject properties
+  - private_swiftui_state
+
+# ------------------------------------------------------------------------------
+# 4. Metric Thresholds (Calibrated for Declarative SwiftUI & Copy-Paste Units)
+# ------------------------------------------------------------------------------
+
+# Identifier Naming:
+# Accommodates standard sizing tokens (xs, sm, md, lg, xl), geometry coordinates (x, y, z),
+# Identifiable model keys (id), and loop/traversal indices.
+identifier_name:
+  min_length:
+    warning: 1
+    error: 1
+  max_length:
+    warning: 60
+    error: 80
+  excluded:
+    - xs
+    - sm
+    - md
+    - lg
+    - xl
+    - id
+    - x
+    - y
+    - z
+    - i
+    - j
+    - k
+    - to
+    - up
+    - at
+
+# Function Body Length:
+# Relaxed to allow declarative SwiftUI `var body: some View` hierarchies,
+# component showcases, and SDUI node renderers without forced, artificial sub-view splitting.
+function_body_length:
+  warning: 160
+  error: 250
+
+# Type Body Length:
+# Relaxed for cohesive copy-paste component units that bundle Size/Variant enums,
+# view builders, styling token mappings, and multiple #Preview variants.
+type_body_length:
+  warning: 400
+  error: 600
+
+# File Length:
+# Accommodates complete component source files with co-located extensions, documentation,
+# and previews.
+file_length:
+  warning: 600
+  error: 1200
+  ignore_comment_only_lines: true
+
+# Cyclomatic Complexity:
+# Relaxed for exhaustive switch statements mapping component sizes and variants to tokens.
+cyclomatic_complexity:
+  warning: 15
+  error: 25
+  ignores_case_statements: true
+
+# Large Tuples:
+# Permits 3- and 4-element tuples for RGB/HSB color tokens, coordinate offsets, and geometries.
+large_tuple:
+  warning: 4
+  error: 6
+
+# Line Length:
+# Relaxed to accommodate long SwiftUI chained view modifier chains and descriptive preview names.
+line_length:
+  warning: 140
+  error: 250
+  ignores_urls: true
+  ignores_comments: true
+  ignores_interpolated_strings: true
+
+# Nesting:
+# Allows up to 3 levels of nested types for clean namespacing (e.g. Component.Variant.Size).
+nesting:
+  type_level:
+    warning: 3
+    error: 4
+  function_level:
+    warning: 3
+    error: 4
+
+# Modifier Ordering:
+# Access control (ACL) first describes external visibility, followed by setterACL,
+# override, final, and storage modifiers.
+modifier_order:
+  preferred_modifier_order:
+    - acl
+    - setterACL
+    - override
+    - final
+    - dynamic
+    - mutators
+    - lazy
+    - required
+    - convenience
+    - typeMethods
+    - owned
+
+# ------------------------------------------------------------------------------
+# 5. Custom Regex Rules (High-Value Production Safety Guardrails)
+# ------------------------------------------------------------------------------
+
+custom_rules:
+  # Ban direct standard out logging in favor of Apple's OSLog subsystem
+  no_direct_standard_out_logs:
+    name: "Direct Standard Out Logging Disallowed"
+    regex: '(?<![\.\w])(?:print|debugPrint|dump|_printChanges)\s*\(|Swift\.(?:print|debugPrint|dump)\s*\('
+    match_kinds:
+      - identifier
+    message: "Avoid leaving print(), debugPrint(), dump(), or _printChanges() in committed code. Use OSLog (e.g. Logger) instead."
+    severity: warning
+
+  # Discourage unchecked concurrency escape hatches in Swift 6
+  no_unchecked_sendable:
+    name: "@unchecked Sendable Discouraged"
+    regex: '@unchecked\s+Sendable'
+    match_kinds:
+      - attribute.builtin
+      - typeidentifier
+    message: "Avoid @unchecked Sendable. Rely on standard Sendable conformance, actors, or @preconcurrency imports."
+    severity: warning
+
+  # Prevent direct @State property assignment in SwiftUI View initializers.
+  # Structural Boundaries:
+  # - Scoped strictly to single type bodies (will not leak across multiple structs in the same file).
+  # - Supports up to 2 levels of brace nesting between @State and init() (e.g. helper methods with if/guard).
+  # - Supports assignments within nested conditional blocks inside init().
+  # - Note: Unprefixed assignments (e.g. `count = value`) or methods with >=3 brace nesting levels
+  #   before init() escape regex detection and require compiler/AST inspection.
+  no_direct_state_assignment_in_init:
+    name: "No Direct @State Assignment in init"
+    regex: '(?s)@State(?:\s*\([^)]*\))?\s+(?:(?:private|fileprivate)\s+)?var\s+([A-Za-z_][A-Za-z0-9_]*)\b(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*?init\s*\([^{}]*\)\s*\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*?(?:\{[^{}]*){0,2}\bself\.\1\s*='
+    message: "Direct assignment to @State property in init() bypasses SwiftUI storage lifecycle. Use self._property = State(initialValue: ...)"
+    severity: error
+
+  # Enforce #fileID over #file to prevent leaking local host machine paths into binaries
+  no_file_literal:
+    name: "Use #fileID Instead of #file"
+    regex: '(#file\b)'
+    match_kinds:
+      - keyword
+    message: "Prefer #fileID over #file to prevent leaking developer local host paths into compiled binaries."
+    severity: warning

@@ -14,8 +14,8 @@ public enum AnyCodable: Codable, Sendable, Hashable {
   case int(Int)
   case double(Double)
   case bool(Bool)
-  case array([AnyCodable])
-  case dictionary([String: AnyCodable])
+  case array([Self])
+  case dictionary([String: Self])
   case null
 
   public var value: Any {
@@ -59,9 +59,9 @@ public enum AnyCodable: Codable, Sendable, Hashable {
     case let bool as Bool:
       self = .bool(bool)
     case let array as [Any]:
-      self = .array(array.map { AnyCodable($0) })
+      self = .array(array.map { Self($0) })
     case let dict as [String: Any]:
-      self = .dictionary(dict.mapValues { AnyCodable($0) })
+      self = .dictionary(dict.mapValues { Self($0) })
     default:
       self = .null
     }
@@ -78,9 +78,9 @@ public enum AnyCodable: Codable, Sendable, Hashable {
       self = .double(double)
     } else if let bool = try? container.decode(Bool.self) {
       self = .bool(bool)
-    } else if let array = try? container.decode([AnyCodable].self) {
+    } else if let array = try? container.decode([Self].self) {
       self = .array(array)
-    } else if let dict = try? container.decode([String: AnyCodable].self) {
+    } else if let dict = try? container.decode([String: Self].self) {
       self = .dictionary(dict)
     } else {
       self = .null

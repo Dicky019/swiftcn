@@ -36,7 +36,7 @@ public struct ThemeRadius: Codable, Sendable, Equatable {
     self.full = full
   }
 
-  public static let `default` = ThemeRadius()
+  public static let `default` = Self()
 }
 
 // MARK: - Spacing Tokens
@@ -71,7 +71,7 @@ public struct ThemeSpacing: Codable, Sendable, Equatable {
     self.xxxl = xxxl
   }
 
-  public static let `default` = ThemeSpacing()
+  public static let `default` = Self()
 }
 
 // MARK: - Shadow Tokens
@@ -109,7 +109,7 @@ public struct ThemeShadows: Codable, Sendable, Equatable {
     self.xl = xl
   }
 
-  public static let `default` = ThemeShadows()
+  public static let `default` = Self()
 }
 
 // MARK: - Motion Tokens
@@ -129,7 +129,7 @@ public struct ThemeMotion: Codable, Sendable, Equatable {
     self.slow = slow
   }
 
-  public static let `default` = ThemeMotion()
+  public static let `default` = Self()
 }
 
 // MARK: - Border Width Tokens
@@ -156,7 +156,7 @@ public struct ThemeBorderWidth: Codable, Sendable, Equatable {
     self.thick = thick
   }
 
-  public static let `default` = ThemeBorderWidth()
+  public static let `default` = Self()
 }
 
 // MARK: - Opacity Tokens
@@ -179,5 +179,5 @@ public struct ThemeOpacity: Codable, Sendable, Equatable {
     self.muted = muted
   }
 
-  public static let `default` = ThemeOpacity()
+  public static let `default` = Self()
 }

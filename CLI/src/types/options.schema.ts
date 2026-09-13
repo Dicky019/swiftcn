@@ -5,6 +5,7 @@ export const InitOptionsSchema = z.object({
   themePath: z.string().default("Theme"),
   sdui: z.boolean().optional(),
   sduiPath: z.string().default("SDUI"),
+  force: z.boolean().optional(),
   yes: z.boolean().optional(),
 });
 

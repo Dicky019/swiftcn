@@ -13,3 +13,6 @@ DerivedData/
 .build/
 .swiftpm/
 Package.resolved
+
+# Agents
+.agents/

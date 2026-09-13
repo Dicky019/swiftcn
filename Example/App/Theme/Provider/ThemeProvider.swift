@@ -5,8 +5,8 @@
 //  Created by Dicky Darmawan on 05/02/26.
 //
 
-import SwiftUI
 import OSLog
+import SwiftUI
 
 private let logger = Logger(subsystem: "com.swiftcn.theme", category: "ThemeProvider")
 
@@ -23,7 +23,7 @@ public enum ColorSchemePreference: String, Codable, Sendable, CaseIterable {
 /// Observable theme state manager
 @Observable
 @MainActor
-public final class ThemeProvider: Sendable {
+public final class ThemeProvider {
   /// Current theme (from server or default)
   public private(set) var currentTheme: Theme
 

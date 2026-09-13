@@ -3,6 +3,7 @@
  * Prevents path traversal attacks and validates user input
  */
 
+import fs from 'node:fs'
 import path from 'node:path'
 import { SwiftCNError, ErrorCode } from './errors.js'
 import { MAX_COMPONENT_NAME_LENGTH } from './constants.js'
@@ -84,6 +85,27 @@ export function resolveSecurePath(basePath: string, relativePath: string): strin
       'Resolved path is outside the allowed directory',
       ErrorCode.PATH_TRAVERSAL
     )
+  }
+
+  // Verify realpath of existing ancestors within base to prevent symlink traversal out of base
+  if (fs.existsSync(normalizedBase)) {
+    const realBase = fs.realpathSync(normalizedBase)
+    let current = normalizedResolved
+    while (current !== normalizedBase && !fs.existsSync(current)) {
+      const parent = path.dirname(current)
+      if (parent === current) break
+      current = parent
+    }
+
+    if (fs.existsSync(current)) {
+      const realAncestor = fs.realpathSync(current)
+      if (!realAncestor.startsWith(realBase + path.sep) && realAncestor !== realBase) {
+        throw new SwiftCNError(
+          'Resolved path traverses symlinks outside the allowed directory',
+          ErrorCode.PATH_TRAVERSAL
+        )
+      }
+    }
   }
 
   return resolved
