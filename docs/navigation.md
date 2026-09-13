@@ -64,7 +64,7 @@ struct AppRootView: View {
 }
 ```
 
-The root owns the router with `@State`. Descendants read it with `@Environment(Router<AppRoute>.self)`, send navigation intent through `push`, and the root maps routes to destinations. Put stable identifiers in route payloads, not mutable feature models. View models may decide the desired navigation outcome, but they must not construct SwiftUI views.
+The root owns the router with `@State`. Descendants read it with `@Environment(Router<AppRoute>.self)`, send navigation intent through `push`, and the root maps routes to destinations. Features report typed outcomes to their parent or flow owner (for example, `.checkoutCompleted(orderID:)`); that owner applies business rules and chooses the next route. Put stable identifiers in route payloads, not mutable feature models. View models may decide the desired navigation outcome, but they must not construct SwiftUI views.
 
 ## Router operations
 
@@ -214,7 +214,7 @@ struct NavigationSnapshot: Codable {
 }
 ```
 
-Snapshots are versioned, untrusted input. They must not contain credentials, mutable domain models, or authorization decisions. For a tab deep link or restored state, validate first, select the target tab, then replace that tab's router path.
+Snapshots are versioned, untrusted input. They must not contain credentials, mutable domain models, or authorization decisions. If decoding or validation fails, discard the candidate path and fall back to a known root state; never partially apply a restored path. For a tab deep link or restored state, validate first, select the target tab, then replace that tab's router path.
 
 ## The Composable Architecture
 
@@ -231,10 +231,25 @@ struct OrderDetailFeature {
     let orderID: Int
   }
 
-  enum Action {}
+  enum Action {
+    case receiptTapped
+    case delegate(Delegate)
+  }
+
+  enum Delegate {
+    case completed(orderID: Int)
+  }
 
   var body: some ReducerOf<Self> {
-    EmptyReducer()
+    Reduce { state, action in
+      switch action {
+      case .receiptTapped:
+        return .send(.delegate(.completed(orderID: state.orderID)))
+
+      case .delegate:
+        return .none
+      }
+    }
   }
 }
 
@@ -296,6 +311,10 @@ struct OrdersFeature {
         state.support = SupportFeature.State()
         return .none
 
+      case .path(.element(id: _, action: .detail(.delegate(.completed(let orderID))))):
+        state.path.append(.receipt(ReceiptFeature.State(orderID: orderID)))
+        return .none
+
       case .path, .support:
         return .none
       }
@@ -304,6 +323,19 @@ struct OrdersFeature {
     .ifLet(\.$support, action: \.support) {
       SupportFeature()
     }
+  }
+}
+
+extension OrdersFeature.Path.State: Equatable {}
+
+struct OrderDetailView: View {
+  let store: StoreOf<OrderDetailFeature>
+
+  var body: some View {
+    Button("View receipt") {
+      store.send(.receiptTapped)
+    }
+    .navigationTitle("Order \(store.orderID)")
   }
 }
 
@@ -325,7 +357,7 @@ struct OrdersView: View {
     } destination: { store in
       switch store.case {
       case .detail(let store):
-        Text("Order \(store.orderID)")
+        OrderDetailView(store: store)
       case .receipt(let store):
         Text("Receipt \(store.orderID)")
       }
@@ -339,7 +371,7 @@ struct OrdersView: View {
 }
 ```
 
-Model push navigation with `StackState<Path.State>` and `StackActionOf<Path>`, then compose child reducers with `.forEach(\.path, action: \.path)`. Model sheets and covers with `@Presents` and compose them with `.ifLet`. Bind SwiftUI with scoped stores and TCA's current navigation APIs.
+Model push navigation with `StackState<Path.State>` and `StackActionOf<Path>`, then compose child reducers with `.forEach(\.path, action: \.path)`. Here, `OrderDetailFeature` sends `.delegate(.completed(orderID:))`; `OrdersFeature` receives that outcome through `.path` and decides to append the receipt state. Model sheets and covers with `@Presents` and compose them with `.ifLet`. Bind SwiftUI with scoped stores and TCA's current navigation APIs.
 
 This recipe targets TCA 1.26.2. Its default manifest declares Swift tools 6.4, and its versioned fallback manifest declares Swift tools 6.1. swiftcn does not compile this recipe because the Example app intentionally has no TCA dependency. Host apps must pin their TCA version and compile the recipe with a supported toolchain.
 

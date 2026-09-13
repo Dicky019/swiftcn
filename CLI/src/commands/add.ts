@@ -92,7 +92,10 @@ export function createAddCommand(container: Container): Command {
       try {
         const installPath =
           componentName.toLowerCase() === "navigation"
-            ? path.join(path.dirname(config.componentsPath), "Navigation")
+            ? path.join(
+                path.dirname(path.normalize(config.componentsPath)),
+                "Navigation"
+              )
             : config.componentsPath;
         const destDir = resolveSecurePath(cwd, installPath);
         const installsSdui = Boolean(
