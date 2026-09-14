@@ -77,9 +77,16 @@
         "outlined",
         "filled"
       ],
+      "sizes": [
+        "default",
+        "sm"
+      ],
       "sduiType": "card",
       "sduiProps": [
-        "variant"
+        "variant",
+        "size",
+        "title",
+        "description"
       ]
     },
     "input": {
