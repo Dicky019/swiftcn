@@ -48,6 +48,26 @@ struct ButtonShowcase: View {
           .disabled(true)
       }
 
+      Text("Loading State")
+        .font(.headline)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, theme.spacing.md)
+
+      VStack(spacing: theme.spacing.sm) {
+        HStack(spacing: theme.spacing.sm) {
+          CNButton("Please wait", isLoading: true) {}
+          CNButton("Outline", variant: .outline, isLoading: true) {}
+        }
+        HStack(spacing: theme.spacing.sm) {
+          CNButton("Secondary", variant: .secondary, isLoading: true) {}
+          CNButton("Destructive", variant: .destructive, isLoading: true) {}
+        }
+        HStack(spacing: theme.spacing.sm) {
+          CNButton("Small", size: .sm, isLoading: true) {}
+          CNButton("Large", size: .lg, isLoading: true) {}
+        }
+      }
+
       Text("Motion Tokens Demo")
         .font(.headline)
         .frame(maxWidth: .infinity, alignment: .leading)

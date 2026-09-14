@@ -59,6 +59,7 @@
         "label",
         "variant",
         "size",
+        "isLoading",
         "actionId"
       ]
     },

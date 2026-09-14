@@ -15,17 +15,20 @@ extension CNButton {
     public let label: String
     public let size: Size
     public let variant: Variant
+    public let isLoading: Bool?
     public let actionId: String?
 
     public init(
       label: String,
       size: Size = .md,
       variant: Variant = .default,
+      isLoading: Bool? = false,
       actionId: String? = nil
     ) {
       self.label = label
       self.size = size
       self.variant = variant
+      self.isLoading = isLoading
       self.actionId = actionId
     }
   }
@@ -51,10 +54,17 @@ extension CNButton.Configuration {
     guard node.props["actionId"] == nil || node.props["actionId"]?.stringValue != nil else {
       throw SDUIError.invalidProps(component: "button", reason: "actionId must be a string")
     }
+    let isLoading = try node.props["isLoading"].map { prop in
+      guard let value = prop.boolValue else {
+        throw SDUIError.invalidProps(component: "button", reason: "isLoading must be a boolean")
+      }
+      return value
+    }
     self.init(
       label: label,
       size: size,
       variant: variant,
+      isLoading: isLoading,
       actionId: node.props["actionId"]?.stringValue
     )
   }
@@ -69,6 +79,7 @@ extension CNButton {
       configuration.label,
       size: configuration.size,
       variant: configuration.variant,
+      isLoading: configuration.isLoading ?? false,
       action: action
     )
   }
