@@ -7,6 +7,7 @@
 
 @testable import Example
 import Foundation
+import SwiftUI
 import Testing
 
 @Suite("SDUI Tests")
@@ -33,6 +34,87 @@ struct SDUITests {
   func buttonRegistrationIsExplicit() {
     SDUIRegistry.shared.registerCNButton()
     #expect(SDUIRegistry.shared.isRegistered("button"))
+  }
+
+  @Test("Card registration is explicit")
+  @MainActor
+  func cardRegistrationIsExplicit() {
+    SDUIRegistry.shared.registerCNCard()
+    #expect(SDUIRegistry.shared.isRegistered("card"))
+  }
+
+  @Test("Card configuration reads all wire values")
+  func cardConfigurationReadsAllWireValues() throws {
+    let node = SDUINode(
+      id: "card-1",
+      type: "card",
+      props: [
+        "variant": AnyCodable("outlined"),
+        "size": AnyCodable("sm"),
+        "title": AnyCodable("Deployment"),
+        "description": AnyCodable("Deploy to production")
+      ]
+    )
+
+    let configuration = try CNCard<AnyView>.Configuration(node: node)
+    #expect(configuration.variant == .outlined)
+    #expect(configuration.size == .sm)
+    #expect(configuration.title == "Deployment")
+    #expect(configuration.description == "Deploy to production")
+  }
+
+  @Test("Card configuration uses defaults when props omitted")
+  func cardConfigurationUsesDefaultsWhenPropsOmitted() throws {
+    let node = SDUINode(
+      id: "card-2",
+      type: "card",
+      props: [:]
+    )
+
+    let configuration = try CNCard<AnyView>.Configuration(node: node)
+    #expect(configuration.variant == .elevated)
+    #expect(configuration.size == .default)
+    #expect(configuration.title == nil)
+    #expect(configuration.description == nil)
+  }
+
+  @Test("Card configuration rejects invalid scalar types")
+  func cardConfigurationRejectsInvalidScalarTypes() {
+    let invalidVariant = SDUINode(
+      id: "card-err-1",
+      type: "card",
+      props: ["variant": AnyCodable("unknown_variant")]
+    )
+    #expect(throws: SDUIError.self) {
+      try CNCard<AnyView>.Configuration(node: invalidVariant)
+    }
+
+    let invalidSize = SDUINode(
+      id: "card-err-2",
+      type: "card",
+      props: ["size": AnyCodable("invalid_size")]
+    )
+    #expect(throws: SDUIError.self) {
+      try CNCard<AnyView>.Configuration(node: invalidSize)
+    }
+
+    let invalidTitle = SDUINode(
+      id: "card-err-3",
+      type: "card",
+      props: ["title": AnyCodable(12345)]
+    )
+    #expect(throws: SDUIError.self) {
+      try CNCard<AnyView>.Configuration(node: invalidTitle)
+    }
+
+    let invalidDescription = SDUINode(
+      id: "card-err-4",
+      type: "card",
+      props: ["description": AnyCodable(12345)]
+    )
+    #expect(throws: SDUIError.self) {
+      try CNCard<AnyView>.Configuration(node: invalidDescription)
+    }
   }
 
   @Test("Switch configuration reads its initial value")
