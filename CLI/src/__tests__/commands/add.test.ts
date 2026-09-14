@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import path from "node:path";
 import { createAddCommand } from "../../commands/add.js";
 import type { Container } from "../../container.js";
 import type { FetchResult } from "../../services/FetcherService.js";
@@ -9,6 +10,7 @@ import {
   sampleConfigWithSdui,
   sampleButton,
   sampleComponents,
+  sampleNavigation,
 } from "./helpers.js";
 
 const addedResult: FetchResult = {
@@ -79,6 +81,45 @@ describe("add command", () => {
         { force: undefined }
       );
     });
+
+    it.each([
+      ["App/UI", "App/Navigation"],
+      ["App/UI/.", "App/Navigation"],
+      ["App/UI/..", "Navigation"],
+    ])(
+      "installs navigation beside normalized components path %s",
+      async (componentsPath, expectedPath) => {
+        const config = { ...sampleConfig, componentsPath };
+        const container = await runAdd(["navigation"], {
+          config: {
+            load: vi.fn().mockResolvedValue(config),
+            write: vi.fn(),
+            exists: vi.fn().mockResolvedValue(true),
+          },
+          registry: {
+            load: vi.fn().mockResolvedValue({}),
+            getComponent: vi.fn().mockResolvedValue(sampleNavigation),
+            listComponents: vi.fn().mockResolvedValue(sampleComponents),
+            getThemeFiles: vi.fn().mockResolvedValue([]),
+            getSduiFiles: vi.fn().mockResolvedValue([]),
+          },
+          fetcher: {
+            fetchComponents: vi.fn().mockResolvedValue({
+              added: [path.join(process.cwd(), "App/Navigation/Router.swift")],
+              skipped: [],
+            }),
+            fetchTheme: vi.fn(),
+            fetchSdui: vi.fn(),
+          },
+        });
+
+        expect(container.fetcher.fetchComponents).toHaveBeenCalledWith(
+          sampleNavigation.files,
+          path.join(process.cwd(), expectedPath),
+          { force: undefined }
+        );
+      }
+    );
   });
 
   describe("add <component> with SDUI config", () => {

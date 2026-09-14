@@ -23,11 +23,15 @@ Sources/
 │   ├── Core/            # Theme model, tokens, Color+Hex
 │   ├── Palettes/        # Theme definitions (default Zinc)
 │   └── Provider/        # ThemeProvider, Environment, ResolvedTheme
+├── Navigation/          # Optional typed SwiftUI navigation
+│   └── Router.swift
 └── SDUI/                # Server-Driven UI (optional)
     ├── Core/            # SDUINode, AnyCodable, SDUIError
     ├── Rendering/       # SDUIRenderer, SDUIRegistry
     └── Actions/         # SDUIActionHandler
 ```
+
+`Navigation/Router.swift` is a nonvisual optional template. It is copied only by `swiftcn add navigation`; `Sources/` remains the canonical source for every template.
 
 ## Component Pattern
 

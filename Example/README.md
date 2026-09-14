@@ -56,7 +56,7 @@ Example/
 │   ├── Theme/          # Design tokens & ThemeProvider (synced from Sources/)
 │   ├── SDUI/           # Server-Driven UI engine (synced from Sources/)
 │   ├── Features/       # Feature modules (Components, SDUI, Settings, Theme)
-│   └── Navigation/     # Router, tabs, routes
+│   └── Navigation/     # Synced Router plus app-owned route enums and tab composition
 └── Tests/              # Unit tests
     ├── ThemeTests.swift
     ├── ComponentTests.swift
@@ -66,7 +66,7 @@ Example/
 
 ## Syncing Sources
 
-Components, Theme, and SDUI in `App/` are copies of the root `Sources/` directory. After editing template files at the project root, sync them here:
+Components, Theme, and SDUI in `App/` are copies of the root `Sources/` directory. `App/Navigation/Router.swift` is synced from `Sources/Navigation/Router.swift`; the rest of `App/Navigation/` contains app-owned route enums and tab composition. After editing template files at the project root, sync them here:
 
 ```bash
 # From the project root

@@ -27,6 +27,10 @@ echo "=== CLI Tests ==="
 "$SCRIPT_DIR/test-cli.sh"
 
 echo ""
+echo "=== Sync Source Test ==="
+"$SCRIPT_DIR/test-sync-source.sh"
+
+echo ""
 echo "=== Example Tests ==="
 "$SCRIPT_DIR/test-example.sh" "${PASSTHROUGH_ARGS[@]:-}"
 

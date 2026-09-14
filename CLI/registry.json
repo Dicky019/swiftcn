@@ -163,6 +163,13 @@
         "showValue",
         "sliderId"
       ]
+    },
+    "navigation": {
+      "name": "Router",
+      "description": "A typed navigation router for SwiftUI",
+      "files": [
+        "Navigation/Router.swift"
+      ]
     }
   },
   "sdui": {

@@ -16,7 +16,7 @@ private enum Tab: Hashable {
 
 struct MainTabView: View {
   @Environment(\.theme) private var theme
-  @State private var router = AppRouter()
+  @State private var router = Router<ComponentRoute>()
   @State private var selectedTab: Tab = .components
 
   var body: some View {
