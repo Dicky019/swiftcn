@@ -25,13 +25,27 @@ Sources/
 │   └── Provider/        # ThemeProvider, Environment, ResolvedTheme
 ├── Navigation/          # Optional typed SwiftUI navigation
 │   └── Router.swift
+├── OfflineFirst/        # Optional external-system-agnostic sync
+│   ├── SyncTypes.swift
+│   ├── RetryPolicy.swift
+│   └── SyncCoordinator.swift
 └── SDUI/                # Server-Driven UI (optional)
     ├── Core/            # SDUINode, AnyCodable, SDUIError
     ├── Rendering/       # SDUIRenderer, SDUIRegistry
     └── Actions/         # SDUIActionHandler
 ```
 
-`Navigation/Router.swift` is a nonvisual optional template. It is copied only by `swiftcn add navigation`; `Sources/` remains the canonical source for every template.
+`Navigation/Router.swift` is a nonvisual optional template. Native/MVVM install
+it with `swiftcn init --navigation` or `swiftcn add navigation`. TCA uses
+reducer-owned navigation instead. `Sources/` remains the canonical source
+for every template.
+
+`swiftcn init --offline-first` copies the same three `OfflineFirst/` files
+for every preset, beside the configured components directory. They provide
+sync outcomes, a retry policy, and one scoped single-flight coordinator.
+Your feature owns the worker, local persistence, durable outbox, reconciliation,
+and external gateway. See [Offline-First integration](../docs/offline-first.md).
+Disabling a capability only updates config; copied code belongs to the user.
 
 ## Component Pattern
 

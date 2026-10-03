@@ -84,6 +84,13 @@ export function createAddCommand(container: Container): Command {
         process.exit(1);
       }
 
+      if (componentName.toLowerCase() === "navigation" && config.preset === "tca") {
+        ui.error("TCA owns navigation in reducer state.");
+        ui.end("Use StackState and @Presents; Router<Route> was not installed.");
+        process.exit(1);
+        return;
+      }
+
       // Step 3: Fetch component files
       ui.break();
       ui.step(`Installing ${component.name}...`);

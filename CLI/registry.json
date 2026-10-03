@@ -187,5 +187,12 @@
       "grpc": "Optional (grpc-swift)",
       "websocket": "Optional (custom implementation)"
     }
+  },
+  "offlineFirst": {
+    "core": [
+      "OfflineFirst/SyncTypes.swift",
+      "OfflineFirst/RetryPolicy.swift",
+      "OfflineFirst/SyncCoordinator.swift"
+    ]
   }
 }

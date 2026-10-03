@@ -52,6 +52,9 @@ function printHelp() {
   ui.break();
   ui.command("swiftcn init             ", "Initialize with theme (default)");
   ui.command("swiftcn init --sdui -y   ", "Initialize with SDUI support and skip prompts");
+  ui.command("swiftcn init --preset mvvm --navigation -y", "Use MVVM with the SwiftUI Router");
+  ui.command("swiftcn init --preset tca --navigation -y", "Use reducer-owned TCA navigation");
+  ui.command("swiftcn init --offline-first -y", "Install optional sync core");
   ui.command("swiftcn init -h          ", "Show init options");
   ui.command("swiftcn add button       ", "Add a single component");
   ui.command("swiftcn add button -f    ", "Overwrite existing files");

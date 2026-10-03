@@ -37,6 +37,13 @@ export const registrySchema = z.object({
     wrappers: z.array(z.string()),
     transports: z.record(z.string(), z.string()),
   }),
+  offlineFirst: z.object({
+    core: z.tuple([
+      z.literal("OfflineFirst/SyncTypes.swift"),
+      z.literal("OfflineFirst/RetryPolicy.swift"),
+      z.literal("OfflineFirst/SyncCoordinator.swift"),
+    ]),
+  }).optional(),
 });
 
 export type Component = z.infer<typeof componentSchema>;

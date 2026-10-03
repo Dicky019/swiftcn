@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Preset MVVM — Clean Architecture",
+    "output": "init-preset-mvvm.html",
+    "quality_profile": "showcase",
+    "viewBox": [1360, 720]
+  },
+  "components": [
+    { "id": "mvvmView", "type": "frontend", "label": "SwiftUI View", "sublabel": "Render ScreenState & kirim intent", "pos": [50, 300], "size": [190, 72] },
+    { "id": "mvvmViewModel", "type": "frontend", "label": "Observable ViewModel", "sublabel": "Own loading, data & error state", "pos": [300, 300], "size": [210, 72], "tag": "@MainActor" },
+    { "id": "mvvmUseCase", "type": "backend", "label": "Use Case", "sublabel": "Orkestrasi aplikasi", "pos": [590, 300], "size": [170, 72] },
+    { "id": "mvvmDomain", "type": "backend", "label": "Domain Rules", "sublabel": "Entity & business invariant", "pos": [870, 300], "size": [190, 72], "tag": "pure Swift" },
+    { "id": "mvvmPort", "type": "security", "label": "Repository Port", "sublabel": "Kontrak milik layer dalam", "pos": [590, 500], "size": [180, 72] },
+    { "id": "mvvmAdapter", "type": "database", "label": "Infrastructure Adapter", "sublabel": "API / persistence implementation", "pos": [870, 500], "size": [210, 72] },
+    { "id": "mvvmExternal", "type": "external", "label": "External Systems", "sublabel": "Network, database, SDK", "pos": [1150, 500], "size": [170, 72] },
+    { "id": "mvvmRouter", "type": "cloud", "label": "Flow Owner + Router<Route>", "sublabel": "PR #7 single path owner", "pos": [300, 500], "size": [220, 72] },
+    { "id": "mvvmRoot", "type": "cloud", "label": "Composition Root", "sublabel": "Membuat ViewModel & Router", "pos": [50, 90], "size": [190, 72] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Presentation", "wraps": ["mvvmView", "mvvmViewModel", "mvvmRouter"] },
+    { "kind": "region", "label": "Application", "wraps": ["mvvmUseCase", "mvvmPort"] },
+    { "kind": "region", "label": "Domain", "wraps": ["mvvmDomain"] },
+    { "kind": "region", "label": "Infrastructure", "wraps": ["mvvmAdapter"] }
+  ],
+  "connections": [
+    { "id": "mvvmIntent", "from": "mvvmView", "to": "mvvmViewModel", "label": "intent" },
+    { "id": "mvvmExecute", "from": "mvvmViewModel", "to": "mvvmUseCase", "label": "execute" },
+    { "id": "mvvmRules", "from": "mvvmUseCase", "to": "mvvmDomain", "variant": "emphasis" },
+    { "id": "mvvmUsesPort", "from": "mvvmUseCase", "to": "mvvmPort", "label": "memakai kontrak", "fromSide": "bottom", "toSide": "top" },
+    { "id": "mvvmImplements", "from": "mvvmAdapter", "to": "mvvmPort", "label": "implementasi", "variant": "dashed" },
+    { "id": "mvvmIO", "from": "mvvmAdapter", "to": "mvvmExternal", "label": "I/O" },
+    { "id": "mvvmNavigate", "from": "mvvmViewModel", "to": "mvvmRouter", "label": "typed outcome", "fromSide": "bottom", "toSide": "top" },
+    { "id": "mvvmWire", "from": "mvvmRoot", "to": "mvvmView", "variant": "dashed", "fromSide": "bottom", "toSide": "top" }
+  ],
+  "cards": [
+    { "dot": "violet", "title": "Pembeda MVVM", "items": ["ViewModel adalah owner state dan async orchestration terpisah", "View hanya merender ScreenState dan mengirim intent"] },
+    { "dot": "emerald", "title": "Clean + Navigation", "items": ["Business rule tetap di Domain; repository port milik pemakai", "ViewModel mengirim typed outcome; flow owner memutasi Router PR #7"] }
+  ]
+}

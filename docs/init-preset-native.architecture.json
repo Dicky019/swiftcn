@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Preset Native — Clean Architecture",
+    "output": "init-preset-native.html",
+    "quality_profile": "showcase",
+    "viewBox": [1360, 720]
+  },
+  "components": [
+    { "id": "nativeView", "type": "frontend", "label": "SwiftUI View + @State", "sublabel": "Memiliki UI state lokal", "pos": [60, 280], "size": [200, 72], "tag": "tanpa ViewModel" },
+    { "id": "nativeUseCase", "type": "backend", "label": "Use Case", "sublabel": "Dipanggil langsung oleh View", "pos": [400, 280], "size": [190, 72] },
+    { "id": "nativeDomain", "type": "backend", "label": "Domain Rules", "sublabel": "Entity & business invariant", "pos": [680, 280], "size": [190, 72], "tag": "pure Swift" },
+    { "id": "nativePort", "type": "security", "label": "Repository Port", "sublabel": "Kontrak milik layer dalam", "pos": [400, 480], "size": [190, 72] },
+    { "id": "nativeAdapter", "type": "database", "label": "Infrastructure Adapter", "sublabel": "API / persistence implementation", "pos": [680, 480], "size": [210, 72] },
+    { "id": "nativeExternal", "type": "external", "label": "External Systems", "sublabel": "Network, database, SDK", "pos": [980, 480], "size": [190, 72] },
+    { "id": "nativeRouter", "type": "cloud", "label": "Router<Route>", "sublabel": "PR #7 typed path owner", "pos": [60, 480], "size": [200, 72], "tag": "optional navigation" },
+    { "id": "nativeRoot", "type": "cloud", "label": "Composition Root", "sublabel": "Inject use case & own Router", "pos": [60, 80], "size": [200, 72] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Presentation", "wraps": ["nativeView", "nativeRouter"] },
+    { "kind": "region", "label": "Application", "wraps": ["nativeUseCase", "nativePort"] },
+    { "kind": "region", "label": "Domain", "wraps": ["nativeDomain"] },
+    { "kind": "region", "label": "Infrastructure", "wraps": ["nativeAdapter"] }
+  ],
+  "connections": [
+    { "id": "nativeExecute", "from": "nativeView", "to": "nativeUseCase", "label": "intent + await result" },
+    { "id": "nativeRules", "from": "nativeUseCase", "to": "nativeDomain", "variant": "emphasis" },
+    { "id": "nativeUsesPort", "from": "nativeUseCase", "to": "nativePort", "label": "memakai kontrak", "fromSide": "bottom", "toSide": "top", "labelAt": [495, 390] },
+    { "id": "nativeImplements", "from": "nativeAdapter", "to": "nativePort", "label": "implementasi", "variant": "dashed" },
+    { "id": "nativeIO", "from": "nativeAdapter", "to": "nativeExternal", "label": "I/O" },
+    { "id": "nativeNavigate", "from": "nativeView", "to": "nativeRouter", "label": "push / pop / replace", "fromSide": "bottom", "toSide": "top", "labelAt": [160, 390] },
+    { "id": "nativeWire", "from": "nativeRoot", "to": "nativeView", "variant": "dashed", "fromSide": "bottom", "toSide": "top" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Pembeda Native", "items": ["View memiliki @State dan memanggil use case langsung", "Naik ke MVVM ketika async/loading/error state membutuhkan owner terpisah"] },
+    { "dot": "emerald", "title": "Clean + Navigation", "items": ["Domain tetap pure Swift; protocol hanya pada boundary nyata", "Router dari PR #7 dimiliki root dan membawa stable IDs"] }
+  ]
+}

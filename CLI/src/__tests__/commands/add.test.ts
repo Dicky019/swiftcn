@@ -572,3 +572,20 @@ describe("add command", () => {
     });
   });
 });
+
+describe("preset navigation ownership", () => {
+  it.each(["native", "mvvm", "tca"] as const)("handles Router for %s", async (preset) => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const base = createMockContainer();
+    vi.mocked(base.config.load).mockResolvedValue({ ...sampleConfig, preset });
+    vi.mocked(base.registry.getComponent).mockResolvedValue(sampleNavigation);
+    const c = await runAdd(["navigation"], base);
+    if (preset === "tca") {
+      expect(c.fetcher.fetchComponents).not.toHaveBeenCalled();
+      expect(log.mock.calls.flat().join("\n")).toContain("StackState");
+    } else {
+      expect(c.fetcher.fetchComponents).toHaveBeenCalledWith(sampleNavigation.files, expect.stringContaining("Navigation"), { force: undefined });
+    }
+    vi.restoreAllMocks();
+  });
+});

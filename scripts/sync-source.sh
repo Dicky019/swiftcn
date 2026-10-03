@@ -26,7 +26,7 @@ if [[ "${1:-}" == "--dry-run" ]]; then
     DRY_RUN="--dry-run"
 fi
 
-SUBDIRS=("Components" "Theme" "SDUI")
+SUBDIRS=("Components" "Theme" "SDUI" "OfflineFirst")
 
 for dir in "${SUBDIRS[@]}"; do
     if [ -d "$SRC/$dir" ]; then
@@ -49,5 +49,5 @@ if [ -n "$DRY_RUN" ]; then
     echo ""
     echo "(dry run — no changes made)"
 else
-    echo "Synced Sources/{Components,Theme,SDUI} and Sources/Navigation/Router.swift → Example/App/"
+    echo "Synced Sources/{Components,Theme,SDUI,OfflineFirst} and Sources/Navigation/Router.swift → Example/App/"
 fi
