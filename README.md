@@ -4,6 +4,12 @@ Beautifully designed SwiftUI components. Open source. Copy and paste into your a
 
 > **Inspired by [shadcn/ui](https://ui.shadcn.com)** — This is not a component library. It's how you build your component library.
 
+## Introduction and Motivation
+
+swiftcn is the home for the features and core capabilities I build in production projects. The long-term goal is to bring all of that work into this repository as reusable code, so I can easily clone the repository or copy the pieces I need into another project without rebuilding them from scratch.
+
+This goal extends beyond UI components to feature implementations, architecture patterns, and core application infrastructure. Each contribution should be easy to copy, adapt, and use independently in another project, following the project's existing code ownership and CLI template approach.
+
 ## Documentation
 
 Visit [swiftcn.dev/docs](https://swiftcn.dev/docs) for full documentation.
