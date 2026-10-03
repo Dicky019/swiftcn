@@ -1,336 +1,203 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import * as p from "@clack/prompts";
 import { createInitCommand } from "../../commands/init.js";
+import { createMockContainer, createProgram, sampleConfig } from "./helpers.js";
 import type { Container } from "../../container.js";
-import { createMockContainer, createProgram } from "./helpers.js";
 
-async function runInit(
-  args: string[],
-  containerOverrides: Partial<Container> = {}
-) {
-  const container = createMockContainer(containerOverrides);
-  const cmd = createInitCommand(container);
+vi.mock("@clack/prompts", () => ({
+  group: vi.fn(), text: vi.fn(), confirm: vi.fn(), select: vi.fn(), cancel: vi.fn(),
+  isCancel: (value: unknown) => typeof value === "symbol",
+}));
 
-  const mockExit = vi
-    .spyOn(process, "exit")
-    .mockImplementation(() => undefined as never);
-
-  try {
-    await cmd.parseAsync(["node", "init", ...args], { from: "user" });
-  } finally {
-    mockExit.mockRestore();
-  }
-
+async function runInit(args: string[], overrides: Partial<Container> = {}) {
+  const container = createMockContainer(overrides);
+  await createInitCommand(container).parseAsync(args, { from: "user" });
   return container;
 }
+
+const existing = (value: object) => ({
+  load: vi.fn().mockResolvedValue(value), write: vi.fn(), exists: vi.fn().mockResolvedValue(true),
+});
+const output = () => vi.mocked(console.log).mock.calls.flat().join("\n");
 
 describe("init command", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.clearAllMocks();
     vi.spyOn(console, "log").mockImplementation(() => {});
-  });
-
-  describe("--path", () => {
-    it("uses custom components path", async () => {
-      const container = await runInit(["--path", "App/Components", "-y"]);
-
-      expect(container.config.write).toHaveBeenCalledWith(
-        expect.objectContaining({ componentsPath: "App/Components" }),
-        expect.any(String)
-      );
-    });
-
-    it("uses -p shorthand", async () => {
-      const container = await runInit(["-p", "App/UI", "-y"]);
-
-      expect(container.config.write).toHaveBeenCalledWith(
-        expect.objectContaining({ componentsPath: "App/UI" }),
-        expect.any(String)
-      );
-    });
-  });
-
-  describe("--theme-path", () => {
-    it("uses custom theme path", async () => {
-      const container = await runInit(["--theme-path", "App/Theme", "-y"]);
-
-      expect(container.config.write).toHaveBeenCalledWith(
-        expect.objectContaining({ themePath: "App/Theme" }),
-        expect.any(String)
-      );
-    });
-  });
-
-  describe("--sdui", () => {
-    it("enables SDUI infrastructure", async () => {
-      const container = await runInit(["--sdui", "-y"]);
-
-      expect(container.fetcher.fetchSdui).toHaveBeenCalled();
-      expect(container.config.write).toHaveBeenCalledWith(
-        expect.objectContaining({ sduiPath: "SDUI" }),
-        expect.any(String)
-      );
-    });
-  });
-
-  describe("--sdui-path", () => {
-    it("uses custom SDUI path and implies --sdui", async () => {
-      const container = await runInit(["--sdui-path", "App/SDUI", "-y"]);
-
-      expect(container.fetcher.fetchSdui).toHaveBeenCalled();
-      expect(container.config.write).toHaveBeenCalledWith(
-        expect.objectContaining({ sduiPath: "App/SDUI" }),
-        expect.any(String)
-      );
-    });
-  });
-
-  describe("--path + --theme-path", () => {
-    it("uses both custom paths", async () => {
-      const container = await runInit([
-        "--path", "App/Components",
-        "--theme-path", "App/Theme",
-        "-y",
-      ]);
-
-      expect(container.config.write).toHaveBeenCalledWith(
-        expect.objectContaining({
-          componentsPath: "App/Components",
-          themePath: "App/Theme",
-        }),
-        expect.any(String)
-      );
-    });
-  });
-
-  describe("--path + --theme-path + --sdui", () => {
-    it("uses custom paths with SDUI enabled", async () => {
-      const container = await runInit([
-        "--path", "App/Components",
-        "--theme-path", "App/Theme",
-        "--sdui",
-        "-y",
-      ]);
-
-      expect(container.fetcher.fetchSdui).toHaveBeenCalled();
-      expect(container.config.write).toHaveBeenCalledWith(
-        expect.objectContaining({
-          componentsPath: "App/Components",
-          themePath: "App/Theme",
-          sduiPath: "SDUI",
-        }),
-        expect.any(String)
-      );
-    });
-  });
-
-  describe("--path + --theme-path + --sdui-path", () => {
-    it("uses all custom paths with SDUI implied", async () => {
-      const container = await runInit([
-        "--path", "App/Components",
-        "--theme-path", "App/Theme",
-        "--sdui-path", "App/SDUI",
-        "-y",
-      ]);
-
-      expect(container.fetcher.fetchSdui).toHaveBeenCalled();
-      expect(container.config.write).toHaveBeenCalledWith(
-        expect.objectContaining({
-          componentsPath: "App/Components",
-          themePath: "App/Theme",
-          sduiPath: "App/SDUI",
-        }),
-        expect.any(String)
-      );
-    });
-  });
-
-  describe("defaults", () => {
-    it("uses default paths when no flags passed", async () => {
-      const container = await runInit(["-y"]);
-
-      expect(container.config.write).toHaveBeenCalledWith(
-        expect.objectContaining({
-          componentsPath: "Components",
-          themePath: "Theme",
-          prefix: "CN",
-        }),
-        expect.any(String)
-      );
-    });
-
-    it("does not enable SDUI by default", async () => {
-      const container = await runInit(["-y"]);
-
-      expect(container.fetcher.fetchSdui).not.toHaveBeenCalled();
-      expect(container.config.write).toHaveBeenCalledWith(
-        expect.objectContaining({ sduiPath: undefined }),
-        expect.any(String)
-      );
-    });
-
-    it("always installs theme files", async () => {
-      const container = await runInit(["-y"]);
-
-      expect(container.fetcher.fetchTheme).toHaveBeenCalled();
-    });
-  });
-
-  describe("error handling", () => {
-    it("exits with error when fetcher throws", async () => {
-      const mockExit = vi
-        .spyOn(process, "exit")
-        .mockImplementation(() => undefined as never);
-
-      const container = createMockContainer({
-        fetcher: {
-          fetchComponents: vi.fn(),
-          fetchTheme: vi.fn().mockRejectedValue(new Error("Network error")),
-          fetchSdui: vi.fn(),
-        },
-      });
-      const cmd = createInitCommand(container);
-
-      await cmd.parseAsync(["node", "init", "-y"], { from: "user" });
-
-      expect(mockExit).toHaveBeenCalledWith(1);
-      mockExit.mockRestore();
-    });
-  });
-
-  describe("-h / --help", () => {
-    it("shows help with -h and does not run init logic", async () => {
-      const container = createMockContainer();
-      const program = createProgram(createInitCommand(container));
-      program.exitOverride();
-      program.commands.forEach((cmd) => cmd.exitOverride());
-
-      const logSpy = vi
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      try {
-        await program.parseAsync(["node", "swiftcn", "init", "-h"]);
-      } catch {
-        // Commander throws after displaying help
+    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    vi.mocked(p.group).mockImplementation(async (fields: any, options: any) => {
+      const results: Record<string, unknown> = {};
+      for (const [key, field] of Object.entries(fields)) {
+        const answer = await (field as Function)({ results });
+        if (p.isCancel(answer)) {
+          options.onCancel({ results });
+          return Symbol("cancelled");
+        }
+        results[key] = answer;
       }
-
-      const output = logSpy.mock.calls.map((c) => c[0]).join("\n");
-      expect(output).toContain("Usage: swiftcn init [options]");
-      expect(output).toContain("--path");
-      expect(output).toContain("--theme-path");
-      expect(output).toContain("--sdui");
-      expect(output).toContain("--sdui-path");
-      expect(output).toContain("--force");
-
-      expect(container.config.write).not.toHaveBeenCalled();
-      expect(container.fetcher.fetchTheme).not.toHaveBeenCalled();
+      return results as any;
     });
+    vi.mocked(p.text).mockImplementation(async ({ initialValue }) => initialValue ?? "");
+    vi.mocked(p.confirm).mockImplementation(async ({ initialValue }) => initialValue ?? false);
+    vi.mocked(p.select).mockImplementation(async ({ initialValue }) => initialValue as any);
+  });
 
-    it("shows help with --help long form", async () => {
-      const container = createMockContainer();
-      const program = createProgram(createInitCommand(container));
-      program.exitOverride();
-      program.commands.forEach((cmd) => cmd.exitOverride());
+  it("uses safe fresh defaults and installs through one initializer", async () => {
+    const c = await runInit(["-y"]);
+    expect(c.initializer.initialize).toHaveBeenCalledExactlyOnceWith({
+      cwd: process.cwd(), config: { ...sampleConfig, sduiPath: undefined },
+      includeSdui: false, includeNavigationRouter: false, includeOfflineFirst: false, force: undefined,
+    });
+    expect(c.config.write).not.toHaveBeenCalled();
+    expect(c.fetcher.fetchTheme).not.toHaveBeenCalled();
+    expect(c.fetcher.fetchSdui).not.toHaveBeenCalled();
+    expect(c.file.ensureDir).not.toHaveBeenCalled();
+  });
 
-      const logSpy = vi
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      try {
-        await program.parseAsync(["node", "swiftcn", "init", "--help"]);
-      } catch {
-        // Commander throws after displaying help
+  it.each(["native", "mvvm", "tca"] as const)("handles every capability combination for %s", async (preset) => {
+    for (const navigation of [false, true]) {
+      for (const offlineFirst of [false, true]) {
+        const c = await runInit(["--preset", preset, navigation ? "--navigation" : "--no-navigation", offlineFirst ? "--offline-first" : "--no-offline-first", "-y"]);
+        expect(c.initializer.initialize).toHaveBeenCalledWith(expect.objectContaining({
+          config: expect.objectContaining({ preset, navigation, offlineFirst }),
+          includeNavigationRouter: navigation && preset !== "tca", includeOfflineFirst: offlineFirst,
+        }));
       }
-
-      const output = logSpy.mock.calls.map((c) => c[0]).join("\n");
-      expect(output).toContain("Usage: swiftcn init [options]");
-      expect(container.config.write).not.toHaveBeenCalled();
-    });
+    }
   });
 
-  describe("path containment", () => {
-    it("rejects a components path outside the project", async () => {
-      const container = await runInit(["--path", "../outside", "-y"]);
-
-      expect(container.fetcher.fetchTheme).not.toHaveBeenCalled();
-      expect(container.config.write).not.toHaveBeenCalled();
-    });
-
-    it("rejects an absolute theme path", async () => {
-      const container = await runInit(["--theme-path", "/tmp/theme", "-y"]);
-
-      expect(container.fetcher.fetchTheme).not.toHaveBeenCalled();
-      expect(container.config.write).not.toHaveBeenCalled();
-    });
-
-    it("rejects an invalid sdui path before fetching theme", async () => {
-      const container = await runInit([
-        "--sdui-path",
-        "../outside-sdui",
-        "-y",
-      ]);
-
-      expect(container.fetcher.fetchTheme).not.toHaveBeenCalled();
-      expect(container.fetcher.fetchSdui).not.toHaveBeenCalled();
-      expect(container.config.write).not.toHaveBeenCalled();
-    });
+  it.each([
+    [["-p", "App/UI"], { componentsPath: "App/UI" }],
+    [["--path", "App/Components"], { componentsPath: "App/Components" }],
+    [["--theme-path", "App/Theme"], { themePath: "App/Theme" }],
+    [["--sdui"], { sduiPath: "SDUI" }],
+    [["--sdui-path", "App/SDUI"], { sduiPath: "App/SDUI" }],
+  ])("honors path and SDUI flags %j", async (args, config) => {
+    const c = await runInit([...(args as string[]), "-y"]);
+    expect(c.initializer.initialize).toHaveBeenCalledWith(expect.objectContaining({ config: expect.objectContaining(config) }));
   });
 
-  describe("--force", () => {
-    it("preserves existing templates by default", async () => {
-      const container = await runInit(["-y"]);
-      expect(container.fetcher.fetchTheme).toHaveBeenCalledWith(
-        expect.any(String),
-        { force: undefined }
-      );
-    });
-
-    it("overwrites theme and SDUI only with force", async () => {
-      const container = await runInit(["--sdui", "--force", "-y"]);
-      expect(container.fetcher.fetchTheme).toHaveBeenCalledWith(
-        expect.any(String),
-        { force: true }
-      );
-      expect(container.fetcher.fetchSdui).toHaveBeenCalledWith(
-        expect.any(String),
-        { force: true }
-      );
-    });
-
-    it("accepts -f shorthand", async () => {
-      const container = await runInit(["--sdui", "-f", "-y"]);
-      expect(container.fetcher.fetchTheme).toHaveBeenCalledWith(
-        expect.any(String),
-        { force: true }
-      );
-      expect(container.fetcher.fetchSdui).toHaveBeenCalledWith(
-        expect.any(String),
-        { force: true }
-      );
-    });
-
-    it("skips existing config confirmation when force is set with -y", async () => {
-      const container = await runInit(["-f", "-y"], {
-        config: {
-          exists: vi.fn().mockResolvedValue(true),
-          write: vi.fn().mockResolvedValue(undefined),
-          read: vi.fn().mockResolvedValue({}),
-        } as any,
-      });
-
-      expect(container.config.write).toHaveBeenCalled();
-    });
+  it("preserves all existing selections, paths, prefix, and tokens on omitted rerun flags", async () => {
+    const config = { ...sampleConfig, componentsPath: "App/UI", themePath: "App/Theme", sduiPath: "App/SDUI", tokensPath: "OldTokens", prefix: "OWN", preset: "mvvm", navigation: true, offlineFirst: true };
+    const c = await runInit(["-y"], { config: existing(config) });
+    expect(c.initializer.initialize).toHaveBeenCalledWith(expect.objectContaining({ config, includeSdui: true, includeNavigationRouter: true, includeOfflineFirst: true }));
+    expect(p.confirm).not.toHaveBeenCalled();
   });
 
-  describe("setup hint", () => {
-    it("prints the self-tracking theme setup", async () => {
-      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-      await runInit(["-y"]);
+  it("reads legacy config with safe capability defaults", async () => {
+    const c = await runInit(["-y"], { config: existing({ componentsPath: "App/UI", prefix: "CN" }) });
+    expect(c.initializer.initialize).toHaveBeenCalledWith(expect.objectContaining({ config: expect.objectContaining({ componentsPath: "App/UI", preset: "native", navigation: false, offlineFirst: false }) }));
+  });
 
-      const output = logSpy.mock.calls.flat().join("\n");
-      expect(output).toContain(".environment(themeProvider)");
-      expect(output).toContain(".withThemeTracking(themeProvider)");
-      expect(output).not.toContain("themeProvider.resolvedTheme");
+  it("disables explicit negative flags without deleting user-owned files", async () => {
+    const c = await runInit(["--no-navigation", "--no-offline-first", "-y"], { config: existing({ ...sampleConfig, navigation: true, offlineFirst: true }) });
+    expect(c.initializer.initialize).toHaveBeenCalledWith(expect.objectContaining({ includeNavigationRouter: false, includeOfflineFirst: false, config: expect.objectContaining({ navigation: false, offlineFirst: false }) }));
+    expect(c.file.copy).not.toHaveBeenCalled();
+  });
+
+  it.each(["-f", "--force"])("passes explicit %s to the transaction", async (flag) => {
+    const c = await runInit([flag, "-y"]);
+    expect(c.initializer.initialize).toHaveBeenCalledWith(expect.objectContaining({ force: true }));
+  });
+
+  it("rejects invalid preset before recovery, clone or initialization", async () => {
+    const c = createMockContainer();
+    await createInitCommand(c).parseAsync(["--preset", "viper", "-y"], { from: "user" });
+    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(c.initializer.recover).not.toHaveBeenCalled();
+    expect(c.initializer.initialize).not.toHaveBeenCalled();
+  });
+
+  it.each([["--path", "../outside"], ["--theme-path", "/tmp/theme"], ["--sdui-path", "../outside"]])("rejects unsafe path %s before initialization", async (flag, value) => {
+    const c = await runInit([flag, value, "-y"]);
+    expect(c.initializer.initialize).not.toHaveBeenCalled();
+    expect(process.exit).toHaveBeenCalledWith(1);
+  });
+
+  it("recovers interrupted transactions before reading config", async () => {
+    const events: string[] = [];
+    const c = createMockContainer();
+    vi.mocked(c.initializer.recover).mockImplementation(async () => { events.push("recover"); });
+    vi.mocked(c.config.load).mockImplementation(async () => { events.push("load"); return null; });
+    await createInitCommand(c).parseAsync(["-y"], { from: "user" });
+    expect(events).toEqual(["recover", "load"]);
+  });
+
+  it("warns before applying a changed preset", async () => {
+    const c = createMockContainer({ config: existing(sampleConfig) });
+    vi.mocked(c.initializer.initialize).mockImplementation(async () => {
+      expect(output()).toContain("does not migrate existing feature source");
+      return { added: [], skipped: [], replaced: [] };
     });
+    await createInitCommand(c).parseAsync(["--preset", "mvvm", "-y"], { from: "user" });
+    expect(c.initializer.initialize).toHaveBeenCalled();
+  });
+
+  it("prints TCA dependency guidance before applying files", async () => {
+    const c = createMockContainer();
+    vi.mocked(c.initializer.initialize).mockImplementation(async () => {
+      expect(output()).toContain("TCA 1.26.1 requires Swift 6.1");
+      return { added: [], skipped: [], replaced: [] };
+    });
+    await createInitCommand(c).parseAsync(["--preset", "tca", "-y"], { from: "user" });
+    expect(process.exit).not.toHaveBeenCalled();
+  });
+
+  it("offers interactive selections with existing values as defaults", async () => {
+    const config = { ...sampleConfig, preset: "mvvm", navigation: true, offlineFirst: true };
+    const c = await runInit([], { config: existing(config) });
+    expect(p.select).toHaveBeenCalledWith(expect.objectContaining({ initialValue: "mvvm" }));
+    expect(p.confirm).toHaveBeenCalledWith(expect.objectContaining({ message: "Include navigation?", initialValue: true }));
+    expect(p.confirm).toHaveBeenCalledWith(expect.objectContaining({ message: "Include Offline-First Core?", initialValue: true }));
+    expect(c.initializer.initialize).toHaveBeenCalledWith(expect.objectContaining({ config: expect.objectContaining(config) }));
+  });
+
+  it("never prompts for explicitly negated capabilities", async () => {
+    await runInit(["--preset", "tca", "--no-navigation", "--no-offline-first"]);
+    expect(p.select).not.toHaveBeenCalled();
+    const messages = vi.mocked(p.confirm).mock.calls.map(([value]) => value.message);
+    expect(messages).not.toContain("Include navigation?");
+    expect(messages).not.toContain("Include Offline-First Core?");
+  });
+
+  it("cancels before any installation", async () => {
+    vi.mocked(p.select).mockResolvedValue(Symbol("cancelled"));
+    const c = await runInit([]);
+    expect(p.cancel).toHaveBeenCalled();
+    expect(c.initializer.initialize).not.toHaveBeenCalled();
+    expect(c.file.ensureDir).not.toHaveBeenCalled();
+  });
+
+  it("reports transaction failures without success output", async () => {
+    const c = createMockContainer();
+    vi.mocked(c.initializer.initialize).mockRejectedValue(new Error("disk full"));
+    await createInitCommand(c).parseAsync(["-y"], { from: "user" });
+    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(output()).toContain("disk full");
+    expect(output()).not.toContain("Project initialized!");
+  });
+
+  it.each([
+    ["native", "View owns local @State"], ["mvvm", "@MainActor @Observable"], ["tca", "TCA 1.26.1 requires Swift 6.1"],
+  ])("prints correct %s integration guidance", async (preset, hint) => {
+    await runInit(["--preset", preset, "--navigation", "--offline-first", "-y"]);
+    expect(output()).toContain(hint);
+    expect(output()).toContain("architecture-presets.md");
+    expect(output()).toContain("durable local adapter");
+    expect(output()).toContain(".environment(themeProvider)");
+    expect(output()).toContain(".withThemeTracking(themeProvider)");
+    if (preset === "tca") expect(output()).toContain("StackState and @Presents");
+  });
+
+  it.each(["-h", "--help"])("shows %s without initializing", async (flag) => {
+    const c = createMockContainer();
+    const program = createProgram(createInitCommand(c));
+    program.exitOverride(); program.commands.forEach((cmd) => cmd.exitOverride());
+    await expect(program.parseAsync(["node", "swiftcn", "init", flag])).rejects.toThrow();
+    expect(output()).toContain("Usage: swiftcn init [options]");
+    for (const option of ["--preset", "--navigation", "--no-navigation", "--offline-first", "--no-offline-first", "--path", "--sdui", "--force"]) expect(output()).toContain(option);
+    expect(c.initializer.initialize).not.toHaveBeenCalled();
+    expect(c.initializer.recover).not.toHaveBeenCalled();
   });
 });

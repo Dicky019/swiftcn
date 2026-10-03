@@ -31,6 +31,27 @@ swiftcn init
 swiftcn add button
 ```
 
+## Architecture Presets
+
+Configure an existing SwiftUI app with Native, MVVM, or TCA while keeping
+Domain and Application independent of presentation and infrastructure:
+
+```bash
+swiftcn init --preset native -y
+swiftcn init --preset mvvm --navigation -y
+swiftcn init --preset tca --navigation --offline-first -y
+```
+
+Native and MVVM navigation use the existing Router; TCA owns navigation in
+reducer state. Offline-First installs three shared sync files for any preset.
+Your feature supplies the durable local store, outbox and external gateway.
+Reruns preserve existing selections; disabling a capability leaves owned files intact.
+Init does not edit app entry points or project manifests, generate sample features,
+or install TCA. TCA recipes require Swift 6.1+ and TCA 1.26.1.
+
+See [architecture recipes](docs/architecture-presets.md) and
+[Offline-First integration](docs/offline-first.md).
+
 ## Theme Setup
 
 ```swift

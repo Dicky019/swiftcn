@@ -11,6 +11,7 @@ import type { GitService } from "../../services/GitService.js";
 import type { RegistryService } from "../../services/RegistryService.js";
 import type { ComponentWithId } from "../../types/registry.schema.js";
 import type { ProjectConfig } from "../../types/config.schema.js";
+import type { InitService } from "../../services/InitService.js";
 
 export const emptyFetchResult: FetchResult = { added: [], skipped: [] };
 
@@ -28,6 +29,9 @@ export const sampleConfig: ProjectConfig = {
   componentsPath: "Components",
   themePath: "Theme",
   prefix: "CN",
+  preset: "native",
+  navigation: false,
+  offlineFirst: false,
 };
 
 export const sampleConfigWithSdui: ProjectConfig = {
@@ -105,7 +109,12 @@ export function createMockContainer(
     getSduiFiles: vi.fn().mockResolvedValue([]),
   };
 
-  return { git, file, registry, config, fetcher, ...overrides };
+  const initializer: InitService = {
+    recover: vi.fn().mockResolvedValue(undefined),
+    initialize: vi.fn().mockResolvedValue({ ...themeFetchResult, replaced: [] }),
+  };
+
+  return { git, file, registry, config, fetcher, initializer, ...overrides };
 }
 
 /**

@@ -1,6 +1,12 @@
 import { z } from "zod";
 
+export const ArchitecturePresetSchema = z.enum(["native", "mvvm", "tca"]);
+export type ArchitecturePreset = z.infer<typeof ArchitecturePresetSchema>;
+
 export const InitOptionsSchema = z.object({
+  preset: ArchitecturePresetSchema.optional(),
+  navigation: z.boolean().optional(),
+  offlineFirst: z.boolean().optional(),
   path: z.string().default("Components"),
   themePath: z.string().default("Theme"),
   sdui: z.boolean().optional(),

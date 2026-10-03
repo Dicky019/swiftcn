@@ -3,46 +3,82 @@ import * as p from "@clack/prompts";
 import path from "node:path";
 import { resolveSecurePath } from "../utils/paths.js";
 import { ui } from "../utils/ui.js";
-import { InitOptionsSchema } from "../types/options.schema.js";
-import type { ProjectConfig } from "../types/config.schema.js";
+import { SOURCE_REF } from "../utils/constants.js";
+import { InitOptionsSchema, type ArchitecturePreset } from "../types/options.schema.js";
+import { projectConfigSchema, type ProjectConfig } from "../types/config.schema.js";
 import type { Container } from "../container.js";
+
+const INITIALIZATION_CANCELLED = Symbol("initialization-cancelled");
 
 function printInitHelp() {
   ui.header();
   ui.break();
   ui.line("Usage: swiftcn init [options]");
   ui.break();
-  ui.line("Initialize swiftcn in your project. Creates a swiftcn.json config");
-  ui.line("file, installs theme files, and optionally sets up SDUI.");
+  ui.line("Configure an existing SwiftUI project and install the selected foundations.");
+  ui.line("Theme files are always included. App.swift and project manifests stay yours.");
   ui.break();
-
   ui.section("Options");
   ui.break();
-  ui.command("-p, --path <path>      ", "Path to components directory (default: Components)");
-  ui.command("--theme-path <path>    ", "Path to theme directory (default: Theme)");
-  ui.command("--sdui                 ", "Include SDUI infrastructure");
-  ui.command("--sdui-path <path>     ", "Path to SDUI directory (default: SDUI)");
-  ui.command("-f, --force            ", "Overwrite existing theme and SDUI files");
-  ui.command("-y, --yes              ", "Skip prompts and use defaults");
-  ui.command("-h, --help             ", "Show help for init command");
+  ui.command("--preset <native|mvvm|tca>", "Architecture preset (default: native)");
+  ui.command("--navigation             ", "Include preset-appropriate navigation (opt-in)");
+  ui.command("--no-navigation          ", "Disable navigation in config without deleting files");
+  ui.command("--offline-first          ", "Install the external-system-agnostic sync core (opt-in)");
+  ui.command("--no-offline-first       ", "Disable Offline-First in config without deleting files");
+  ui.command("-p, --path <path>         ", "Components directory (default: Components)");
+  ui.command("--theme-path <path>       ", "Theme directory (default: Theme)");
+  ui.command("--sdui                    ", "Include SDUI infrastructure");
+  ui.command("--sdui-path <path>        ", "SDUI directory (default: SDUI; implies --sdui)");
+  ui.command("-f, --force               ", "Replace existing foundation files");
+  ui.command("-y, --yes                 ", "Skip prompts; preserve existing selections on rerun");
+  ui.command("-h, --help                ", "Show help for init command");
   ui.break();
-
   ui.section("Examples");
   ui.break();
-  ui.command("swiftcn init                       ", "Initialize with interactive prompts");
-  ui.command("swiftcn init -y                    ", "Initialize with all defaults");
-  ui.command("swiftcn init --sdui -y             ", "Initialize with SDUI, skip prompts");
-  ui.command("swiftcn init -f -y                 ", "Overwrite existing theme and SDUI files");
-  ui.command("swiftcn init -p App/Components     ", "Set custom components directory");
-  ui.command("swiftcn init --theme-path App/Theme", "Set custom theme directory");
-  ui.command("swiftcn init --sdui                ", "Include SDUI infrastructure");
-  ui.command("swiftcn init --sdui-path App/SDUI  ", "Set custom SDUI directory (implies --sdui)");
-  ui.command("swiftcn init -p App/Components --theme-path App/Theme --sdui-path App/SDUI", "Full custom paths");
+  ui.command("swiftcn init -y", "Initialize with Native and opt-out capabilities");
+  ui.command("swiftcn init --preset mvvm --navigation -y", "Install the existing SwiftUI Router");
+  ui.command("swiftcn init --preset tca --navigation -y", "Use TCA navigation state; installs no Router");
+  ui.command("swiftcn init --preset native --offline-first -y", "Install sync contracts, retry policy and coordinator");
+  ui.command("swiftcn init -p App/Components --theme-path App/Theme --sdui-path App/SDUI", "Use custom foundation paths");
   ui.break();
-
-  ui.hint("Theme files are always installed. SDUI is opt-in via --sdui or --sdui-path.");
-  ui.break();
+  ui.hint("Reruns preserve omitted options. --force replaces conflicts; otherwise files are skipped.");
   ui.end(`Run ${ui.accent("swiftcn add <component>")} after init to add components.`);
+}
+
+function printNextSteps(config: ProjectConfig) {
+  ui.section("Next steps");
+  ui.break();
+  ui.command("swiftcn add button", "Add your first component");
+  ui.command("swiftcn list", "Browse all components");
+  ui.break();
+  switch (config.preset) {
+    case "native":
+      ui.hint("View owns local @State and calls a use case directly; business rules stay in Domain.");
+      if (config.navigation) ui.hint("Own one Router<AppRoute> at the flow root and inject it into the environment.");
+      break;
+    case "mvvm":
+      ui.hint("An @MainActor @Observable ViewModel owns screen state and emits typed navigation outcomes.");
+      if (config.navigation) ui.hint("The flow owner validates outcomes and updates Router<AppRoute>.");
+      break;
+    case "tca":
+      ui.hint("The Store and reducer own presentation state, actions, and effects; use cases depend inward.");
+      if (config.navigation) ui.hint("Own navigation with StackState and @Presents in reducer state.");
+      break;
+  }
+  ui.line(`https://github.com/Dicky019/swiftcn/blob/${SOURCE_REF}/docs/architecture-presets.md#${config.preset}`);
+  if (config.offlineFirst) {
+    ui.hint("Integrate a durable local adapter and external gateway through your feature's SyncWorker.");
+    ui.line(`https://github.com/Dicky019/swiftcn/blob/${SOURCE_REF}/docs/offline-first.md`);
+  }
+  ui.break();
+  ui.hint("Add ThemeProvider to your App:");
+  ui.line("  @State private var themeProvider = ThemeProvider()");
+  ui.line("  ContentView()");
+  ui.line("      .environment(themeProvider)");
+  ui.line("      .withThemeTracking(themeProvider)");
+  ui.break();
+  ui.hint("Components are copied to your project — you own the code!");
+  ui.end("Happy coding!");
 }
 
 export function createInitCommand(container: Container): Command {
@@ -50,187 +86,104 @@ export function createInitCommand(container: Container): Command {
     .name("init")
     .description("Initialize swiftcn in your project")
     .helpOption("-h, --help", "Show help for init command")
+    .option("--preset <preset>", "Architecture preset: native, mvvm, or tca")
+    .option("--navigation", "Include preset-appropriate navigation")
+    .option("--no-navigation", "Disable navigation in config without deleting files")
+    .option("--offline-first", "Install the external-system-agnostic sync core")
+    .option("--no-offline-first", "Disable Offline-First in config without deleting files")
     .option("-p, --path <path>", "Path to components directory")
     .option("--theme-path <path>", "Path to theme directory")
     .option("--sdui", "Include SDUI infrastructure")
     .option("--sdui-path <path>", "Path to SDUI directory")
-    .option("-f, --force", "Overwrite existing theme and SDUI files")
-    .option("-y, --yes", "Skip prompts and use defaults")
+    .option("-f, --force", "Replace existing foundation files")
+    .option("-y, --yes", "Skip prompts and preserve existing selections")
     .action(async (rawOptions) => {
-      const options = InitOptionsSchema.parse(rawOptions);
-      const cwd = process.cwd();
-
       ui.header();
-
-      // Step 1: Check existing config
-      if (await container.config.exists(cwd) && !options.force) {
-        const shouldOverwrite = await p.confirm({
-          message: "swiftcn.json already exists. Overwrite?",
-          initialValue: false,
-        });
-
-        if (p.isCancel(shouldOverwrite) || !shouldOverwrite) {
-          p.cancel("Initialization cancelled.");
-          process.exit(0);
-        }
-      }
-
-      // Step 2: Gather configuration (CLI flags or interactive prompts)
-      // Detect explicitly passed flags (undefined = not passed)
-      const hasPath = !!rawOptions.path;
-      const hasThemePath = !!rawOptions.themePath;
-      const hasSduiPath = !!rawOptions.sduiPath;
-
-      let componentsPath = options.path;
-      let themePath = options.themePath;
-      let withSdui = options.sdui ?? hasSduiPath;
-      let sduiPath = options.sduiPath;
-
-      if (!options.yes) {
-        const answers = await p.group(
-          {
-            componentsPath: () =>
-              hasPath
-                ? Promise.resolve(componentsPath)
-                : p.text({
-                    message: "Where would you like to store components?",
-                    initialValue: componentsPath,
-                    validate: (value) => {
-                      if (!value) return "Path is required";
-                    },
-                  }),
-
-            themePath: () =>
-              hasThemePath
-                ? Promise.resolve(themePath)
-                : p.text({
-                    message: "Where would you like to store theme files?",
-                    initialValue: themePath,
-                    validate: (value) => {
-                      if (!value) return "Path is required";
-                    },
-                  }),
-
-            withSdui: () =>
-              withSdui
-                ? Promise.resolve(true)
-                : p.confirm({
-                    message: "Include SDUI infrastructure?",
-                    initialValue: false,
-                  }),
-
-            sduiPath: ({ results }) =>
-              results.withSdui && !hasSduiPath
-                ? p.text({
-                    message: "Where would you like to store SDUI files?",
-                    initialValue: sduiPath,
-                    validate: (value) => {
-                      if (!value) return "Path is required";
-                    },
-                  })
-                : Promise.resolve(sduiPath),
-          },
-          {
-            onCancel: () => {
-              p.cancel("Initialization cancelled.");
-              process.exit(0);
-            },
-          }
-        );
-
-        componentsPath = answers.componentsPath as string;
-        themePath = answers.themePath as string;
-        withSdui = answers.withSdui as boolean;
-        sduiPath = (answers.sduiPath as string | undefined) ?? sduiPath;
-      }
-
-      // Step 3: Create directories and install files
-      ui.break();
-      ui.step("Creating project structure...");
-      ui.break();
-
       try {
-        const fullComponentsPath = resolveSecurePath(cwd, componentsPath);
-        const fullThemePath = resolveSecurePath(cwd, themePath);
-        const fullSduiPath = withSdui
-          ? resolveSecurePath(cwd, sduiPath)
-          : undefined;
+        const options = InitOptionsSchema.parse(rawOptions);
+        const cwd = process.cwd();
+        await container.initializer.recover(cwd);
+        const loaded = await container.config.load(cwd);
+        const existing = loaded ? projectConfigSchema.parse(loaded) : null;
+        let componentsPath = rawOptions.path ?? existing?.componentsPath ?? options.path;
+        let themePath = rawOptions.themePath ?? existing?.themePath ?? options.themePath;
+        let sduiPath = rawOptions.sduiPath ?? existing?.sduiPath ?? options.sduiPath;
+        let withSdui = options.sdui ?? Boolean(rawOptions.sduiPath || existing?.sduiPath);
+        let preset = options.preset ?? existing?.preset ?? "native";
+        let navigation = options.navigation ?? existing?.navigation ?? false;
+        let offlineFirst = options.offlineFirst ?? existing?.offlineFirst ?? false;
 
-        await container.file.ensureDir(fullComponentsPath);
-        await container.file.ensureDir(fullThemePath);
-
-        ui.step("Installing theme files...");
-        ui.break();
-
-        const themeResult = await container.fetcher.fetchTheme(fullThemePath, {
-          force: options.force,
+        if (!options.yes) {
+          const answers = await p.group({
+            preset: () => options.preset !== undefined ? Promise.resolve(preset) : p.select({
+              message: "Which architecture preset?", initialValue: preset,
+              options: [
+                { value: "native", label: "Native", hint: "View owns local state" },
+                { value: "mvvm", label: "MVVM", hint: "Observable ViewModel owns screen state" },
+                { value: "tca", label: "TCA", hint: "Reducer owns state and effects; Swift 6.1+" },
+              ],
+            }),
+            componentsPath: () => rawOptions.path !== undefined ? Promise.resolve(componentsPath) : p.text({
+              message: "Where would you like to store components?", initialValue: componentsPath,
+              validate: (value) => !value ? "Path is required" : undefined,
+            }),
+            themePath: () => rawOptions.themePath !== undefined ? Promise.resolve(themePath) : p.text({
+              message: "Where would you like to store theme files?", initialValue: themePath,
+              validate: (value) => !value ? "Path is required" : undefined,
+            }),
+            withSdui: () => options.sdui !== undefined || rawOptions.sduiPath !== undefined
+              ? Promise.resolve(withSdui) : p.confirm({ message: "Include SDUI infrastructure?", initialValue: withSdui }),
+            sduiPath: ({ results }) => results.withSdui && rawOptions.sduiPath === undefined
+              ? p.text({ message: "Where would you like to store SDUI files?", initialValue: sduiPath,
+                  validate: (value) => !value ? "Path is required" : undefined })
+              : Promise.resolve(sduiPath),
+            navigation: () => options.navigation !== undefined ? Promise.resolve(navigation)
+              : p.confirm({ message: "Include navigation?", initialValue: navigation }),
+            offlineFirst: () => options.offlineFirst !== undefined ? Promise.resolve(offlineFirst)
+              : p.confirm({ message: "Include Offline-First Core?", initialValue: offlineFirst }),
+          }, { onCancel: () => {
+            p.cancel("Initialization cancelled.");
+            // Clack 0.7 continues the group if this callback returns.
+            throw INITIALIZATION_CANCELLED;
+          } });
+          if (p.isCancel(answers)) return;
+          componentsPath = answers.componentsPath;
+          themePath = answers.themePath;
+          withSdui = answers.withSdui;
+          sduiPath = answers.sduiPath;
+          preset = answers.preset as ArchitecturePreset;
+          navigation = answers.navigation;
+          offlineFirst = answers.offlineFirst;
+        }
+        resolveSecurePath(cwd, componentsPath);
+        resolveSecurePath(cwd, themePath);
+        if (withSdui) resolveSecurePath(cwd, sduiPath);
+        const config = projectConfigSchema.parse({
+          ...existing, componentsPath, themePath, sduiPath: withSdui ? sduiPath : undefined,
+          preset, navigation, offlineFirst,
         });
-
-        for (const file of themeResult.added) {
-          ui.fileAdded(path.relative(cwd, file));
+        if (existing && existing.preset !== config.preset) {
+          ui.hint(`Changing preset from ${existing.preset} to ${config.preset} does not migrate existing feature source.`);
         }
-
-        for (const file of themeResult.skipped ?? []) {
-          ui.fileExists(path.relative(cwd, file));
+        if (config.preset === "tca") {
+          ui.hint("TCA 1.26.1 requires Swift 6.1+. Add the dependency in your project before using the recipe.");
         }
-
         ui.break();
-
-        if (withSdui && fullSduiPath) {
-          await container.file.ensureDir(fullSduiPath);
-
-          ui.step("Installing SDUI files...");
-          ui.break();
-
-          const sduiResult = await container.fetcher.fetchSdui(fullSduiPath, {
-            force: options.force,
-          });
-
-          for (const file of sduiResult.added) {
-            ui.fileAdded(path.relative(cwd, file));
-          }
-
-          for (const file of sduiResult.skipped ?? []) {
-            ui.fileExists(path.relative(cwd, file));
-          }
-
-          ui.break();
-        }
-
-        // Step 4: Write config file
-        const config: ProjectConfig = {
-          componentsPath,
-          themePath,
-          sduiPath: withSdui ? sduiPath : undefined,
-          prefix: "CN",
-        };
-
-        ui.step("Installing Swiftcn Config...");
-        await container.config.write(config, cwd);
-        ui.break();
-        ui.fileAdded("swiftcn.json");
-
-        // Step 5: Success message and next steps
+        ui.step("Installing selected foundations...");
+        const result = await container.initializer.initialize({
+          cwd, config, includeSdui: Boolean(config.sduiPath),
+          includeNavigationRouter: config.navigation && config.preset !== "tca",
+          includeOfflineFirst: config.offlineFirst, force: options.force,
+        });
+        for (const file of result.added) ui.fileAdded(path.relative(cwd, file));
+        for (const file of result.replaced) ui.line(`Replaced ${path.relative(cwd, file)}`);
+        for (const file of result.skipped) ui.fileExists(path.relative(cwd, file));
         ui.break();
         ui.success("Project initialized!");
         ui.break();
-        ui.section("Next steps");
-        ui.break();
-        ui.command("swiftcn add button", "Add your first component");
-        ui.command("swiftcn list      ", "Browse all components");
-        ui.break();
-        ui.hint("Add ThemeProvider to your App:");
-        ui.break();
-        ui.line("  @State private var themeProvider = ThemeProvider()");
-        ui.break();
-        ui.line("  ContentView()");
-        ui.line("      .environment(themeProvider)");
-        ui.line("      .withThemeTracking(themeProvider)");
-        ui.break();
-        ui.hint("Components are copied to your project — you own the code!");
-        ui.break();
-        ui.end("Happy coding!");
+        printNextSteps(config);
       } catch (error) {
+        if (error === INITIALIZATION_CANCELLED) return;
         ui.error("Failed to initialize project");
         ui.line(error instanceof Error ? error.message : String(error));
         ui.end();
@@ -238,11 +191,6 @@ export function createInitCommand(container: Container): Command {
       }
     });
 
-  cmd.configureOutput({
-    writeOut: () => {
-      printInitHelp();
-    },
-  });
-
+  cmd.configureOutput({ writeOut: () => { printInitHelp(); } });
   return cmd;
 }

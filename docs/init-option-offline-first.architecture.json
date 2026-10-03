@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Opsi Offline-First — Clean Architecture",
+    "output": "init-option-offline-first.html",
+    "quality_profile": "showcase",
+    "viewBox": [1360, 780]
+  },
+  "components": [
+    { "id": "offlinePresentation", "type": "frontend", "label": "Preset Presentation", "sublabel": "Native / MVVM / TCA", "pos": [40, 290], "size": [180, 72] },
+    { "id": "offlineNavigation", "type": "cloud", "label": "Navigation", "sublabel": "Router<Route> / TCA state", "pos": [40, 80], "size": [180, 72], "tag": "orthogonal" },
+    { "id": "offlineUseCase", "type": "backend", "label": "Feature Use Cases", "sublabel": "Local-first read & write", "pos": [310, 290], "size": [180, 72] },
+    { "id": "offlineRepositoryPort", "type": "security", "label": "Repository Port", "sublabel": "Atomic local contract", "pos": [590, 290], "size": [180, 72] },
+    { "id": "offlineLocalAdapter", "type": "database", "label": "Local Adapter", "sublabel": "Entity + outbox + cursor", "pos": [870, 290], "size": [190, 72] },
+    { "id": "offlineLocalStore", "type": "database", "label": "Durable Local Store", "sublabel": "Source of truth", "pos": [1140, 290], "size": [190, 72] },
+    { "id": "offlineTriggers", "type": "external", "label": "Sync Triggers", "sublabel": "Lifecycle, manual, connectivity hint", "pos": [40, 530], "size": [200, 72] },
+    { "id": "offlineCoordinator", "type": "backend", "label": "SyncCoordinator Actor", "sublabel": "Single-flight + retry schedule", "pos": [310, 530], "size": [200, 72] },
+    { "id": "offlineWorker", "type": "backend", "label": "Feature Sync Worker", "sublabel": "Push, pull & reconciliation", "pos": [590, 530], "size": [190, 72] },
+    { "id": "offlineGatewayPort", "type": "security", "label": "External Gateway Port", "sublabel": "Accepted / retry / conflict", "pos": [590, 680], "size": [190, 72] },
+    { "id": "offlineGatewayAdapter", "type": "cloud", "label": "External Gateway Adapter", "sublabel": "API / CloudKit / sync SDK", "pos": [870, 530], "size": [210, 72] },
+    { "id": "offlineExternal", "type": "external", "label": "External Systems", "sublabel": "Backend or vendor service", "pos": [1150, 530], "size": [180, 72] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Presentation", "wraps": ["offlinePresentation", "offlineNavigation"] },
+    { "kind": "region", "label": "Feature Application", "wraps": ["offlineUseCase", "offlineRepositoryPort"] },
+    { "kind": "region", "label": "Shared Sync Core", "wraps": ["offlineCoordinator", "offlineWorker", "offlineGatewayPort"] },
+    { "kind": "region", "label": "Infrastructure", "wraps": ["offlineLocalAdapter", "offlineGatewayAdapter"] }
+  ],
+  "connections": [
+    { "id": "offlineIntent", "from": "offlinePresentation", "to": "offlineUseCase", "label": "intent" },
+    { "id": "offlineLocalContract", "from": "offlineUseCase", "to": "offlineRepositoryPort", "label": "local-first" },
+    { "id": "offlineLocalImplementation", "from": "offlineLocalAdapter", "to": "offlineRepositoryPort", "label": "implements", "variant": "dashed" },
+    { "id": "offlineTransaction", "from": "offlineLocalAdapter", "to": "offlineLocalStore", "label": "commit" },
+    { "id": "offlineTrigger", "from": "offlineTriggers", "to": "offlineCoordinator", "label": "request pass" },
+    { "id": "offlineDrain", "from": "offlineCoordinator", "to": "offlineWorker", "label": "one pass" },
+    { "id": "offlineReconcile", "from": "offlineWorker", "to": "offlineRepositoryPort", "label": "apply + checkpoint", "fromSide": "top", "toSide": "bottom" },
+    { "id": "offlineRemoteContract", "from": "offlineWorker", "to": "offlineGatewayPort", "label": "stable operation ID", "labelAt": [685, 616] },
+    { "id": "offlineRemoteImplementation", "from": "offlineGatewayAdapter", "to": "offlineGatewayPort", "label": "implements", "variant": "dashed" },
+    { "id": "offlineRemoteIO", "from": "offlineGatewayAdapter", "to": "offlineExternal", "label": "I/O" },
+    { "id": "offlineNavigate", "from": "offlinePresentation", "to": "offlineNavigation", "label": "stable entity ID" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Local source of truth", "items": ["UI selalu membaca snapshot lokal", "Entity + outbox + cursor disimpan dalam satu transaksi"] },
+    { "dot": "amber", "title": "Sync yang aman", "items": ["Stable operation ID, capped backoff + jitter, durable retry", "Conflict dan tombstone policy dimiliki feature/domain"] },
+    { "dot": "emerald", "title": "Agnostic", "items": ["Core tidak mengimpor SwiftUI, TCA, database, network, Router, atau SDK", "Satu adapter menguasai retry; background sync bersifat best effort"] }
+  ]
+}

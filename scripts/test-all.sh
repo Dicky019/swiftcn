@@ -31,6 +31,10 @@ echo "=== Sync Source Test ==="
 "$SCRIPT_DIR/test-sync-source.sh"
 
 echo ""
+echo "=== Architecture Preset Tests ==="
+"$SCRIPT_DIR/test-architecture-presets.sh" "${PASSTHROUGH_ARGS[@]:-}"
+
+echo ""
 echo "=== Example Tests ==="
 "$SCRIPT_DIR/test-example.sh" "${PASSTHROUGH_ARGS[@]:-}"
 

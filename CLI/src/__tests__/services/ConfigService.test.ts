@@ -23,6 +23,9 @@ describe("ConfigServiceImpl", () => {
     componentsPath: "Sources/Components",
     themePath: "Sources/Theme",
     prefix: "CN",
+    preset: "native",
+    navigation: false,
+    offlineFirst: false,
   };
 
   describe("load", () => {

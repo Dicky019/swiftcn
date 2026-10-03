@@ -4,6 +4,36 @@ import {
   AddOptionsSchema,
   ListOptionsSchema,
 } from "../../types/options.schema.js";
+import { projectConfigSchema } from "../../types/config.schema.js";
+
+describe("architecture options", () => {
+  it.each(["native", "mvvm", "tca"])("accepts preset %s", (preset) => {
+    expect(InitOptionsSchema.parse({ preset }).preset).toBe(preset);
+  });
+
+  it("rejects unknown presets", () => {
+    expect(() => InitOptionsSchema.parse({ preset: "viper" })).toThrow();
+  });
+
+  it.each(["navigation", "offlineFirst"])("keeps %s tri-state", (flag) => {
+    expect(InitOptionsSchema.parse({})[flag as "navigation"]).toBeUndefined();
+    for (const value of [true, false]) {
+      expect(InitOptionsSchema.parse({ [flag]: value })[flag as "navigation"]).toBe(value);
+    }
+  });
+
+  it("defaults legacy configuration safely", () => {
+    expect(projectConfigSchema.parse({ componentsPath: "Components" })).toEqual({
+      componentsPath: "Components", prefix: "CN", preset: "native",
+      navigation: false, offlineFirst: false,
+    });
+  });
+
+  it.each(["native", "mvvm", "tca"])("round trips %s capabilities", (preset) => {
+    const config = { componentsPath: "App/UI", prefix: "CN", preset, navigation: true, offlineFirst: true };
+    expect(projectConfigSchema.parse(JSON.parse(JSON.stringify(config)))).toEqual(config);
+  });
+});
 
 describe("InitOptionsSchema", () => {
   it("applies defaults when no options provided", () => {

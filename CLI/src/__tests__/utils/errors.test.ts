@@ -30,5 +30,7 @@ describe("ErrorCode", () => {
     expect(ErrorCode.GIT_CLONE_FAILED).toBe("GIT_CLONE_FAILED");
     expect(ErrorCode.FILE_COPY_FAILED).toBe("FILE_COPY_FAILED");
     expect(ErrorCode.REGISTRY_LOAD_FAILED).toBe("REGISTRY_LOAD_FAILED");
+    expect(ErrorCode.INIT_ALREADY_RUNNING).toBe("INIT_ALREADY_RUNNING");
+    expect(ErrorCode.INIT_TRANSACTION_FAILED).toBe("INIT_TRANSACTION_FAILED");
   });
 });

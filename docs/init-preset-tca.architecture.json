@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Preset TCA — Clean Architecture",
+    "output": "init-preset-tca.html",
+    "quality_profile": "showcase",
+    "viewBox": [1360, 780]
+  },
+  "components": [
+    { "id": "tcaView", "type": "frontend", "label": "SwiftUI View", "sublabel": "Render state & kirim action", "pos": [40, 310], "size": [170, 72] },
+    { "id": "tcaStore", "type": "frontend", "label": "Store", "sublabel": "State ownership", "pos": [260, 310], "size": [150, 72] },
+    { "id": "tcaReducer", "type": "frontend", "label": "Feature Reducer", "sublabel": "State, Action, Effect", "pos": [460, 310], "size": [180, 72], "tag": "TCA adapter" },
+    { "id": "tcaUseCase", "type": "backend", "label": "Use Case", "sublabel": "Orkestrasi aplikasi", "pos": [710, 310], "size": [170, 72] },
+    { "id": "tcaDomain", "type": "backend", "label": "Domain Rules", "sublabel": "Entity & business invariant", "pos": [1000, 310], "size": [190, 72], "tag": "pure Swift" },
+    { "id": "tcaClient", "type": "security", "label": "Dependency Client", "sublabel": "Kontrak efek milik layer dalam", "pos": [450, 520], "size": [200, 72] },
+    { "id": "tcaAdapter", "type": "database", "label": "Live Adapter", "sublabel": "API / persistence implementation", "pos": [790, 520], "size": [190, 72] },
+    { "id": "tcaExternal", "type": "external", "label": "External Systems", "sublabel": "Network, database, SDK", "pos": [1060, 520], "size": [190, 72] },
+    { "id": "tcaNavigation", "type": "cloud", "label": "TCA Navigation State", "sublabel": "StackState + @Presents", "pos": [40, 520], "size": [190, 72], "tag": "PR #7: no Router" },
+    { "id": "tcaRoot", "type": "cloud", "label": "Composition Root", "sublabel": "Store + live dependencies", "pos": [220, 100], "size": [190, 72] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Presentation", "wraps": ["tcaView", "tcaStore", "tcaReducer", "tcaNavigation"] },
+    { "kind": "region", "label": "Application", "wraps": ["tcaUseCase", "tcaClient"] },
+    { "kind": "region", "label": "Domain", "wraps": ["tcaDomain"] },
+    { "kind": "region", "label": "Infrastructure", "wraps": ["tcaAdapter"] }
+  ],
+  "connections": [
+    { "id": "tcaAction", "from": "tcaView", "to": "tcaStore", "label": "action" },
+    { "id": "tcaReduce", "from": "tcaStore", "to": "tcaReducer", "label": "reduce" },
+    { "id": "tcaExecute", "from": "tcaReducer", "to": "tcaUseCase", "label": "execute" },
+    { "id": "tcaRules", "from": "tcaUseCase", "to": "tcaDomain", "variant": "emphasis" },
+    { "id": "tcaDependency", "from": "tcaReducer", "to": "tcaClient", "label": "efek terstruktur", "fromSide": "bottom", "toSide": "top", "labelAt": [550, 396] },
+    { "id": "tcaImplements", "from": "tcaAdapter", "to": "tcaClient", "label": "live implementation", "variant": "dashed" },
+    { "id": "tcaIO", "from": "tcaAdapter", "to": "tcaExternal", "label": "I/O" },
+    { "id": "tcaNavigate", "from": "tcaReducer", "to": "tcaNavigation", "fromSide": "left", "toSide": "right" },
+    { "id": "tcaWire", "from": "tcaRoot", "to": "tcaStore", "variant": "dashed", "fromSide": "bottom", "toSide": "top" }
+  ],
+  "cards": [
+    { "dot": "rose", "title": "Cocok untuk", "items": ["State-heavy SwiftUI apps dan alur efek kompleks", "Business flow yang memerlukan determinisme serta testability tinggi"] },
+    { "dot": "emerald", "title": "Clean + Navigation", "items": ["TCA berhenti di Presentation/Application adapter", "Navigation memakai StackState/@Presents; Router PR #7 tidak dipasang"] }
+  ]
+}
